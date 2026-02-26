@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Bhuban Video Streaming Platform",
   "scripts": {
-    "build": "echo 'No build needed - static HTML'"
+    "build": "exit 0"
   },
   "keywords": ["video", "streaming", "youtube"],
   "author": "Bhuban",
