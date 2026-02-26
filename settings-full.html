@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Bhuban</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .settings-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 24px 24px;
+            gap: 40px;
+        }
+
+        .settings-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+        .settings-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding: 0 12px;
+        }
+
+        .settings-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .settings-nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .settings-nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-nav-item.active {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+        }
+
+        .settings-content {
+            max-width: 800px;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .section-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-row-label {
+            flex: 1;
+        }
+
+        .settings-row-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .settings-row-desc {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #555;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.on {
+            background: #3ea6ff;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.on .toggle-slider {
+            left: 22px;
+        }
+
+        .select-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background: #ff3b30;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #ff5545;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .profile-info h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-container {
+                grid-template-columns: 1fr;
+                padding: 60px 16px 16px;
+            }
+
+            .settings-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="settings-container">
+        <!-- Sidebar -->
+        <div class="settings-sidebar">
+            <h1 class="settings-title">Settings</h1>
+            <nav class="settings-nav">
+                <div class="settings-nav-item active" onclick="showSection('account')">
+                    <i data-lucide="user"></i>
+                    Account
+                </div>
+                <div class="settings-nav-item" onclick="showSection('notifications')">
+                    <i data-lucide="bell"></i>
+                    Notifications
+                </div>
+                <div class="settings-nav-item" onclick="showSection('playback')">
+                    <i data-lucide="play-circle"></i>
+                    Playback and performance
+                </div>
+                <div class="settings-nav-item" onclick="showSection('downloads')">
+                    <i data-lucide="download"></i>
+                    Downloads
+                </div>
+                <div class="settings-nav-item" onclick="showSection('privacy')">
+                    <i data-lucide="shield"></i>
+                    Privacy
+                </div>
+                <div class="settings-nav-item" onclick="showSection('connected')">
+                    <i data-lucide="link"></i>
+                    Connected apps
+                </div>
+                <div class="settings-nav-item" onclick="showSection('billing')">
+                    <i data-lucide="credit-card"></i>
+                    Billing and payments
+                </div>
+                <div class="settings-nav-item" onclick="showSection('advanced')">
+                    <i data-lucide="settings"></i>
+                    Advanced settings
+                </div>
+            </nav>
+        </div>
+
+        <!-- Content -->
+        <div class="settings-content">
+            <!-- Account Section -->
+            <div class="settings-section active" id="account">
+                <h2 class="section-header">Account</h2>
+                <p class="section-description">Choose how you appear and what you see on Bhuban</p>
+
+                <div class="settings-card">
+                    <div class="profile-section">
+                        <div class="profile-avatar">U</div>
+                        <div class="profile-info">
+                            <h3>User Name</h3>
+                            <p>user@example.com</p>
+                        </div>
+                    </div>
+                    <button class="btn-secondary">Manage your account</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Your Bhuban channel</h3>
+                    <p style="color:#aaa; margin-bottom:16px;">This is your public presence on Bhuban. You need a
+                        channel to upload your own videos, comment on videos, or create playlists.</p>
+                    <button class="btn-primary">Create a new channel</button>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="settings-section" id="notifications">
+                <h2 class="section-header">Notifications</h2>
+                <p class="section-description">Choose when and how to be notified</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Desktop notifications</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Subscriptions</div>
+                            <div class="settings-row-desc">Notify me about activity from channels I'm subscribed to
+                            </div>
+                        </div>
+                        <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Recommended videos</div>
+                            <div class="settings-row-desc">Notify me of videos I might like</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Email notifications</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Send me emails about my Bhuban activity</div>
+                        </div>
+                        <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Playback Section -->
+            <div class="settings-section" id="playback">
+                <h2 class="section-header">Playback and performance</h2>
+                <p class="section-description">Manage how videos play on your device</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Playback</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Annotations and cards</div>
+                            <div class="settings-row-desc">Show annotations and cards on videos</div>
+                        </div>
+                        <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <label for="playbackQuality" class="settings-row-title" style="display:block;">Playback
+                                quality</label>
+                            <div class="settings-row-desc">Choose your preferred video quality</div>
+                        </div>
+                        <select id="playbackQuality" name="playbackQuality" class="select-box">
+                            <option>Auto (recommended)</option>
+                            <option>4K (2160p)</option>
+                            <option>2K (1440p)</option>
+                            <option>HD (1080p)</option>
+                            <option>HD (720p)</option>
+                            <option>SD (480p)</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Stable Volume</div>
+                            <div class="settings-row-desc">Reduce loud sounds</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Ambient mode</div>
+                            <div class="settings-row-desc">Subtle lighting effect around the video player</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Downloads Section -->
+            <div class="settings-section" id="downloads">
+                <h2 class="section-header">Downloads</h2>
+                <p class="section-description">Manage your downloaded videos</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Download settings</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <label for="downloadQuality" class="settings-row-title" style="display:block;">Download
+                                quality</label>
+                        </div>
+                        <select id="downloadQuality" name="downloadQuality" class="select-box">
+                            <option>1080p</option>
+                            <option>720p</option>
+                            <option>480p</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Only download over Wi-Fi</div>
+                        </div>
+                        <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Section -->
+            <div class="settings-section" id="privacy">
+                <h2 class="section-header">Privacy</h2>
+                <p class="section-description">Manage your privacy settings</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Privacy settings</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Keep all my subscriptions private</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Keep all my saved playlists private</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Pause watch history</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Manage data</h3>
+                    <button class="btn-secondary" style="margin-right:12px;">Clear watch history</button>
+                    <button class="btn-secondary">Clear search history</button>
+                </div>
+            </div>
+
+            <!-- Connected Apps Section -->
+            <div class="settings-section" id="connected">
+                <h2 class="section-header">Connected apps</h2>
+                <p class="section-description">Manage apps connected to your Bhuban account</p>
+
+                <div class="settings-card">
+                    <p style="color:#aaa;">No apps connected</p>
+                </div>
+            </div>
+
+            <!-- Billing Section -->
+            <div class="settings-section" id="billing">
+                <h2 class="section-header">Billing and payments</h2>
+                <p class="section-description">Manage your payment methods and subscriptions</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Payment methods</h3>
+                    <p style="color:#aaa; margin-bottom:16px;">No payment methods added</p>
+                    <button class="btn-primary">Add payment method</button>
+                </div>
+            </div>
+
+            <!-- Advanced Section -->
+            <div class="settings-section" id="advanced">
+                <h2 class="section-header">Advanced settings</h2>
+                <p class="section-description">Additional settings and options</p>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Advanced</h3>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Enable developer mode</div>
+                            <div class="settings-row-desc">Access experimental features</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-label">
+                            <div class="settings-row-title">Hardware acceleration</div>
+                            <div class="settings-row-desc">Use hardware acceleration when available</div>
+                        </div>
+                        <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Account actions</h3>
+                    <button class="btn-secondary" style="color:#ff3b30; border-color:#ff3b30;">Delete account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active from all nav items
+            document.querySelectorAll('.settings-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active to clicked nav item
+            event.target.closest('.settings-nav-item').classList.add('active');
+        }
+
+        function toggleSwitch(element) {
+            element.classList.toggle('on');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,4595 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Version 3.5 - CSS Fix - Last Updated: 2026-02-18 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Bhuban | Premium Video Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Shared Configuration and Auth Service -->
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="/shared/auth-sync.js"></script>
+    <script src="/shared/theme-manager.js"></script>
+    <script src="video-identification-rules.js"></script>
+    <script src="auth-check.js"></script>
+    <script>
+        // Global logout function
+        function logout() {
+            AuthService.logout();
+        }
+    </script>
+    <script src="advanced-viewer-features.js?v=3.5"></script>
+    <style>
+        :root {
+            /* Light Theme - Vibrant Sunset */
+            --bg-primary: #fff8f0;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 107, 107, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 200, 150, 0.4);
+            --accent-primary: #ff6b35;
+            --accent-secondary: #f7931e;
+            --accent-pink: #ff006e;
+            --accent-red: #e63946;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --text-primary: #2d1b14;
+            --text-secondary: #8b6b5d;
+            --border-color: rgba(255, 107, 107, 0.25);
+            --shadow-color: rgba(255, 107, 107, 0.2);
+            --glow-color: rgba(255, 107, 107, 0.35);
+            --success: #06d6a0;
+            --warning: #ffd60a;
+            --error: #e63946;
+            --sidebar-bg: linear-gradient(180deg, #ff6b35 0%, #ff006e 100%);
+            --sidebar-text: #ffffff;
+            --theme-icon: '🌙';
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme - Neon Sunset */
+            --bg-primary: #1a0f0a;
+            --bg-secondary: rgba(45, 27, 20, 0.7);
+            --bg-card: rgba(45, 27, 20, 0.5);
+            --bg-hover: rgba(255, 107, 107, 0.2);
+            --glass-bg: rgba(45, 27, 20, 0.6);
+            --glass-border: rgba(255, 107, 107, 0.25);
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --glow-color: rgba(255, 0, 110, 0.5);
+            --sidebar-bg: linear-gradient(180deg, #1a0f0a 0%, #2d1b14 50%, #ff006e 100%);
+            --sidebar-text: #ffd60a;
+            --theme-icon: '☀️';
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* Animated Background - Sunset Gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 10% 90%, rgba(255, 107, 53, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 10%, rgba(255, 0, 110, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 214, 10, 0.15) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 80%, rgba(230, 57, 70, 0.2) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: -1;
+            animation: backgroundPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1) rotate(0deg);
+            }
+
+            33% {
+                opacity: 0.9;
+                transform: scale(1.08) rotate(2deg);
+            }
+
+            66% {
+                opacity: 0.7;
+                transform: scale(1.05) rotate(-1deg);
+            }
+        }
+
+        /* Multi-color Animated Border */
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b35, #ff006e, #ffd60a, #ff6b35);
+            background-size: 300% 100%;
+            border-radius: 3px;
+            animation: borderFlow 4s linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes borderFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 300% 50%;
+            }
+        }
+
+        .header {
+            position: fixed;
+            top: 16px;
+            left: 24px;
+            right: 24px;
+            height: 64px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .header:hover {
+            box-shadow: 0 12px 48px var(--glow-color);
+            border-color: var(--accent-primary);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .header-btn {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .header-btn:active {
+            transform: scale(0.95);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            letter-spacing: -1px;
+            position: relative;
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.5)) drop-shadow(0 0 40px rgba(255, 0, 110, 0.3));
+                transform: scale(1);
+            }
+
+            33% {
+                filter: drop-shadow(0 0 30px rgba(255, 0, 110, 0.6)) drop-shadow(0 0 50px rgba(255, 214, 10, 0.4));
+                transform: scale(1.02);
+            }
+
+            66% {
+                filter: drop-shadow(0 0 25px rgba(255, 214, 10, 0.5)) drop-shadow(0 0 45px rgba(255, 107, 53, 0.4));
+                transform: scale(1.01);
+            }
+        }
+
+        /* Enhanced Interactive Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-up {
+            0% {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes rotate-slow {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(-5deg);
+            }
+
+            75% {
+                transform: rotate(5deg);
+            }
+        }
+
+        /* Interactive Button Effects */
+        .interactive-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .interactive-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .interactive-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .interactive-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .interactive-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* Magnetic Button Effect */
+        .magnetic-btn {
+            transition: transform 0.2s ease-out;
+        }
+
+        /* Card Hover Effects */
+        .hover-lift {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Glass Shimmer Effect */
+        .glass-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        /* Particle Container */
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-particle 15s infinite;
+        }
+
+        @keyframes float-particle {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 107, 53, 0.3);
+            border-top-color: #ff6b35;
+            border-radius: 50%;
+            animation: rotate-slow 1s linear infinite;
+        }
+
+        /* Tooltip Styles */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            padding: 8px 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            z-index: 10000;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        /* Scroll Progress Bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent-gradient);
+            z-index: 10001;
+            transition: width 0.1s ease;
+        }
+
+        /* Cursor Effects */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Neon Text Effect */
+        .neon-text {
+            text-shadow:
+                0 0 5px rgba(255, 107, 53, 0.8),
+                0 0 10px rgba(255, 107, 53, 0.5),
+                0 0 20px rgba(255, 0, 110, 0.5),
+                0 0 40px rgba(255, 0, 110, 0.3);
+            animation: neon-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes neon-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+            transition: width 0.3s ease;
+        }
+
+        .logo:hover::after {
+            width: 100%;
+        }
+
+        .header-center {
+            flex: 1;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 40px;
+        }
+
+        .search-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(232, 90, 79, 0.15);
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-btn {
+            background: #222;
+            border: none;
+            border-left: 1px solid #303030;
+            padding: 0 24px;
+            height: 40px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .search-btn:hover {
+            background: #333;
+        }
+
+        .voice-btn {
+            background: #181818;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .user-avatar:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 24px;
+            top: 96px;
+            width: 240px;
+            height: calc(100vh - 120px);
+            background: var(--sidebar-bg);
+            overflow-y: auto;
+            padding: 20px 0;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px var(--shadow-color);
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-260px);
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 24px;
+            margin: 6px 12px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: linear-gradient(90deg, rgba(255, 214, 10, 0.3), transparent);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-link:hover::before {
+            width: 100%;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffd60a;
+            opacity: 1;
+            transform: translateX(5px);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 0, 110, 0.9));
+            color: #ffffff;
+            opacity: 1;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .sidebar-link.active i {
+            color: #ffd60a;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 12px 16px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 96px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-content.expanded {
+            margin-left: 24px;
+        }
+
+        .status-banner {
+            background: var(--accent-gradient);
+            color: #fff;
+            padding: 20px 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Shorts Container Styles */
+        #shortsContainer {
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) transparent;
+        }
+
+        #shortsContainer::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        #shortsContainer::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        #shortsContainer::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        #shortsContainer::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        .video-card {
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 24px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .video-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), rgba(255, 0, 110, 0.2), rgba(255, 214, 10, 0.3), transparent);
+            transition: left 0.6s;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .video-card:hover::before {
+            left: 100%;
+        }
+
+        .video-card::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a, #ff6b35);
+            background-size: 400% 400%;
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: gradientRotate 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .video-card:hover::after {
+            opacity: 1;
+        }
+
+        @keyframes gradientRotate {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 48px var(--glow-color);
+            border-color: var(--accent-primary);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-hover);
+            overflow: hidden;
+        }
+        
+        /* Shorts thumbnails - vertical aspect ratio with !important to override */
+        .video-card[data-is-short="true"] .video-thumbnail {
+            aspect-ratio: 9/16 !important;
+            max-height: 400px !important;
+            background: #000 !important;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        /* Shorts thumbnails use contain to show full vertical image */
+        .video-card[data-is-short="true"] .video-thumbnail img {
+            object-fit: contain !important;
+        }
+
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .video-info {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .video-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .video-details h3 {
+            font-size: 15px;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            font-weight: 600;
+        }
+
+        .video-details p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .video-details h3 {
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Upload Button */
+        .upload-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(232, 90, 79, 0.35);
+        }
+
+        /* Search Button */
+        .search-btn {
+            background: var(--bg-hover);
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Status Banner */
+        .status-banner {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            background-size: 200% 200%;
+            color: #ffffff;
+            padding: 24px 32px;
+            border-radius: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 16px 48px rgba(255, 107, 53, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: bannerPulse 3s ease-in-out infinite, gradientShift 5s ease infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+            animation: shimmerRotate 8s linear infinite;
+        }
+
+        @keyframes bannerPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 16px 48px rgba(255, 107, 53, 0.4);
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 24px 64px rgba(255, 0, 110, 0.5), 0 0 80px rgba(255, 214, 10, 0.3);
+                transform: scale(1.01);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes shimmerRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px var(--shadow-color);
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 0 8px 24px var(--glow-color);
+            border-color: var(--accent-primary);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fabGradient 3s ease infinite;
+        }
+
+        .fab:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 12px 48px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 0, 110, 0.4);
+        }
+
+        .fab::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #ff6b35, #ffd60a, #ff006e, #ff6b35);
+            background-size: 400% 400%;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: gradientRotate 2s linear infinite;
+        }
+
+        .fab:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes fabGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--bg-hover) 25%, var(--glass-bg) 50%, var(--bg-hover) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Particle Effect Container */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 15s infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .particle:nth-child(4n+1) {
+            background: #ff6b35;
+            color: #ff6b35;
+        }
+
+        .particle:nth-child(4n+2) {
+            background: #ff006e;
+            color: #ff006e;
+        }
+
+        .particle:nth-child(4n+3) {
+            background: #ffd60a;
+            color: #ffd60a;
+        }
+
+        .particle:nth-child(4n) {
+            background: #e63946;
+            color: #e63946;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.4;
+            }
+
+            90% {
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(720deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Content Tabs */
+        .content-tab {
+            background: none;
+            border: none;
+            padding: 16px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .content-tab.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+        
+        .content-tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Shorts Container Specific Styles - YouTube Style */
+        #shortsContainer {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 16px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        #shortsContainer::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        #shortsContainer::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #shortsContainer::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        #shortsContainer::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Short Card Hover Effects */
+        .short-card {
+            transition: all 0.3s ease;
+        }
+        
+        .short-card:active {
+            transform: scale(0.98);
+        }
+        
+        .categories-container {
+            display: flex;
+            gap: 12px;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .categories-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-chip {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-chip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .category-chip:hover::before {
+            width: 100px;
+            height: 100px;
+        }
+
+        .category-chip:hover {
+            background: var(--accent-gradient);
+            color: white;
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .category-chip:active {
+            transform: translateY(-2px) scale(0.95);
+        }
+
+        .category-chip.active {
+            background: var(--accent-gradient);
+            color: white;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 20px 10px rgba(255, 107, 53, 0.2);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+
+<header class="header">
+    <div class="header-left">
+        <button class="header-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+            <i class="fas fa-bars" style="font-size:20px;"></i>
+        </button>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <i class="fas fa-play" style="font-size:24px;"></i>
+            <span>BHUBAN</span>
+        </div>
+    </div>
+
+    <div class="header-center">
+        <div class="search-container">
+            <label for="searchInput" class="sr-only">Search videos</label>
+            <input type="search" class="search-input" placeholder="Search" id="searchInput" autocomplete="search">
+            <button class="search-btn" onclick="performSearch()" aria-label="Search Videos">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <button class="voice-btn" onclick="startVoiceSearch()" aria-label="Start Voice Search">
+            <i class="fas fa-microphone"></i>
+        </button>
+    </div>
+
+    <div class="header-right">
+        <div style="position: relative;">
+            <button class="upload-btn" onclick="toggleUploadDropdown(event)" title="Create Content"
+                style="background: linear-gradient(135deg, #ff6b35, #ff006e); color: white; padding: 10px 20px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: all 0.3s;"
+                aria-label="Create Content">
+                <i class="fas fa-plus"></i> Create
+            </button>
+            <div id="uploadDropdown" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 1000;">
+                <a href="upload.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: white; text-decoration: none; transition: background 0.2s; border-radius: 12px 12px 0 0;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-video" style="width: 20px;"></i>
+                    <span>Upload Video</span>
+                </a>
+                <a href="upload.html?type=short" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: white; text-decoration: none; transition: background 0.2s; border-radius: 0 0 12px 12px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-bolt" style="width: 20px; color: #ffd60a;"></i>
+                    <span>Create Short</span>
+                </a>
+            </div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+            <span id="themeIcon">🌙</span>
+        </button>
+        <a href="upload.html" class="header-btn" title="Upload Video"
+            style="text-decoration:none;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-video" style="font-size:20px;"></i>
+        </a>
+        <a href="/Bhuban%20developer%20app/index.html" class="header-btn" title="Developer Dashboard"
+            style="text-decoration:none;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-code" style="font-size:20px;"></i>
+        </a>
+        <button class="header-btn" title="Notifications" aria-label="Notifications">
+            <i class="fas fa-bell" style="font-size:20px;"></i>
+        </button>
+
+        <!-- Login button (shown when not logged in) -->
+        <button class="upload-btn" id="loginBtn" onclick="window.location.href='login.html'" title="Login"
+            aria-label="Login">
+            <i class="fas fa-sign-in-alt"></i>
+            Login
+        </button>
+
+        <!-- Profile avatar (shown when logged in) -->
+        <span id="headerUserName"
+            style="margin-left: 8px; font-weight: 600; font-size: 14px; color: var(--text-primary); display: none;"></span>
+        <div class="user-avatar" onclick="toggleAccountMenu(event)" title="Account" id="headerAvatar"
+            style="margin-left: 12px; cursor: pointer; position: relative; display: none;"
+            aria-label="User Account Menu" role="button" tabindex="0">
+            U
+        </div>
+
+        <!-- Account Dropdown Menu -->
+        <div id="accountMenu"
+            style="display: none; position: absolute; top: 60px; right: 20px; background: var(--bg-card); border-radius: 12px; box-shadow: 0 8px 32px var(--shadow-color); min-width: 280px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--border-color);">
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div id="menuAvatar"
+                        style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px;">
+                        U</div>
+                    <div>
+                        <div id="menuUserName" style="font-weight: 600; font-size: 14px; color: var(--text-primary);">
+                            User</div>
+                        <div id="menuUserEmail" style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                            @username</div>
+                        <a href="channel.html" id="viewChannelLink"
+                            style="color: #3ea6ff; font-size: 12px; text-decoration: none; margin-top: 4px; display: block;">View
+                            your channel</a>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 8px 0;">
+                <!-- Google Account Section -->
+                <div
+                    style="padding: 8px 16px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                    Account</div>
+                <a href="profile-settings.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-user-circle" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Your Profile</span>
+                </a>
+                <a href="#" onclick="alert('Switch account feature coming soon!'); return false;"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-exchange-alt" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Switch account</span>
+                </a>
+                <a href="#" onclick="logout(); return false;"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-sign-out-alt" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Sign out</span>
+                </a>
+
+                <div style="height: 1px; background: var(--border-color); margin: 8px 0;"></div>
+
+                <!-- Studio Section -->
+                <a href="/Bhuban%20creator%20app/index.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-video" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Bhuban Studio</span>
+                </a>
+                <a href="#" onclick="alert('Purchases feature coming soon!'); return false;"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-dollar-sign" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Purchases and memberships</span>
+                </a>
+
+                <div style="height: 1px; background: var(--border-color); margin: 8px 0;"></div>
+
+                <!-- Data & Privacy -->
+                <a href="#" onclick="alert('Your data page coming soon!'); return false;"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-database" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Your data in Bhuban</span>
+                </a>
+
+                <div style="height: 1px; background: var(--border-color); margin: 8px 0;"></div>
+
+                <!-- Settings -->
+                <a href="settings.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-palette" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Appearance: Device theme</span>
+                    <i class="fas fa-chevron-right"
+                        style="margin-left: auto; font-size: 12px; color: var(--text-secondary);"></i>
+                </a>
+                <a href="settings.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-language" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Display language: English</span>
+                    <i class="fas fa-chevron-right"
+                        style="margin-left: auto; font-size: 12px; color: var(--text-secondary);"></i>
+                </a>
+                <a href="settings.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-shield-alt" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Restricted Mode: Off</span>
+                    <i class="fas fa-chevron-right"
+                        style="margin-left: auto; font-size: 12px; color: var(--text-secondary);"></i>
+                </a>
+                <a href="settings.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-globe" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Location: Bangladesh</span>
+                    <i class="fas fa-chevron-right"
+                        style="margin-left: auto; font-size: 12px; color: var(--text-secondary);"></i>
+                </a>
+                <a href="keyboard-shortcuts.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-keyboard" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Keyboard shortcuts</span>
+                </a>
+
+                <div style="height: 1px; background: var(--border-color); margin: 8px 0;"></div>
+
+                <!-- Help & Settings -->
+                <a href="account.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-cog" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Settings</span>
+                </a>
+                <a href="help.html"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-question-circle" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Help</span>
+                </a>
+                <a href="#" onclick="alert('Feedback form coming soon!'); return false;"
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--text-primary); transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--bg-hover)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-comment-alt" style="width: 20px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 14px;">Send feedback</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Header Logout Button (hidden, menu has logout) -->
+        <button class="header-btn" id="headerLogoutBtn" onclick="logout()" title="Logout"
+            style="display: none; margin-left: 8px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 8px; color: white; width: 40px; height: 40px; cursor: pointer; align-items: center; justify-content: center; transition: all 0.3s;"
+            aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Particle Effects -->
+<div class="particles" id="particles"></div>
+<aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-link active" aria-label="Home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="shorts.html" class="sidebar-link" aria-label="Shorts">
+        <i class="fas fa-bolt"></i>
+        <span>Shorts</span>
+    </a>
+    <a href="subscriptions.html" class="sidebar-link" aria-label="Subscriptions">
+        <i class="fas fa-layer-group"></i>
+        <span>Subscriptions</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="history.html" class="sidebar-link" aria-label="History">
+        <i class="fas fa-clock"></i>
+        <span>History</span>
+    </a>
+    <a href="playlists.html" class="sidebar-link" aria-label="Playlists">
+        <i class="fas fa-list"></i>
+        <span>Playlists</span>
+    </a>
+    <a href="liked-videos.html" class="sidebar-link" aria-label="Liked Videos">
+        <i class="fas fa-thumbs-up"></i>
+        <span>Liked videos</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="trending.html" class="sidebar-link" aria-label="Trending">
+        <i class="fas fa-fire"></i>
+        <span>Trending</span>
+    </a>
+    <a href="music.html" class="sidebar-link" aria-label="Music">
+        <i class="fas fa-music"></i>
+        <span>Music</span>
+    </a>
+    <a href="gaming.html" class="sidebar-link" aria-label="Gaming">
+        <i class="fas fa-gamepad"></i>
+        <span>Gaming</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="ai-assistant.html" class="sidebar-link" aria-label="AI Assistant">
+        <i class="fas fa-sparkles"></i>
+        <span>AI Assistant</span>
+    </a>
+    <a href="/Bhuban%20creator%20app/index.html" class="sidebar-link"
+        style="background: linear-gradient(90deg, rgba(255, 69, 0, 0.2), transparent); border-left: 3px solid #FF4500;"
+        aria-label="Creator Studio">
+        <i class="fas fa-video" style="color: #FF4500;"></i>
+        <span>Creator Studio</span>
+    </a>
+    <a href="/Bhuban%20developer%20app/index.html" class="sidebar-link"
+        style="background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent); border-left: 3px solid #00d4ff;"
+        aria-label="Developer Dashboard">
+        <i class="fas fa-code" style="color: #00d4ff;"></i>
+        <span>Developer Dashboard</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div
+        style="padding: 8px 24px; font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; letter-spacing: 1px;">
+        Advanced Features
+    </div>
+
+    <a href="live.html" class="sidebar-link" aria-label="Live Streams">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>Live Streams</span>
+        <span
+            style="margin-left: auto; padding: 2px 8px; background: #e63946; border-radius: 12px; font-size: 10px; font-weight: 700;">LIVE</span>
+    </a>
+    <a href="watch-party.html" class="sidebar-link" aria-label="Watch Party">
+        <i class="fas fa-users"></i>
+        <span>Watch Party</span>
+    </a>
+    <a href="downloads.html" class="sidebar-link" aria-label="Downloads">
+        <i class="fas fa-download"></i>
+        <span>Downloads</span>
+    </a>
+    <a href="premium.html" class="sidebar-link"
+        style="background: linear-gradient(90deg, rgba(255, 214, 10, 0.2), transparent); border-left: 3px solid #ffd60a;"
+        aria-label="Premium">
+        <i class="fas fa-crown" style="color: #ffd60a;"></i>
+        <span>Premium</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="settings.html" class="sidebar-link" aria-label="Settings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="#" class="sidebar-link" data-action="logout" id="logoutBtn" onclick="logout()" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
+</aside>
+
+<main class="main-content">
+    <div id="statusBanner"></div>
+
+    <!-- YouTube-style Content Tabs -->
+    <div style="margin: 30px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="display: flex; gap: 30px; padding: 0 20px; margin-bottom: -1px;">
+            <button id="videosTab" class="content-tab active" onclick="switchTab('videos')">
+                <i class="fas fa-video" style="margin-right: 8px;"></i>
+                Videos
+            </button>
+            <button id="shortsTab" class="content-tab" onclick="switchTab('shorts')">
+                <i class="fas fa-bolt" style="margin-right: 8px;"></i>
+                Shorts
+            </button>
+        </div>
+    </div>
+
+    <!-- Videos Tab Content -->
+    <div id="videosContent" class="tab-content active">
+        <!-- Animated Categories -->
+        <div class="categories-container" id="categoriesContainer">
+            <div class="category-chip active" data-category="all">All</div>
+            <div class="category-chip" data-category="music">🎵 Music</div>
+            <div class="category-chip" data-category="gaming">🎮 Gaming</div>
+            <div class="category-chip" data-category="tech">💻 Tech</div>
+            <div class="category-chip" data-category="entertainment">🎬 Entertainment</div>
+            <div class="category-chip" data-category="education">📚 Education</div>
+            <div class="category-chip" data-category="sports">⚽ Sports</div>
+            <div class="category-chip" data-category="news">📰 News</div>
+            <div class="category-chip" data-category="fashion">👗 Fashion</div>
+            <div class="category-chip" data-category="food">🍔 Food</div>
+            <div class="category-chip" data-category="travel">✈️ Travel</div>
+            <div class="category-chip" data-category="vlogs">📹 Vlogs</div>
+        </div>
+
+        <!-- Shorts Section (YouTube Style) -->
+        <div style="margin: 30px 0 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; margin: 0;">
+                    <i class="fas fa-bolt" style="color: #ff4444; font-size: 28px;"></i>
+                    Shorts
+                </h2>
+                <a href="shorts.html" style="color: var(--accent-primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.color='var(--accent-secondary)'" onmouseout="this.style.color='var(--accent-primary)'">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div id="shortsContainer" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                <!-- Shorts will be loaded here -->
+            </div>
+        </div>
+
+        <h2 style="font-size: 24px; font-weight: 700; margin: 30px 0 20px; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-video" style="color: var(--accent-secondary);"></i>
+            Videos
+        </h2>
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Shorts Tab Content -->
+    <div id="shortsContent" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 30px;">
+            <h2 style="font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-bolt" style="color: var(--accent-primary);"></i>
+                Shorts
+            </h2>
+            <a href="shorts.html" style="color: var(--accent-primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div id="shortsContainer" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+            <!-- Shorts will be loaded here -->
+        </div>
+    </div>
+</main>
+
+<script>
+    // VERSION CHECK - This should appear in console immediately
+// DEBUG: console.log('🚀 BHUBAN v3.3 - FINAL FIX - ' + new Date().toISOString());
+// DEBUG: console.log('📍 Backend API is now properly connected!');
+// DEBUG: console.log('🔧 BhubanAPI defined globally on window object');
+
+    // Video data - will be populated from API or localStorage
+    let videos = [];
+
+    // Fix advancedPlayer ReferenceError - add stub only if not already defined
+    if (typeof advancedPlayer === 'undefined') {
+        const advancedPlayer = {
+            getProgress: function (videoId) {
+                return { watchTime: 0, duration: 100 };
+            }
+        };
+    }
+
+    // Fix socialEngine ReferenceError - add stub only if not already defined
+    if (typeof socialEngine === 'undefined') {
+        const socialEngine = {
+            shareVideo: function (videoId, platform) {
+                return Promise.resolve({ success: true, message: 'Shared successfully' });
+            }
+        };
+    }
+
+    // Fix playlistManager ReferenceError - add stub only if not already defined
+    if (typeof playlistManager === 'undefined') {
+        const playlistManager = {
+            getPlaylists: function () {
+                return [];
+            },
+            addToPlaylist: function (playlistId, videoId) {
+// DEBUG: console.log('Added to playlist:', playlistId, videoId);
+            }
+        };
+    }
+
+    // Fix BhubanAPI - Define globally so it's accessible everywhere
+    if (typeof window.BhubanAPI === 'undefined') {
+        window.BhubanAPI = {
+            getVideos: async function () {
+                try {
+// DEBUG: console.log('🔄 Fetching videos from backend API...');
+                    const response = await fetch('http://localhost:5000/api/videos', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const result = await response.json();
+// DEBUG: console.log('✅ Backend API response:', result);
+
+                    // Handle different response formats
+                    if (result.success && result.data) {
+// DEBUG: console.log('✅ Videos loaded from backend:', result.data.length);
+                        return result.data;
+                    } else if (Array.isArray(result)) {
+// DEBUG: console.log('✅ Videos loaded from backend:', result.length);
+                        return result;
+                    } else {
+// DEBUG: console.log('⚠️ Unexpected response format:', result);
+                        return [];
+                    }
+                } catch (error) {
+// DEBUG: console.log('❌ Backend API error:', error.message);
+                    return [];
+                }
+            }
+        };
+    }
+
+    // Fix BhubanStorage - Define globally only if not already defined
+    if (typeof window.BhubanStorage === 'undefined') {
+        window.BhubanStorage = {
+            saveVideos: function (videos) {
+                try {
+                    localStorage.setItem('bhuban_videos', JSON.stringify(videos));
+// DEBUG: console.log('✅ Saved videos to cache:', videos.length);
+                } catch (error) {
+                    console.error('❌ Failed to save videos:', error);
+                }
+            },
+            saveCurrentVideo: function (video) {
+                try {
+                    localStorage.setItem('bhuban_current_video', JSON.stringify(video));
+// DEBUG: console.log('✅ Saved current video:', video.id);
+                } catch (error) {
+                    console.error('❌ Failed to save current video:', error);
+                }
+            }
+        };
+    }
+
+    // Fix BhubanNav ReferenceError - add stub only if not already defined
+    if (typeof window.BhubanNav === 'undefined') {
+        window.BhubanNav = {
+            watchVideo: function (videoId) {
+// DEBUG: console.log('Watching video:', videoId);
+                window.location.href = 'watch.html?v=' + videoId;
+            }
+        };
+    }
+
+    // Fix smartRecommendations ReferenceError - add stub only if not already defined
+    if (typeof smartRecommendations === 'undefined') {
+        window.smartRecommendations = {
+            updateWatchHistory: function (videoId, progress, completed) {
+// DEBUG: console.log('Updated watch history:', videoId);
+            }
+        };
+    }
+
+    // Fix downloadManager ReferenceError - add stub only if not already defined
+    if (typeof downloadManager === 'undefined') {
+        window.downloadManager = {
+            downloadVideo: function (videoId, quality) {
+// DEBUG: console.log('Downloading video:', videoId, 'quality:', quality);
+            }
+        };
+    }
+
+    function formatCount(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    function getTimeAgo(date) {
+        if (!date) return '2 days ago';
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+        return Math.floor(seconds / 86400) + 'd ago';
+    }
+
+    // Parse hashtags in text and make them clickable
+    function parseHashtags(text) {
+        if (!text) return text;
+        
+        // Escape HTML to prevent XSS
+        const escapeHtml = (str) => {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
+        
+        const escapedText = escapeHtml(text);
+        
+        // Replace hashtags with clickable links
+        return escapedText.replace(/#(\w+)/g, (match, tag) => {
+            return `<a href="search.html?q=${encodeURIComponent('#' + tag)}" 
+                       style="color: #ff6b35; text-decoration: none; font-weight: 600;"
+                       onclick="event.stopPropagation(); return true;">#${tag}</a>`;
+        });
+    }
+
+    // Search by hashtag
+    function searchHashtag(tag) {
+        window.location.href = `search.html?q=${encodeURIComponent('#' + tag)}`;
+    }
+
+    // Helper to bypass Google photo rate limits
+    function getSafePhotoUrl(url) {
+        if (!url || url === 'null' || url === 'undefined') return null;
+        if (url.includes('googleusercontent.com') || url.includes('lh3.google.com') || url.includes('focus-opensocial')) {
+            return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&default=letter&l=9&af`;
+        }
+        return url;
+    }
+
+    function renderSkeletons() {
+        const grid = document.getElementById('videoGrid');
+        grid.innerHTML = Array(8).fill(0).map(() => `
+            <div class="video-card skeleton" style="height: 280px; background: rgba(255,255,255,0.05); border-radius: 20px;">
+                <div style="height: 180px; background: rgba(255,255,255,0.1); border-radius: 20px 20px 0 0;"></div>
+                <div style="padding: 16px;">
+                    <div style="height: 20px; width: 80%; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 8px;"></div>
+                    <div style="height: 16px; width: 60%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Try to load from API first, then fallback to localStorage
+    async function loadVideos(category = 'all', forceRefresh = false) {
+        const statusBanner = document.getElementById('statusBanner');
+        renderSkeletons(); // Show loading state
+
+        // Ensure category is a string
+        category = String(category || 'all').toLowerCase();
+
+        // Mark active chip
+        document.querySelectorAll('.category-chip').forEach(chip => {
+            chip.classList.toggle('active', chip.dataset.category === category);
+        });
+
+        // If force refresh, clear cache first
+        if (forceRefresh) {
+            localStorage.removeItem('bhuban_videos');
+// DEBUG: console.log('🔄 Force refresh - cleared video cache');
+        }
+
+        // Try API first using centralized API helper
+        try {
+// DEBUG: console.log('🔄 Loading videos from API...');
+// DEBUG: console.log('📂 Category filter:', category);
+            const apiVideos = await BhubanAPI.getVideos();
+// DEBUG: console.log('📊 API returned videos:', apiVideos ? apiVideos.length : 0);
+
+            if (apiVideos && apiVideos.length > 0) {
+                let filteredVideos = apiVideos;
+                if (category !=== 'all') {
+// DEBUG: console.log('🔍 Filtering videos by category:', category);
+                    filteredVideos = apiVideos.filter(v => {
+                        const vCategory = String(v.category || '').toLowerCase();
+                        const vDescription = String(v.description || '').toLowerCase();
+                        const vTitle = String(v.title || '').toLowerCase();
+                        
+                        const matches = vCategory === category || 
+                                       vDescription.includes(category) || 
+                                       vTitle.includes(category);
+                        
+                        if (!matches) {
+// DEBUG: console.log(`  ❌ Filtered out: "${v.title}" (category: "${v.category}")`);
+                        }
+                        
+                        return matches;
+                    });
+// DEBUG: console.log('📊 Filtered videos:', filteredVideos.length);
+                } else {
+// DEBUG: console.log('📊 Showing all videos (no filter)');
+                }
+
+// DEBUG: console.log('🔄 Mapping', filteredVideos.length, 'videos...');
+                videos = filteredVideos.map(video => ({
+                    id: video._id,
+                    title: video.title,
+                    channel: video.user?.name || 'Bhuban Creator',
+                    channelAvatar: getSafePhotoUrl(video.user?.avatar || video.user?.picture || null),
+                    views: video.views || 0,
+                    duration: video.duration || '10:00',
+                    img: getSafePhotoUrl(video.thumbnailUrl || video.thumbnail),
+                    videoUrl: video.videoUrl,
+                    createdAt: video.createdAt,
+                    isShort: video.isShort || false,
+                    aspectRatio: video.aspectRatio || '16:9'
+                }));
+// DEBUG: console.log('✅ Mapped videos:', videos.length);
+
+                // Save to localStorage for offline access
+                if (category === 'all') BhubanStorage.saveVideos(videos);
+
+                statusBanner.className = 'status-banner';
+                statusBanner.innerHTML = `<strong>✓ ${category.charAt(0).toUpperCase() + category.slice(1)} Feed</strong><br>Showing ${videos.length} videos from database`;
+
+// DEBUG: console.log('✅ Videos loaded and rendered:', videos.length);
+                renderVideos();
+                return;
+            } else {
+                console.warn('⚠️ API returned no videos, checking localStorage...');
+            }
+        } catch (error) {
+            console.error('❌ API error:', error);
+// DEBUG: console.log('⚠️ Falling back to localStorage...');
+        }
+
+        // Fallback or empty state handling...
+        // (Keeping rest of the existing fallback logic but simplified for space)
+        const cached = localStorage.getItem('bhuban_videos');
+        if (cached) {
+            videos = JSON.parse(cached);
+            if (category !=== 'all') {
+                const safeCategory = (typeof category === 'string' && category) ? category.toLowerCase() : '';
+                if (safeCategory) {
+                    videos = videos.filter(v => (v.title || '').toLowerCase().includes(safeCategory));
+                }
+            }
+            renderVideos();
+            return;
+        }
+
+        videos = [];
+        renderVideos();
+    }
+
+    // Initialize category chips
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.category-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const category = chip.dataset.category;
+                loadVideos(category);
+            });
+        });
+    });
+
+    function renderVideos() {
+        const grid = document.getElementById('videoGrid');
+        
+        // Filter out Shorts - only show regular videos in Videos section
+        const regularVideos = videos.filter(video => 
+            !VideoIdentificationRules.isShort(video)
+        );
+        
+// DEBUG: console.log(`📊 Rendering: ${regularVideos.length} regular videos (filtered out ${videos.length - regularVideos.length} shorts)`);
+        
+        grid.innerHTML = regularVideos.map((video, index) => {
+            // Sanitize video data to prevent XSS
+            const sanitizedTitle = sanitizeHtml(video.title || '');
+            const sanitizedChannel = sanitizeHtml(video.channel || '');
+            const sanitizedDuration = sanitizeHtml(video.duration || '');
+            const sanitizedViews = video.views || 0;
+            const thumb = video.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';
+            const initial = sanitizedChannel.charAt(0) || 'B';
+            
+            // Use unified identification rules for consistent display
+            const isVertical = VideoIdentificationRules.isShort(video);
+            const thumbnailStyle = isVertical ? 'aspect-ratio: 9/16 !important; max-height: 400px !important; background: #000 !important;' : '';
+            const imgStyle = isVertical ? 'object-fit: contain !important; width: 100% !important; height: 100% !important;' : '';
+
+            return `
+                    <div class="video-card hover-lift" data-video-id="${video.id}" data-is-short="${isVertical}" style="cursor: pointer; position: relative; animation: slideInUp 0.5s ease backwards; animation-delay: ${index * 0.05}s;">
+                        <div class="video-thumbnail" style="${thumbnailStyle}">
+                            <img src="${thumb}" 
+                                 style="${imgStyle}" 
+                                 alt="${sanitizedTitle}" 
+                                 crossorigin="anonymous"
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';">
+                            <span class="video-duration">${sanitizedDuration}</span>
+                            
+                            <!-- Quick Actions Overlay -->
+                            <div class="quick-actions" style="position: absolute; top: 8px; right: 8px; display: none; gap: 8px;">
+                                <button onclick="addToPlaylist(event, '${video.id}')" class="quick-action-btn" title="Add to playlist" style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button onclick="addToWatchLater(event, '${video.id}')" class="quick-action-btn" title="Watch later" style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-avatar" style="display: flex; align-items: center; justify-content: center; background: var(--accent-gradient); color: white; font-weight: bold; border-radius: 50%; width: 40px; height: 40px; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 8px var(--shadow-color);">
+                                ${video.channelAvatar ?
+                    `<img src="${video.channelAvatar}" alt="${sanitizedChannel}" style="width:100%;height:100%;object-fit:cover;" crossorigin="anonymous" onerror="this.onerror=null; this.style.display='none'; this.parentElement.textContent='${initial}'">` :
+                    initial
+                }
+                            </div>
+                            <div class="video-details">
+                                <h3 class="video-title" style="font-size: 15px; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">${sanitizedTitle}</h3>
+                                <p class="video-channel" style="font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                                    ${sanitizedChannel} <i class="fas fa-check-circle" style="font-size: 10px;"></i>
+                                </p>
+                                <p class="video-views" style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                                    ${formatCount(sanitizedViews)} views • ${getTimeAgo(video.createdAt)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        }).join('');
+
+        // Re-attach click handlers after rendering
+        attachVideoCardHandlers();
+        loadWatchProgress();
+    }
+
+    // Helper function to sanitize HTML and prevent XSS
+    function sanitizeHtml(str) {
+        if (typeof str !=== 'string') {
+            return '';
+        }
+        // Create a temporary element to convert HTML entities
+        const div = document.createElement('div');
+        div.textContent = str;
+        // Return the text content to ensure no HTML tags are included
+        return div.textContent || div.innerText || '';
+    }
+
+    // Missing loadWatchProgress function - add to fix ReferenceError
+    function loadWatchProgress() {
+        // Load watch progress for all videos
+        document.querySelectorAll('.video-card').forEach(card => {
+            const videoId = card.dataset.videoId;
+            // Fix advancedPlayer ReferenceError
+            if (typeof advancedPlayer !=== 'undefined' && advancedPlayer.getProgress) {
+                const progress = advancedPlayer.getProgress(videoId);
+                if (progress && progress.watchTime > 0) {
+                    const progressBar = card.querySelector('.watch-progress > div');
+                    if (progressBar) {
+                        progressBar.style.width = `${(progress.watchTime / progress.duration) * 100}%`;
+                    }
+                }
+            }
+        });
+    }
+
+    function attachVideoCardHandlers() {
+        document.querySelectorAll('.video-card').forEach(card => {
+            card.style.pointerEvents = 'auto';
+            card.style.cursor = 'pointer';
+            card.style.position = 'relative';
+            card.style.zIndex = '5';
+
+            // Show quick actions on hover
+            card.addEventListener('mouseenter', function () {
+                const quickActions = this.querySelector('.quick-actions');
+                if (quickActions) quickActions.style.display = 'flex';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                const quickActions = this.querySelector('.quick-actions');
+                if (quickActions) quickActions.style.display = 'none';
+            });
+
+            card.onclick = function (e) {
+                // Don't trigger if clicking on buttons inside the card
+                if (e.target.closest('button') || e.target.closest('.ai-summary-btn')) {
+                    return;
+                }
+                const videoId = this.dataset.videoId;
+                if (videoId) {
+                    openVideo(videoId);
+                }
+            };
+        });
+    }
+
+    function openVideo(id) {
+        // Use centralized navigation system
+        const video = videos.find(v => v.id === id);
+        if (video) {
+            BhubanStorage.saveCurrentVideo(video);
+            // Track watch history
+            smartRecommendations.updateWatchHistory(id, 0, false);
+        }
+        BhubanNav.watchVideo(id);
+    }
+
+    // Advanced Features Functions
+    function addToPlaylist(event, videoId) {
+        event.stopPropagation();
+// DEBUG: console.log('📚 Adding to playlist:', videoId);
+
+        // Show playlist selector modal
+        showPlaylistSelector(videoId);
+    }
+
+    function addToWatchLater(event, videoId) {
+        event.stopPropagation();
+// DEBUG: console.log('⏰ Adding to watch later:', videoId);
+
+        let watchLater = JSON.parse(localStorage.getItem('watch_later') || '[]');
+        if (!watchLater.includes(videoId)) {
+            watchLater.push(videoId);
+            localStorage.setItem('watch_later', JSON.stringify(watchLater));
+            showNotification('Added to Watch Later', 'success');
+        } else {
+            showNotification('Already in Watch Later', 'info');
+        }
+    }
+
+    function shareVideo(event, videoId) {
+        event.stopPropagation();
+// DEBUG: console.log('🔗 Sharing video:', videoId);
+
+        // Show share modal
+        showShareModal(videoId);
+    }
+
+    function showVideoMenu(event, videoId) {
+        event.stopPropagation();
+// DEBUG: console.log('📋 Showing video menu:', videoId);
+
+        // Create context menu
+        const menu = document.createElement('div');
+        menu.style.cssText = `
+                position: fixed;
+                background: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 8px;
+                box-shadow: 0 8px 32px var(--shadow-color);
+                z-index: 10000;
+                min-width: 200px;
+            `;
+
+        menu.innerHTML = `
+                <div onclick="addToQueue('${videoId}')" style="padding: 12px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-list"></i>
+                    <span>Add to queue</span>
+                </div>
+                <div onclick="downloadVideo('${videoId}')" style="padding: 12px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-download"></i>
+                    <span>Download</span>
+                </div>
+                <div onclick="notInterested('${videoId}')" style="padding: 12px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-eye-slash"></i>
+                    <span>Not interested</span>
+                </div>
+                <div onclick="reportVideo('${videoId}')" style="padding: 12px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px; color: var(--error);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-flag"></i>
+                    <span>Report</span>
+                </div>
+            `;
+
+        // Position menu near click
+        const rect = event.target.getBoundingClientRect();
+        menu.style.top = rect.bottom + 'px';
+        menu.style.left = rect.left + 'px';
+
+        document.body.appendChild(menu);
+
+        // Close menu on click outside
+        setTimeout(() => {
+            document.addEventListener('click', function closeMenu() {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            });
+        }, 100);
+    }
+
+    function addToQueue(videoId) {
+// DEBUG: console.log('➕ Adding to queue:', videoId);
+        let queue = JSON.parse(localStorage.getItem('video_queue') || '[]');
+        if (!queue.includes(videoId)) {
+            queue.push(videoId);
+            localStorage.setItem('video_queue', JSON.stringify(queue));
+            showNotification('Added to queue', 'success');
+        }
+    }
+
+    function downloadVideo(videoId) {
+// DEBUG: console.log('⬇️ Downloading video:', videoId);
+        downloadManager.downloadVideo(videoId, '720p');
+        showNotification('Download started', 'success');
+    }
+
+    function notInterested(videoId) {
+// DEBUG: console.log('👎 Not interested:', videoId);
+        let notInterested = JSON.parse(localStorage.getItem('not_interested') || '[]');
+        notInterested.push(videoId);
+        localStorage.setItem('not_interested', JSON.stringify(notInterested));
+
+        // Remove from view
+        const card = document.querySelector(`[data-video-id="${videoId}"]`);
+        if (card) {
+            card.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => card.remove(), 300);
+        }
+        showNotification('Video removed', 'info');
+    }
+
+    function reportVideo(videoId) {
+// DEBUG: console.log('🚩 Reporting video:', videoId);
+        showNotification('Thank you for your report', 'success');
+    }
+
+    function showPlaylistSelector(videoId) {
+        const playlists = playlistManager.getPlaylists();
+
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+        modal.innerHTML = `
+                <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; max-width: 400px; width: 90%;">
+                    <h3 style="margin-bottom: 16px;">Save to playlist</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        ${playlists.map(p => `
+                            <div onclick="addVideoToPlaylist('${videoId}', ${p.id})" style="padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-list"></i>
+                                <span>${p.name}</span>
+                            </div>
+                        `).join('')}
+                        <div onclick="createNewPlaylist('${videoId}')" style="padding: 12px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px; color: var(--accent-primary);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                            <i class="fas fa-plus"></i>
+                            <span>Create new playlist</span>
+                        </div>
+                    </div>
+                    <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+
+        document.body.appendChild(modal);
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+    }
+
+    function addVideoToPlaylist(videoId, playlistId) {
+        playlistManager.addToPlaylist(playlistId, videoId);
+        showNotification('Added to playlist', 'success');
+        document.querySelector('div[style*="position: fixed"]')?.remove();
+    }
+
+    function createNewPlaylist(videoId) {
+        const name = prompt('Enter playlist name:');
+        if (name) {
+            const playlist = playlistManager.createPlaylist(name);
+            playlistManager.addToPlaylist(playlist.id, videoId);
+            showNotification('Playlist created', 'success');
+            document.querySelector('div[style*="position: fixed"]')?.remove();
+        }
+    }
+
+    function showShareModal(videoId) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+        modal.innerHTML = `
+                <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; max-width: 400px; width: 90%;">
+                    <h3 style="margin-bottom: 16px;">Share</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <button onclick="shareToSocial('twitter', '${videoId}')" style="padding: 16px; background: #1DA1F2; border: none; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fab fa-twitter"></i>
+                            <span>Twitter</span>
+                        </button>
+                        <button onclick="shareToSocial('facebook', '${videoId}')" style="padding: 16px; background: #4267B2; border: none; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fab fa-facebook"></i>
+                            <span>Facebook</span>
+                        </button>
+                        <button onclick="shareToSocial('whatsapp', '${videoId}')" style="padding: 16px; background: #25D366; border: none; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button onclick="shareToSocial('copy', '${videoId}')" style="padding: 16px; background: var(--accent-primary); border: none; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-link"></i>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
+                    <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+
+        document.body.appendChild(modal);
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+    }
+
+    function shareToSocial(platform, videoId) {
+        socialEngine.shareVideo(videoId, platform).then(result => {
+            if (result.success) {
+                showNotification(result.message || 'Shared successfully', 'success');
+            }
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? '#06d6a0' : type === 'error' ? '#e63946' : 'var(--accent-primary)'};
+                color: white;
+                border-radius: 12px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                animation: slideInRight 0.3s ease;
+            `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Tab switching functionality
+    function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.content-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+        
+        // Update content sections
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Content`).classList.add('active');
+        
+        // Load appropriate content
+        if (tabName === 'videos') {
+            loadVideos('all');
+            loadShortsSection(); // Load shorts subsection on Videos tab
+        } else if (tabName === 'shorts') {
+            loadShortsTab();
+        }
+    }
+
+    // Load Shorts subsection on Videos tab (YouTube Style)
+    async function loadShortsSection() {
+        const container = document.getElementById('shortsContainer');
+        if (!container) return;
+        
+        // Show loading state
+        container.innerHTML = '<div style="color: var(--text-secondary); padding: 20px;">Loading Shorts...</div>';
+        
+        try {
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/videos/shorts/feed?page=1&limit=20`);
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.length > 0) {
+                container.innerHTML = data.data.map(short => {
+                    const thumbnailUrl = short.thumbnailUrl || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=640';
+                    const videoUrl = short.videoUrl.startsWith('http') ? short.videoUrl : `${apiBase}/uploads/${short.videoUrl}`;
+                    const views = formatViews(short.views || 0);
+                    
+                    return `
+                        <div class="short-card" onclick="window.location.href='shorts.html?v=${short._id}'" style="flex: 0 0 auto; width: 180px; cursor: pointer;">
+                            <div style="position: relative; width: 180px; height: 320px; border-radius: 12px; overflow: hidden; background: #000; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" 
+                                 onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)'" 
+                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.3)'">
+                                <img src="${thumbnailUrl}" 
+                                     alt="${short.title}" 
+                                     style="width: 100%; height: 100%; object-fit: cover; background: #000;">
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);">
+                                    <div style="color: white; font-weight: 600; font-size: 13px; line-height: 1.3; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${short.title}</div>
+                                    <div style="color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${views} views</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<div style="color: var(--text-secondary); padding: 20px;">No Shorts available yet</div>';
+            }
+        } catch (error) {
+            console.error('Error loading Shorts:', error);
+            container.innerHTML = '<div style="color: var(--text-secondary); padding: 20px;">Failed to load Shorts</div>';
+        }
+    }
+
+    // Load Shorts for the Shorts tab - YouTube Style
+    async function loadShortsTab() {
+        const container = document.getElementById('shortsContainer');
+        if (!container) return;
+        
+        try {
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/videos/shorts/feed?page=1&limit=20`);
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.length > 0) {
+                container.innerHTML = data.data.map(short => {
+                    const thumbnailUrl = short.thumbnailUrl || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=640';
+                    const videoUrl = short.videoUrl.startsWith('http') ? short.videoUrl : `${apiBase}/uploads/${short.videoUrl}`;
+                    const views = formatViews(short.views || 0);
+                    
+                    return `
+                        <div class="short-card" onclick="window.location.href='shorts.html?v=${short._id}'" style="flex: 0 0 auto; width: 180px; cursor: pointer;">
+                            <div style="position: relative; width: 180px; height: 320px; border-radius: 12px; overflow: hidden; background: #000; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" 
+                                 onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)'" 
+                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.3)'">
+                                <img src="${thumbnailUrl}" 
+                                     alt="${short.title}" 
+                                     style="width: 100%; height: 100%; object-fit: cover; background: #000;">
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);">
+                                    <div style="color: white; font-weight: 600; font-size: 13px; line-height: 1.3; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${short.title}</div>
+                                    <div style="color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${views} views</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<div style="color: var(--text-secondary); padding: 20px;">No Shorts available yet</div>';
+            }
+        } catch (error) {
+            console.error('Error loading Shorts:', error);
+            container.innerHTML = '<div style="color: var(--text-secondary); padding: 20px;">Failed to load Shorts</div>';
+        }
+    }
+    
+    // Format views count
+    function formatViews(count) {
+        if (count >= 1000000) {
+            return (count / 1000000).toFixed(1) + 'M';
+        } else if (count >= 1000) {
+            return (count / 1000).toFixed(1) + 'K';
+        }
+        return count.toString();
+    }
+
+    // Load videos on page load
+    window.addEventListener('load', () => {
+        // Check if we're returning from an upload (check URL params or recent upload event)
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromUpload = urlParams.get('uploaded') === 'true';
+        const recentUpload = localStorage.getItem('videoUploaded');
+        const shouldForceRefresh = fromUpload || (recentUpload && (Date.now() - parseInt(recentUpload)) < 10000);
+        
+        if (shouldForceRefresh) {
+// DEBUG: console.log('🔄 Detected recent upload - forcing fresh data load');
+            localStorage.removeItem('videoUploaded'); // Clear the flag
+        }
+        
+        // Initialize with Videos tab active
+        switchTab('videos');
+    });
+
+    // Reload videos when page becomes visible (e.g., switching tabs)
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+// DEBUG: console.log('🔄 Page visible - reloading videos...');
+            loadVideos('all');
+        }
+    });
+
+    // Reload videos when window gains focus
+    window.addEventListener('focus', function () {
+// DEBUG: console.log('🔄 Window focused - reloading videos...');
+        loadVideos('all');
+    });
+
+    // Reload videos when navigating back to page
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+// DEBUG: console.log('🔄 Page restored from cache - reloading videos...');
+            loadVideos('all');
+        }
+    });
+
+    // Health Monitoring - Update status for Developer Dashboard
+    function updateViewerHealth() {
+        const healthData = {
+            status: 'healthy',
+            lastPing: Date.now(),
+            activeUsers: 0, // Will be updated from backend
+            videoCount: videos.length
+        };
+        localStorage.setItem('bhuban_viewer_health', JSON.stringify(healthData));
+    }
+
+    // Update health every 10 seconds
+    setInterval(updateViewerHealth, 10000);
+    updateViewerHealth();
+
+    // Listen for backend status changes from Developer Dashboard
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'bhuban_broadcast') {
+            const message = JSON.parse(e.newValue || '{}');
+            if (message.event === 'backend_status') {
+                if (message.data.running) {
+                    // Backend started - reload videos
+                    loadVideos('all');
+                    showNotification('Backend server is now online!', 'success');
+                } else {
+                    // Backend stopped
+                    showNotification('Backend server stopped by Developer', 'warning');
+                }
+            }
+        }
+
+        // Listen for video upload events from other tabs
+        if (e.key === 'videoUploaded' || e.key === 'forceRefresh') {
+// DEBUG: console.log('🔄 Video upload detected - force reloading videos...');
+            loadVideos('all', true); // Force refresh
+            showNotification('New video uploaded! Refreshing...', 'success');
+        }
+
+        // Listen for video deletion events
+        if (e.key === 'videoDeleted') {
+// DEBUG: console.log('🔄 Video deleted - reloading videos...');
+            loadVideos('all');
+            showNotification('Video deleted. Refreshing...', 'info');
+        }
+    });
+
+    // Auto-refresh every 5 minutes (silent)
+    setInterval(() => {
+        if (!document.hidden) {
+// DEBUG: console.log('🔄 Auto-refresh: Syncing videos...');
+            loadVideos('all');
+        }
+    }, 300000);
+
+    // Notification helper
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : 'var(--accent-primary)'};
+                color: white;
+                border-radius: 12px;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideInRight 0.4s ease;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            `;
+        notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'warning' ? 'exclamation-triangle' : 'info'}-circle"></i> ${message}`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
+    }
+
+    // Toggle sidebar
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('expanded');
+    }
+
+    // Search function with Autocomplete support
+    function performSearch() {
+        const query = document.getElementById('searchInput').value;
+        if (query) {
+            // Track search history
+            let searches = JSON.parse(localStorage.getItem('search_history') || '[]');
+            if (!searches.includes(query)) {
+                searches.unshift(query);
+                localStorage.setItem('search_history', JSON.stringify(searches.slice(0, 10)));
+            }
+            window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        }
+    }
+
+    // Autocomplete Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('searchInput');
+        let suggestionBox = document.createElement('div');
+        suggestionBox.id = 'suggestionBox';
+        suggestionBox.style.cssText = `
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 10001;
+            display: none;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        `;
+        searchInput.parentElement.style.position = 'relative';
+        searchInput.parentElement.appendChild(suggestionBox);
+
+        searchInput.addEventListener('input', () => {
+            const val = searchInput.value.toLowerCase();
+            if (!val) {
+                suggestionBox.style.display = 'none';
+                return;
+            }
+
+            const matches = videos
+                .filter(v => v.title.toLowerCase().includes(val))
+                .slice(0, 6);
+
+            if (matches.length > 0) {
+                suggestionBox.innerHTML = matches.map(m => `
+                    <div class="suggestion-item" onclick="document.getElementById('searchInput').value='${m.title}'; performSearch();"
+                         style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s;"
+                         onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-search" style="color: var(--text-secondary); font-size: 14px;"></i>
+                        <span style="font-size: 14px;">${m.title}</span>
+                    </div>
+                `).join('');
+                suggestionBox.style.display = 'block';
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target)) suggestionBox.style.display = 'none';
+        });
+    });
+
+    // Voice search with improved error handling
+    let isListening = false;
+    let recognitionTimeout;
+
+    function startVoiceSearch() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            showNotification('Voice search is not supported in your browser. Please use Chrome, Edge, or Safari.', 'error');
+            return;
+        }
+
+        if (isListening) {
+            showNotification('Already listening...', 'info');
+            return;
+        }
+
+        try {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = true; // Keep listening
+            recognition.interimResults = true; // Show interim results
+            recognition.maxAlternatives = 1;
+
+            const voiceBtn = document.querySelector('.voice-btn');
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            if (voiceBtn) {
+                voiceBtn.style.background = '#ff3b30';
+                voiceBtn.innerHTML = '<i class="fas fa-circle" style="animation: pulse 1s infinite;"></i>';
+            }
+
+            isListening = true;
+
+            recognition.onstart = () => {
+// DEBUG: console.log('Voice recognition started');
+                showNotification('🎤 Listening... Speak now!', 'info');
+
+                // Auto-stop after 10 seconds
+                recognitionTimeout = setTimeout(() => {
+                    if (isListening) {
+                        recognition.stop();
+                        if (!finalTranscript && !interimTranscript) {
+                            showNotification('No speech detected. Click the mic and speak clearly.', 'warning');
+                        }
+                    }
+                }, 10000);
+            };
+
+            recognition.onresult = (event) => {
+                interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Show what's being heard
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.value = (finalTranscript + interimTranscript).trim();
+                }
+
+                // If we got final results, stop and search
+                if (finalTranscript) {
+                    clearTimeout(recognitionTimeout);
+                    recognition.stop();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                // Only log errors that are not 'no-speech' (which is expected when user doesn't speak)
+                if (event.error !=== 'no-speech') {
+                    console.error('Voice recognition error:', event.error);
+                }
+                clearTimeout(recognitionTimeout);
+                isListening = false;
+
+                if (voiceBtn) {
+                    voiceBtn.style.background = '';
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                }
+
+                // Don't show error message for 'no-speech' - it's expected behavior
+                if (event.error === 'no-speech') {
+                    return;
+                }
+
+                let errorMessage = 'Voice search error. Please try again.';
+                switch (event.error) {
+                    case 'audio-capture':
+                        errorMessage = 'Microphone not found. Please check your device settings.';
+                        break;
+                    case 'not-allowed':
+                        errorMessage = 'Microphone access denied. Please allow microphone access in your browser settings.';
+                        break;
+                    case 'network':
+                        errorMessage = 'Network error. Please check your internet connection.';
+                        break;
+                    case 'aborted':
+                        // Don't show error for manual abort
+                        return;
+                }
+                showNotification(errorMessage, 'error');
+            };
+
+            recognition.onend = () => {
+// DEBUG: console.log('Voice recognition ended');
+                clearTimeout(recognitionTimeout);
+                isListening = false;
+
+                if (voiceBtn) {
+                    voiceBtn.style.background = '';
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                }
+
+                // Perform search if we got something
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput && searchInput.value.trim()) {
+                    showNotification(`Searching for: ${searchInput.value}`, 'success');
+                    setTimeout(() => performSearch(), 500);
+                }
+            };
+
+            recognition.start();
+
+        } catch (error) {
+            console.error('Voice search initialization error:', error);
+            isListening = false;
+            showNotification('Failed to start voice search: ' + error.message, 'error');
+        }
+    }
+
+    // Notification helper
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const bgColor = type === 'error' ? '#ef4444' :
+            type === 'success' ? '#10b981' :
+                type === 'warning' ? '#f59e0b' : '#3b82f6';
+
+        notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${bgColor};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+                font-weight: 500;
+            `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+
+    // Enter key for search
+    document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    // ==========================================
+    // PROFILE MENU FUNCTIONS
+    // ==========================================
+
+    // Toggle Account Menu
+    function toggleAccountMenu(e) {
+        if (e) e.stopPropagation();
+
+        const menu = document.getElementById('accountMenu');
+        const isVisible = menu.style.display === 'block';
+
+        if (isVisible) {
+            menu.style.display = 'none';
+        } else {
+            // Update menu content with current user info
+            const user = typeof AuthService !=== 'undefined' ? AuthService.getUser() : null;
+            const displayName = user?.name || localStorage.getItem('displayName') || 'User';
+            const email = user?.email || localStorage.getItem('email') || 'user@example.com';
+            const photo = user?.avatar || localStorage.getItem('profilePhoto') || localStorage.getItem('avatar');
+            const userId = user?._id || user?.id || localStorage.getItem('userId');
+
+            document.getElementById('menuUserName').textContent = displayName;
+            document.getElementById('menuUserEmail').textContent = email;
+
+            // Update channel link with user ID
+            const channelLink = document.getElementById('viewChannelLink');
+            if (channelLink && userId) {
+                channelLink.href = `channel.html?id=${userId}`;
+// DEBUG: console.log('✅ Channel link updated:', channelLink.href);
+            }
+
+            const menuAvatar = document.getElementById('menuAvatar');
+            if (menuAvatar) {
+                if (photo && photo !=== 'undefined' && photo !=== 'null') {
+                    const img = document.createElement('img');
+                    img.src = photo;
+                    img.alt = displayName;
+                    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+
+                    // Proper onerror handler with null check
+                    const fallbackInitial = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+                    img.onerror = function () {
+                        const avatar = document.getElementById('menuAvatar');
+                        if (avatar) {
+                            avatar.innerHTML = '';
+                            avatar.textContent = fallbackInitial;
+                        }
+                    };
+
+                    menuAvatar.innerHTML = '';
+                    menuAvatar.appendChild(img);
+                } else {
+                    menuAvatar.textContent = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+                }
+            }
+
+            menu.style.display = 'block';
+        }
+    }
+
+    // Close account menu when clicking outside
+    document.addEventListener('click', function (e) {
+        const menu = document.getElementById('accountMenu');
+        const avatar = document.getElementById('headerAvatar');
+
+        if (menu && avatar && !menu.contains(e.target) && !avatar.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Handle logout
+    function handleLogout(e) {
+        if (e) e.preventDefault();
+
+// DEBUG: console.log('🔥 LOGOUT TRIGGERED');
+
+        // Add confirmation
+        if (!confirm('Are you sure you want to sign out?')) {
+// DEBUG: console.log('❌ Logout cancelled by user');
+            return;
+        }
+
+        // Close account menu
+        const menu = document.getElementById('accountMenu');
+        if (menu) menu.style.display = 'none';
+
+// DEBUG: console.log('🧹 Clearing all authentication data...');
+
+        // Clear all storage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Redirect to login
+        window.location.href = 'login.html?logout=true';
+    }
+
+    function toggleUploadDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('uploadDropdown');
+        
+        // Toggle display
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+// DEBUG: console.log('✅ Create dropdown opened');
+        } else {
+            dropdown.style.display = 'none';
+// DEBUG: console.log('✅ Create dropdown closed');
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('uploadDropdown');
+        const button = event.target.closest('.upload-btn');
+        
+        // If clicking outside both dropdown and button, close dropdown
+        if (dropdown && dropdown.style.display === 'block' && !button) {
+            dropdown.style.display = 'none';
+// DEBUG: console.log('✅ Create dropdown closed (outside click)');
+        }
+    });
+
+    // Theme functions now handled by shared/theme-manager.js
+    // toggleTheme() is available globally
+
+    // Create floating particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        const particleCount = 25;
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Theme already initialized by shared/theme-manager.js
+
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            // Check if href is not just '#' before querying
+            if (href && href !=== '#') {
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    });
+
+    // Intersection Observer for card animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe video cards after they're rendered
+    setTimeout(() => {
+        document.querySelectorAll('.video-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            cardObserver.observe(card);
+        });
+    }, 100);
+
+    // ==========================================
+    // ACTIVATE ALL FUNCTIONS
+    // ==========================================
+
+    // Enable all interactive elements
+    document.addEventListener('DOMContentLoaded', function () {
+// DEBUG: console.log('🚀 Activating all Bhuban functions...');
+
+        // 1. Enable all buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        });
+
+        // 2. Enable all links
+        document.querySelectorAll('a').forEach(link => {
+            link.style.pointerEvents = 'auto';
+            link.style.opacity = '1';
+        });
+
+        // 3. Enable all sidebar links
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.style.display = 'flex';
+            link.style.opacity = '1';
+        });
+
+        // 4. Enable search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.disabled = false;
+            searchInput.placeholder = 'Search videos...';
+        }
+
+        // 5. Enable voice search
+        const voiceBtn = document.getElementById('voiceSearchBtn');
+        if (voiceBtn) {
+            voiceBtn.disabled = false;
+            voiceBtn.style.display = 'flex';
+        }
+
+        // 6. Enable upload button
+        const uploadBtn = document.getElementById('uploadBtn');
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.style.display = 'flex';
+            uploadBtn.onclick = function () {
+                window.location.href = '../Bhuban%20creator%20app/index.html';
+            };
+        }
+
+        // 7. Enable notifications
+        const notifBtn = document.getElementById('notificationsBtn');
+        if (notifBtn) {
+            notifBtn.disabled = false;
+            notifBtn.onclick = function () {
+                showNotification('Notifications enabled!', 'success');
+            };
+        }
+
+        // 8. Enable theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.disabled = false;
+        }
+
+        // 9. Enable category filters
+        document.querySelectorAll('.category-chip').forEach(chip => {
+            chip.style.pointerEvents = 'auto';
+            chip.onclick = function () {
+                document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                filterVideos(this.textContent);
+            };
+        });
+
+        // 10. Enable video cards
+        attachVideoCardHandlers();
+
+        // 11. Auth system is inline and runs automatically on DOMContentLoaded
+
+        // 14. Add filter function
+        window.filterVideos = function (category) {
+// DEBUG: console.log('Filtering by:', category);
+            showNotification('Showing ' + category + ' videos', 'info');
+            // Reload videos with filter
+            loadVideos(category);
+        };
+
+        // 15. Enable keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Ctrl/Cmd + K for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput')?.focus();
+            }
+            // / for search
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('searchInput')?.focus();
+            }
+            // Ctrl/Cmd + U for upload
+            if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+                e.preventDefault();
+                window.location.href = '../Bhuban%20creator%20app/index.html';
+            }
+        });
+
+// DEBUG: console.log('✅ All functions activated!');
+        showNotification('🎉 All features activated!', 'success');
+
+        // Initialize enhanced animations
+        initEnhancedAnimations();
+    });
+
+    // ==========================================
+    // ENHANCED ANIMATIONS & INTERACTIVITY
+    // ==========================================
+
+    function initEnhancedAnimations() {
+        // 1. Create floating particles
+        createFloatingParticles();
+
+        // 2. Add cursor glow effect
+        initCursorGlow();
+
+        // 3. Add scroll progress bar
+        addScrollProgressBar();
+
+        // 4. Add magnetic buttons
+        initMagneticButtons();
+
+        // 5. Add parallax effect
+        initParallaxEffect();
+
+        // 6. Add typing effect to search
+        initTypingEffect();
+
+        // 7. Add hover sound effects (visual feedback)
+        initHoverEffects();
+
+        // 8. Add intersection observer for scroll animations
+        initScrollAnimations();
+
+// DEBUG: console.log('✨ Enhanced animations initialized!');
+
+        // Initialize AI features
+        initAIFeatures();
+    }
+
+    // ==========================================
+    // ADVANCED AI FEATURES
+    // ==========================================
+
+    function initAIFeatures() {
+        // 1. Smart Video Recommendations
+        initSmartRecommendations();
+
+        // 2. AI Search Suggestions
+        initAISearchSuggestions();
+
+        // 3. Content-Aware Thumbnails
+        initSmartThumbnails();
+
+        // 4. Auto-Generated Video Summaries
+        initVideoSummaries();
+
+        // 5. AI-Powered Trending Prediction
+        initTrendingPrediction();
+
+// DEBUG: console.log('🤖 AI features initialized!');
+    }
+
+    // Smart Video Recommendations based on viewing history
+    function initSmartRecommendations() {
+        // Analyze user preferences
+        const preferences = analyzeUserPreferences();
+
+        // Reorder videos based on AI prediction
+        if (preferences.length > 0) {
+            const videoGrid = document.getElementById('videoGrid');
+            const cards = Array.from(videoGrid.children);
+
+            // Sort by predicted interest
+            cards.sort((a, b) => {
+                const scoreA = calculateInterestScore(a, preferences);
+                const scoreB = calculateInterestScore(b, preferences);
+                return scoreB - scoreA;
+            });
+
+            // Re-append in new order with animation
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    videoGrid.appendChild(card);
+                    card.style.animation = 'bounce-in 0.5s ease';
+                }, index * 100);
+            });
+        }
+    }
+
+    // Analyze user preferences from localStorage
+    function analyzeUserPreferences() {
+        const history = JSON.parse(localStorage.getItem('bhuban_watch_history') || '[]');
+        const categories = {};
+
+        history.forEach(video => {
+            const cat = video.category || 'general';
+            categories[cat] = (categories[cat] || 0) + 1;
+        });
+
+        return Object.entries(categories)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([cat]) => cat);
+    }
+
+    // Calculate interest score for a video
+    function calculateInterestScore(card, preferences) {
+        const title = card.querySelector('.video-title')?.textContent || '';
+        const channel = card.querySelector('.video-channel')?.textContent || '';
+        const text = (title + ' ' + channel).toLowerCase();
+
+        let score = 0; // Start with 0, no fake randomness
+
+        preferences.forEach(pref => {
+            if (text.includes(pref.toLowerCase())) {
+                score += 0.3;
+            }
+        });
+
+        // Boost trending videos
+        if (card.dataset.trending === 'true') {
+            score += 0.2;
+        }
+
+        return score;
+    }
+
+    // AI Search Suggestions
+    function initAISearchSuggestions() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+
+        const suggestions = [
+            'trending music videos',
+            'latest tech reviews',
+            'gaming highlights',
+            'cooking tutorials',
+            'fitness workouts',
+            'travel vlogs',
+            'educational content',
+            'funny moments',
+            'movie trailers',
+            'live streams'
+        ];
+
+        // Create suggestions dropdown
+        const dropdown = document.createElement('div');
+        dropdown.id = 'ai-search-suggestions';
+        dropdown.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                border-radius: 12px;
+                margin-top: 8px;
+                padding: 8px;
+                z-index: 1000;
+                display: none;
+                box-shadow: 0 10px 40px var(--shadow-color);
+            `;
+
+        searchInput.parentElement.style.position = 'relative';
+        searchInput.parentElement.appendChild(dropdown);
+
+        searchInput.addEventListener('input', (e) => {
+            const value = e.target.value.toLowerCase();
+
+            if (value.length > 0) {
+                const filtered = suggestions.filter(s =>
+                    s.toLowerCase().includes(value) ||
+                    value.split(' ').some(word => s.toLowerCase().includes(word))
+                );
+
+                if (filtered.length > 0) {
+                    dropdown.innerHTML = filtered.map(s => `
+                            <div class="suggestion-item" style="
+                                padding: 10px 16px;
+                                cursor: pointer;
+                                border-radius: 8px;
+                                transition: all 0.2s;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            " onmouseover="this.style.background='var(--bg-hover)'"
+                            onmouseout="this.style.background='transparent'"
+                            onclick="selectSuggestion('${s}')">
+                                <i class="fas fa-search" style="color: var(--text-secondary);"></i>
+                                <span>${s}</span>
+                                <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--accent-primary); opacity: 0;"></i>
+                            </div>
+                        `).join('');
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // Select search suggestion
+    window.selectSuggestion = function (suggestion) {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = suggestion;
+        document.getElementById('ai-search-suggestions').style.display = 'none';
+        performSearch();
+    };
+
+    // Smart Thumbnails with hover preview
+    function initSmartThumbnails() {
+        document.querySelectorAll('.video-card').forEach(card => {
+            const thumbnail = card.querySelector('.video-thumbnail img');
+            if (!thumbnail) return;
+
+            // Add hover preview effect
+            card.addEventListener('mouseenter', () => {
+                thumbnail.style.transition = 'transform 0.5s ease';
+                thumbnail.style.transform = 'scale(1.1)';
+
+                // Show AI analysis tooltip
+                showAIAnalysis(card);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                thumbnail.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    // Show AI analysis for video
+    function showAIAnalysis(card) {
+        const title = card.querySelector('.video-title')?.textContent || '';
+        const views = card.querySelector('.video-views')?.textContent || '0';
+
+        // Real AI analysis would come from backend
+        // For now, just mark that analysis was requested
+        const sentiment = 'neutral'; // Default until backend provides real analysis
+        const engagement = 0; // Will be calculated from real metrics
+
+        // Store for future backend integration
+        card.dataset.aiSentiment = sentiment;
+        card.dataset.aiEngagement = engagement;
+    }
+
+    // Auto-Generated Video Summaries
+    function initVideoSummaries() {
+        // Add summary button to video cards
+        document.querySelectorAll('.video-card').forEach(card => {
+            const summaryBtn = document.createElement('button');
+            summaryBtn.className = 'ai-summary-btn';
+            summaryBtn.innerHTML = '<i class="fas fa-sparkles"></i> AI Summary';
+            summaryBtn.style.cssText = `
+                    position: absolute;
+                    bottom: 10px;
+                    left: 10px;
+                    background: linear-gradient(135deg, #00d4ff, #0099ff);
+                    color: white;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    opacity: 0;
+                    transform: translateY(10px);
+                    transition: all 0.3s ease;
+                    z-index: 10;
+                `;
+
+            card.querySelector('.video-thumbnail')?.appendChild(summaryBtn);
+
+            card.addEventListener('mouseenter', () => {
+                summaryBtn.style.opacity = '1';
+                summaryBtn.style.transform = 'translateY(0)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                summaryBtn.style.opacity = '0';
+                summaryBtn.style.transform = 'translateY(10px)';
+            });
+
+            summaryBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                generateVideoSummary(card);
+            });
+        });
+    }
+
+    // Generate AI summary for video
+    function generateVideoSummary(card) {
+        const title = card.querySelector('.video-title')?.textContent || 'Video';
+
+        // Real AI summary would come from backend
+        // For now, show a generic message
+        const summary = 'AI summary feature coming soon. This will analyze video content and provide insights.';
+
+        showNotification(`🤖 AI Summary: ${summary}`, 'info');
+    }
+
+    // AI-Powered Trending Prediction
+    function initTrendingPrediction() {
+        // Analyze and mark trending videos
+        document.querySelectorAll('.video-card').forEach((card, index) => {
+            // Simulate AI prediction based on various factors
+            const views = parseInt(card.querySelector('.video-views')?.textContent?.replace(/[^0-9]/g, '') || '0');
+            const isNew = card.dataset.isNew === 'true';
+
+            // Real trending score based on views only (no random component)
+            const trendingScore = (views * 0.7) + (isNew ? 30 : 0);
+
+            if (trendingScore > 50) {
+                card.dataset.trending = 'true';
+
+                // Add trending badge
+                const badge = document.createElement('div');
+                badge.className = 'trending-badge';
+                badge.innerHTML = '<i class="fas fa-fire"></i> Trending';
+                badge.style.cssText = `
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        background: linear-gradient(135deg, #ff6b35, #ff006e);
+                        color: white;
+                        padding: 4px 10px;
+                        border-radius: 12px;
+                        font-size: 10px;
+                        font-weight: 700;
+                        z-index: 10;
+                        animation: pulse-glow 2s infinite;
+                    `;
+                card.querySelector('.video-thumbnail')?.appendChild(badge);
+            }
+        });
+    }
+
+    // AI Assistant Quick Access
+    function openAIAssistant() {
+        window.location.href = 'ai-assistant.html';
+    }
+
+    // Add AI button to header
+    document.addEventListener('DOMContentLoaded', () => {
+        const headerRight = document.querySelector('.header-right');
+        if (headerRight) {
+            const aiBtn = document.createElement('button');
+            aiBtn.className = 'header-btn';
+            aiBtn.innerHTML = '<i class="fas fa-robot" style="font-size:20px; color: #00d4ff;"></i>';
+            aiBtn.title = 'AI Assistant';
+            aiBtn.onclick = openAIAssistant;
+            aiBtn.setAttribute('data-tooltip', 'AI Assistant');
+
+            // Insert before theme toggle
+            const themeToggle = headerRight.querySelector('.theme-toggle');
+            if (themeToggle) {
+                headerRight.insertBefore(aiBtn, themeToggle);
+            } else {
+                headerRight.appendChild(aiBtn);
+            }
+        }
+    });
+
+    // Floating Particles
+    function createFloatingParticles() {
+        const container = document.createElement('div');
+        container.id = 'particles-container';
+        document.body.appendChild(container);
+
+        const colors = ['#ff6b35', '#ff006e', '#ffd60a', '#06d6a0', '#a855f7'];
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.width = (4 + Math.random() * 6) + 'px';
+            particle.style.height = particle.style.width;
+            container.appendChild(particle);
+        }
+    }
+
+    // Cursor Glow Effect
+    function initCursorGlow() {
+        const glow = document.createElement('div');
+        glow.className = 'cursor-glow';
+        document.body.appendChild(glow);
+
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animate() {
+            currentX += (mouseX - currentX) * 0.1;
+            currentY += (mouseY - currentY) * 0.1;
+            glow.style.left = currentX + 'px';
+            glow.style.top = currentY + 'px';
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    // Scroll Progress Bar
+    function addScrollProgressBar() {
+        const progressBar = document.createElement('div');
+        progressBar.className = 'scroll-progress';
+        document.body.appendChild(progressBar);
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+        });
+    }
+
+    // Magnetic Buttons
+    function initMagneticButtons() {
+        document.querySelectorAll('.header-btn, .sidebar-link, .category-chip').forEach(btn => {
+            btn.classList.add('magnetic-btn');
+
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+    }
+
+    // Parallax Effect
+    function initParallaxEffect() {
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+
+            document.querySelectorAll('.video-card').forEach((card, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                card.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
+            });
+        });
+    }
+
+    // Typing Effect for Search
+    function initTypingEffect() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+
+        const placeholders = [
+            'Search videos...',
+            'Search creators...',
+            'Search music...',
+            'What are you looking for?',
+            'Discover amazing content...'
+        ];
+        let index = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+            const current = placeholders[index];
+
+            if (isDeleting) {
+                searchInput.placeholder = current.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                searchInput.placeholder = current.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            if (!isDeleting && charIndex === current.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                index = (index + 1) % placeholders.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        type();
+    }
+
+    // Hover Effects
+    function initHoverEffects() {
+        document.querySelectorAll('.video-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.zIndex = '10';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.zIndex = '1';
+            });
+        });
+    }
+
+    // Scroll Animations
+    function initScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slide-up 0.6s ease forwards';
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.video-card, .category-chip, .sidebar-section').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+    }
+
+    // Open Short in YouTube-style modal with scrolling
+    function openShortModal(shortId, title, thumbnailUrl, views) {
+        // Get all Shorts for scrolling
+        const allShorts = getCurrentShortsList();
+        
+        // Create modal overlay
+        const modal = document.createElement('div');
+        modal.id = 'shortsModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        // Create Shorts container (YouTube style)
+        modal.innerHTML = `
+            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <!-- Loading state -->
+                <div id="shortsLoading" style="color: white; text-align: center;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
+                    <div>Loading Short...</div>
+                </div>
+                
+                <!-- Video container -->
+                <div id="shortsVideoContainer" style="display: none; width: 100%; height: 100%; position: relative;">
+                    <video id="shortsVideo" 
+                           style="width: 100%; height: 100%; object-fit: contain; background: #000;"
+                           loop 
+                           playsinline
+                           autoplay
+                           preload="metadata"
+                           data-id="${shortId}">
+                    </video>
+                    
+                    <!-- Navigation Arrows -->
+                    <button id="prevShortBtn" onclick="navigateShorts('prev')" 
+                            style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.7); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10001; display: none;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <button id="nextShortBtn" onclick="navigateShorts('next')" 
+                            style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.7); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10001; display: none;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Close button -->
+                    <button onclick="closeShortsModal()" 
+                            style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10001;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <!-- Creator Info Overlay -->
+                    <div id="shortsCreatorInfo" style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 12px; z-index: 10001;">
+                        <div id="creatorAvatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #ff6b35, #ff006e); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer;"></div>
+                        <div>
+                            <div id="creatorName" style="color: white; font-weight: 600; font-size: 16px; cursor: pointer;">Loading...</div>
+                            <button id="subscribeBtn" onclick="subscribeToChannel()" 
+                                    style="background: white; color: black; border: none; padding: 4px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Info Overlay -->
+                    <div id="shortsVideoInfo" style="position: absolute; bottom: 100px; left: 20px; right: 20px; z-index: 10001;">
+                        <div id="shortsTitle" style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 8px;"></div>
+                        <div id="shortsDescription" style="color: rgba(255,255,255,0.9); font-size: 14px; line-height: 1.4; max-height: 60px; overflow: hidden;"></div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div id="shortsActions" style="position: absolute; right: 20px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10001;">
+                        <button id="likeBtn" onclick="likeShort('${shortId}')" 
+                                style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-heart" style="font-size: 20px; margin-bottom: 4px;"></i>
+                            <span id="likeCount" style="font-size: 12px;">0</span>
+                        </button>
+                        
+                        <button id="dislikeBtn" onclick="dislikeShort('${shortId}')" 
+                                style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-thumbs-down" style="font-size: 20px; margin-bottom: 4px;"></i>
+                            <span style="font-size: 12px;">Dislike</span>
+                        </button>
+                        
+                        <button onclick="commentOnShort('${shortId}')" 
+                                style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-comment" style="font-size: 20px; margin-bottom: 4px;"></i>
+                            <span id="commentCount" style="font-size: 12px;">0</span>
+                        </button>
+                        
+                        <button onclick="shareShort('${shortId}')" 
+                                style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-share" style="font-size: 20px; margin-bottom: 4px;"></i>
+                            <span style="font-size: 12px;">Share</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Video controls overlay -->
+                    <div id="shortsControls" style="position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; opacity: 0; transition: opacity 0.3s ease; z-index: 10001;">
+                        <button onclick="toggleShortsPlayPause()" 
+                                style="background: rgba(0,0,0,0.7); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px;">
+                            <i class="fas fa-pause" id="playPauseIcon"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Progress Indicator -->
+                    <div id="shortsProgress" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10001;">
+                        <!-- Progress dots will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        // Store Shorts data and current index
+        modal.allShorts = allShorts;
+        modal.currentShortIndex = allShorts.findIndex(s => s._id === shortId);
+        
+        // Load the actual Short video
+        loadShortVideo(shortId);
+        
+        // Add swipe/scroll functionality
+        addScrollingFunctionality(modal);
+    }
+    
+    // Load Short video content
+    async function loadShortVideo(shortId) {
+        try {
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/videos/${shortId}`);
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                const short = data.data;
+                const videoUrl = short.videoUrl.startsWith('http') ? short.videoUrl : `${apiBase}/uploads/${short.videoUrl}`;
+                
+                const videoElement = document.getElementById('shortsVideo');
+                const loadingElement = document.getElementById('shortsLoading');
+                const containerElement = document.getElementById('shortsVideoContainer');
+                
+                // Hide loading, show video
+                loadingElement.style.display = 'none';
+                containerElement.style.display = 'block';
+                
+                // Set video source
+                videoElement.src = videoUrl;
+                
+                // Populate video information
+                document.getElementById('shortsTitle').textContent = short.title || 'Untitled Short';
+                document.getElementById('shortsDescription').textContent = short.description || '';
+                document.getElementById('likeCount').textContent = formatNumber(short.likes || 0);
+                document.getElementById('commentCount').textContent = formatNumber(short.comments || 0);
+                
+                // Set creator information
+                const creatorName = short.user?.name || 'Unknown Creator';
+                const creatorAvatar = document.getElementById('creatorAvatar');
+                const creatorNameElement = document.getElementById('creatorName');
+                const subscribeBtn = document.getElementById('subscribeBtn');
+                
+                creatorNameElement.textContent = `@${creatorName}`;
+                creatorAvatar.textContent = creatorName.charAt(0).toUpperCase();
+                
+                // Add click handlers for creator info
+                creatorAvatar.onclick = () => viewChannel(short.user?._id);
+                creatorNameElement.onclick = () => viewChannel(short.user?._id);
+                subscribeBtn.onclick = () => subscribeToChannel(short.user?._id, subscribeBtn);
+                
+                // Add event listeners
+                videoElement.addEventListener('loadeddata', function() {
+// DEBUG: console.log('Short video loaded');
+                });
+                
+                videoElement.addEventListener('click', function() {
+                    toggleShortsPlayPause();
+                });
+                
+                // Show controls on hover
+                const container = document.getElementById('shortsVideoContainer');
+                container.addEventListener('mouseenter', function() {
+                    document.getElementById('shortsControls').style.opacity = '1';
+                });
+                
+                container.addEventListener('mouseleave', function() {
+                    document.getElementById('shortsControls').style.opacity = '0';
+                });
+                
+                // Update navigation buttons and progress indicator
+                const modal = document.getElementById('shortsModal');
+                if (modal && modal.allShorts) {
+                    updateNavigationButtons(modal);
+                    updateProgressIndicator(modal);
+                }
+                
+                // Ensure video plays
+// DEBUG: videoElement.play().catch(e => console.log('Autoplay prevented:', e));
+                
+            } else {
+                throw new Error('Short not found');
+            }
+        } catch (error) {
+            console.error('Error loading Short:', error);
+            document.getElementById('shortsLoading').innerHTML = `
+                <div style="color: white; text-align: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                    <div>Error loading Short</div>
+                    <button onclick="closeShortsModal()" style="margin-top: 20px; background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Close</button>
+                </div>
+            `;
+        }
+    }
+    
+    // Toggle play/pause for Shorts modal
+    function toggleShortsPlayPause() {
+        const video = document.getElementById('shortsVideo');
+        const icon = document.getElementById('playPauseIcon');
+        
+        if (video.paused) {
+            video.play();
+            icon.className = 'fas fa-pause';
+        } else {
+            video.pause();
+            icon.className = 'fas fa-play';
+        }
+    }
+    
+    // Close Shorts modal
+    function closeShortsModal() {
+        const modal = document.getElementById('shortsModal');
+        if (modal) {
+            // Cleanup event listeners
+            if (modal.cleanup) {
+                modal.cleanup();
+            }
+            
+            // Stop video
+            const video = document.getElementById('shortsVideo');
+            if (video) {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            }
+            
+            // Remove modal
+            modal.remove();
+        }
+        
+        // Always restore scroll - even if modal doesn't exist
+        document.body.style.overflow = '';
+        document.body.style.overflowY = '';
+        document.documentElement.style.overflow = '';
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('shortsModal')) {
+            closeShortsModal();
+        }
+    });
+    
+    // Utility functions for Shorts modal
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+    
+    // Like Short
+    async function likeShort(videoId) {
+        if (typeof AuthService === 'undefined' || !AuthService.isAuthenticated()) {
+            showNotification('Please sign in to like videos', 'error');
+            return;
+        }
+        
+        try {
+            const token = AuthService.getToken();
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/videos/${videoId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                const likeBtn = document.getElementById('likeBtn');
+                const likeCount = document.getElementById('likeCount');
+                const currentLikes = parseInt(likeCount.textContent) || 0;
+                
+                if (data.liked) {
+                    likeBtn.style.color = '#ff0000';
+                    likeCount.textContent = formatNumber(currentLikes + 1);
+                    showNotification('Liked!', 'success');
+                } else {
+                    likeBtn.style.color = 'white';
+                    likeCount.textContent = formatNumber(currentLikes - 1);
+                    showNotification('Like removed', 'info');
+                }
+                
+                likeBtn.style.animation = 'pulse 0.3s ease';
+                setTimeout(() => likeBtn.style.animation = '', 300);
+            } else {
+                showNotification(data.error || 'Failed to like video', 'error');
+            }
+        } catch (error) {
+            console.error('Error liking Short:', error);
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+    
+    // Dislike Short
+    async function dislikeShort(videoId) {
+        if (typeof AuthService === 'undefined' || !AuthService.isAuthenticated()) {
+            showNotification('Please sign in to dislike videos', 'error');
+            return;
+        }
+        
+        try {
+            const token = AuthService.getToken();
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/videos/${videoId}/dislike`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                const dislikeBtn = document.getElementById('dislikeBtn');
+                const wasDisliked = dislikeBtn.style.color === '#ff0000';
+                
+                if (data.disliked) {
+                    dislikeBtn.style.color = '#ff0000';
+                    showNotification('Disliked', 'success');
+                } else {
+                    dislikeBtn.style.color = 'white';
+                    showNotification('Dislike removed', 'info');
+                }
+                
+                dislikeBtn.style.animation = 'shake 0.3s ease';
+                setTimeout(() => dislikeBtn.style.animation = '', 300);
+            } else {
+                showNotification(data.error || 'Failed to dislike video', 'error');
+            }
+        } catch (error) {
+            console.error('Error disliking Short:', error);
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+    
+    // Comment on Short (redirect to watch page)
+    function commentOnShort(videoId) {
+        window.location.href = `watch.html?v=${videoId}`;
+    }
+    
+    // Share Short
+    function shareShort(videoId) {
+        const url = `${window.location.origin}/watch.html?v=${videoId}`;
+        const title = 'Check out this Short on Bhuban!';
+        
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: 'Watch this amazing Short!',
+                url: url
+            }).then(() => {
+                showNotification('Shared successfully!', 'success');
+            }).catch(() => {
+                copyToClipboard(url);
+            });
+        } else {
+            copyToClipboard(url);
+        }
+    }
+    
+    // Copy to clipboard
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            showNotification('Failed to copy link', 'error');
+        });
+    }
+    
+    // Subscribe to channel
+    async function subscribeToChannel(channelId, button) {
+        if (typeof AuthService === 'undefined' || !AuthService.isAuthenticated()) {
+            showNotification('Please sign in to subscribe', 'error');
+            return;
+        }
+        
+        if (!channelId) {
+            showNotification('Channel not found', 'error');
+            return;
+        }
+        
+        try {
+            const token = AuthService.getToken();
+            const apiBase = BhubanConfig.api.baseUrl;
+            const response = await fetch(`${apiBase}/api/subscriptions/${channelId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                const isSubscribed = data.subscribed;
+                button.textContent = isSubscribed ? 'Subscribed' : 'Subscribe';
+                button.style.background = isSubscribed ? '#666' : 'white';
+                button.style.color = isSubscribed ? 'white' : 'black';
+                
+                showNotification(
+                    isSubscribed ? 'Subscribed!' : 'Unsubscribed', 
+                    'success'
+                );
+                
+                button.style.animation = 'pulse 0.3s ease';
+                setTimeout(() => button.style.animation = '', 300);
+            } else {
+                showNotification(data.error || 'Failed to subscribe', 'error');
+            }
+        } catch (error) {
+            console.error('Error subscribing:', error);
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+    
+    // View channel profile
+    function viewChannel(channelId) {
+        if (channelId) {
+            window.location.href = `channel.html?id=${channelId}`;
+        }
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const colors = {
+            success: 'linear-gradient(135deg, #06d6a0, #10b981)',
+            error: 'linear-gradient(135deg, #ef4444, #e63946)',
+            warning: 'linear-gradient(135deg, #ffd60a, #f7931e)',
+            info: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+        };
+        
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 18px 28px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(255, 214, 10, 0.3);
+            z-index: 10001;
+            animation: slideIn 0.3s ease;
+            font-size: 15px;
+            font-weight: 600;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Confetti Effect
+    function createConfetti(x, y) {
+        const colors = ['#ff6b35', '#ff006e', '#ffd60a', '#06d6a0', '#a855f7'];
+
+        for (let i = 0; i < 20; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = x + 'px';
+            confetti.style.top = y + 'px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    }
+
+    // Add click confetti to buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.upload-btn') || e.target.closest('.interactive-btn')) {
+            createConfetti(e.clientX, e.clientY);
+        }
+    });
+
+    // Add tooltips to all buttons
+    document.querySelectorAll('.header-btn').forEach(btn => {
+        const icon = btn.querySelector('i');
+        if (icon) {
+            const tooltipMap = {
+                'fa-bars': 'Menu',
+                'fa-search': 'Search (Ctrl+K)',
+                'fa-microphone': 'Voice Search',
+                'fa-upload': 'Upload Video (Ctrl+U)',
+                'fa-bell': 'Notifications',
+                'fa-moon': 'Toggle Theme',
+                'fa-sun': 'Toggle Theme'
+            };
+
+            Object.keys(tooltipMap).forEach(cls => {
+                if (icon.classList.contains(cls)) {
+                    btn.setAttribute('data-tooltip', tooltipMap[cls]);
+                }
+            });
+        }
+    });
+
+    // ========================================
+    // MANUAL AUTH UI UPDATE TRIGGER
+    // ========================================
+    // Auth system is inline and runs on DOMContentLoaded - no need for additional checks
+// DEBUG: console.log('✅ Inline auth system active');
+
+    // Update header avatar and name on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auth UI is now handled centrally by auth-check.js to prevent flickering
+// DEBUG: console.log('✅ Index Page: Auth UI delegated to auth-check.js');
+    });
+    
+    // Get current Shorts list based on context (channel vs home/shorts page)
+    function getCurrentShortsList() {
+        const shortsTab = document.querySelector('.shorts-tab.active');
+        const channelPage = window.location.pathname.includes('channel.html');
+        
+        if (channelPage) {
+            // On channel page - show only this channel's Shorts
+            if (window.channelVideos) {
+                return window.channelVideos.filter(video => 
+                    VideoIdentificationRules.isShort(video)
+                );
+            }
+        } else if (shortsTab) {
+            // On home page in Shorts tab - show all Shorts with algorithm
+            if (window.allVideos) {
+                return window.allVideos.filter(video => 
+                    VideoIdentificationRules.isShort(video)
+                ).sort((a, b) => {
+                    // Algorithm-based sorting (views + recency)
+                    const scoreA = (a.views || 0) * 0.7 + new Date(a.createdAt).getTime() * 0.3;
+                    const scoreB = (b.views || 0) * 0.7 + new Date(b.createdAt).getTime() * 0.3;
+                    return scoreB - scoreA;
+                });
+            }
+        } else {
+            // On Shorts page - show all Shorts
+            if (window.allVideos) {
+                return window.allVideos.filter(video => 
+                    VideoIdentificationRules.isShort(video)
+                ).sort((a, b) => {
+                    // Algorithm-based sorting
+                    const scoreA = (a.views || 0) * 0.7 + new Date(a.createdAt).getTime() * 0.3;
+                    const scoreB = (b.views || 0) * 0.7 + new Date(b.createdAt).getTime() * 0.3;
+                    return scoreB - scoreA;
+                });
+            }
+        }
+        
+        return [];
+    }
+    
+    // Add scrolling/swipe functionality
+    function addScrollingFunctionality(modal) {
+        let startX = 0;
+        let startY = 0;
+        let isSwiping = false;
+        
+        // Mouse events
+        modal.addEventListener('mousedown', handleStart);
+        modal.addEventListener('mousemove', handleMove);
+        modal.addEventListener('mouseup', handleEnd);
+        modal.addEventListener('mouseleave', handleEnd);
+        
+        // Touch events
+        modal.addEventListener('touchstart', handleStart, { passive: true });
+        modal.addEventListener('touchmove', handleMove, { passive: true });
+        modal.addEventListener('touchend', handleEnd);
+        
+        function handleStart(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
+            isSwiping = true;
+        }
+        
+        function handleMove(e) {
+            if (!isSwiping) return;
+            
+            const touch = e.touches ? e.touches[0] : e;
+            const diffX = touch.clientX - startX;
+            const diffY = touch.clientY - startY;
+            
+            // Only consider horizontal swipes
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                e.preventDefault();
+            }
+        }
+        
+        function handleEnd(e) {
+            if (!isSwiping) return;
+            
+            const touch = e.changedTouches ? e.changedTouches[0] : e;
+            const diffX = touch.clientX - startX;
+            const diffY = touch.clientY - startY;
+            
+            // Horizontal swipe threshold
+            if (Math.abs(diffX) > 100 && Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 0) {
+                    // Swipe right - previous Short
+                    navigateShorts('prev');
+                } else {
+                    // Swipe left - next Short
+                    navigateShorts('next');
+                }
+            }
+            
+            isSwiping = false;
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', handleKeydown);
+        
+        function handleKeydown(e) {
+            if (e.key === 'ArrowLeft') {
+                navigateShorts('prev');
+            } else if (e.key === 'ArrowRight') {
+                navigateShorts('next');
+            } else if (e.key === 'Escape') {
+                closeShortsModal();
+            }
+        }
+        
+        // Cleanup event listeners when modal closes
+        modal.cleanup = function() {
+            document.removeEventListener('keydown', handleKeydown);
+        };
+    }
+    
+    // Navigate between Shorts
+    function navigateShorts(direction) {
+        const modal = document.getElementById('shortsModal');
+        if (!modal || !modal.allShorts || modal.allShorts.length === 0) return;
+        
+        const videoElement = document.getElementById('shortsVideo');
+        if (!videoElement) return;
+        
+        // Pause current video
+        videoElement.pause();
+        
+        // Update index
+        if (direction === 'next') {
+            modal.currentShortIndex = (modal.currentShortIndex + 1) % modal.allShorts.length;
+        } else {
+            modal.currentShortIndex = (modal.currentShortIndex - 1 + modal.allShorts.length) % modal.allShorts.length;
+        }
+        
+        // Load new Short
+        const newShort = modal.allShorts[modal.currentShortIndex];
+        loadShortVideo(newShort._id);
+        
+        // Update navigation buttons visibility
+        updateNavigationButtons(modal);
+        
+        // Update progress indicator
+        updateProgressIndicator(modal);
+    }
+    
+    // Update navigation buttons
+    function updateNavigationButtons(modal) {
+        const prevBtn = document.getElementById('prevShortBtn');
+        const nextBtn = document.getElementById('nextShortBtn');
+        
+        if (modal.allShorts.length <= 1) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+    }
+    
+    // Update progress indicator
+    function updateProgressIndicator(modal) {
+        const progressContainer = document.getElementById('shortsProgress');
+        if (!progressContainer) return;
+        
+        progressContainer.innerHTML = '';
+        
+        modal.allShorts.forEach((short, index) => {
+            const dot = document.createElement('div');
+            dot.style.cssText = `
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: ${index === modal.currentShortIndex ? 'white' : 'rgba(255,255,255,0.4)'};
+                transition: all 0.3s ease;
+            `;
+            progressContainer.appendChild(dot);
+        });
+    }
+
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,390 @@
+/* Video Player Controls Styles - Vibrant Sunset Theme */
+
+:root {
+    --accent-orange: #ff6b35;
+    --accent-pink: #ff006e;
+    --accent-yellow: #ffd60a;
+    --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+}
+
+.video-controls-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(0,0,0,0.8) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.video-player:hover .video-controls-overlay {
+    opacity: 1;
+}
+
+/* Center Play Button */
+.center-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.video-player:hover .center-play-btn {
+    opacity: 1;
+}
+
+.center-play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: #fff;
+}
+
+.center-play-icon {
+    width: 36px;
+    height: 36px;
+    color: #000;
+}
+
+/* Controls Bar */
+.controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    paddingg: 0 12px 12px;
+}
+
+/* Progress Bar */
+.progress-container {
+    position: relative;
+    height: 20px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    transition: height 0.2s ease;
+}
+
+.progress-container:hover .progress-bar {
+    height: 6px;
+}
+
+.progress-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+.progress-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: var(--accent-orange);
+    border: 2px solid var(--accent-yellow);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+.progress-container:hover .progress-handle {
+    opacity: 1;
+}
+
+.progress-tooltip {
+    position: absolute;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    paddingg: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.progress-container:hover .progress-tooltip {
+    opacity: 1;
+}
+
+/* Control Buttons */
+.controls-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    paddingg: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    position: relative;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.control-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+.settings-btn {
+    position: relative;
+}
+
+.new-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--accent-gradient);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    paddingg: 2px 4px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+/* Volume Control */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.volume-slider {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.3s ease;
+}
+
+.volume-control:hover .volume-slider {
+    width: 80px;
+}
+
+.volume-slider input[type="range"] {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.volume-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-slider input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* Time Display */
+.time-display {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    paddingg: 0 8px;
+    white-space: nowrap;
+}
+
+/* Settings Menu */
+.settings-menu,
+.subtitles-menu {
+    position: absolute;
+    bottom: 60px;
+    right: 12px;
+    background: rgba(28, 28, 28, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 8px;
+    min-width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+.settings-panel {
+    paddingg: 8px 0;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    paddingg: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    paddingg: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    paddingg: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    color: #fff;
+    font-size: 14px;
+}
+
+.settings-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-value {
+    color: #aaa;
+    font-size: 13px;
+    margin-right: 8px;
+}
+
+.check-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-orange);
+}
+
+/* Theater Mode */
+.theater-mode {
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+.theater-mode .video-player {
+    aspect-ratio: 21/9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .control-btn {
+        paddingg: 6px;
+    }
+
+    .control-btn i {
+        width: 18px;
+        height: 18px;
+    }
+
+    .time-display {
+        font-size: 11px;
+        paddingg: 0 4px;
+    }
+
+    .volume-control:hover .volume-slider {
+        width: 60px;
+    }
+
+    .settings-menu,
+    .subtitles-menu {
+        min-width: 240px;
+        right: 8px;
+        bottom: 50px;
+    }
+
+    .center-play-btn {
+        width: 60px;
+        height: 60px;
+    }
+
+    .center-play-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Scrollbar for settings menu */
+.settings-menu::-webkit-scrollbar,
+.subtitles-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.settings-menu::-webkit-scrollbar-track,
+.subtitles-menu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-menu::-webkit-scrollbar-thumb,
+.subtitles-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.settings-menu::-webkit-scrollbar-thumb:hover,
+.subtitles-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

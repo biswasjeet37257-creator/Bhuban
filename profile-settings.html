@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings | Bhuban</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="auth-check.js"></script>
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(30, 27, 75, 0.4);
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 80px auto 40px;
+            padding: 24px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            margin-bottom: 32px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .profile-section:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.15);
+        }
+
+        .profile-photo-container {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .profile-photo {
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border: 3px solid var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+        }
+
+        .photo-upload-btn input {
+            display: none;
+        }
+
+        .photo-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #ff3b30;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #e63027;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaa;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f0f0f;
+            border: 1px solid #303030;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff3b30;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .save-btn {
+            background: #ff3b30;
+            color: #fff;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .save-btn:hover {
+            background: #e63027;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <i class="fas fa-play" style="font-size:24px;"></i>
+            <span>BHUBAN</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Profile Settings</h1>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Profile updated successfully!
+        </div>
+
+        <div class="profile-section">
+            <h2 style="margin-bottom: 24px;">Profile Photo</h2>
+
+            <div class="profile-photo-container">
+                <div class="profile-photo">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <span id="avatarLetter">U</span>
+                    </div>
+                    <label class="photo-upload-btn" for="profilePhotoInput" title="Upload photo">
+                        <i class="fas fa-camera" aria-hidden="true"></i>
+                        <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/*"
+                            onchange="uploadPhoto(event)">
+                    </label>
+                </div>
+
+                <div class="photo-actions">
+                    <button class="btn btn-primary" onclick="document.getElementById('profilePhotoInput').click()">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                    <button class="btn btn-secondary" onclick="removePhoto()">
+                        <i class="fas fa-trash"></i> Remove Photo
+                    </button>
+                    <p style="font-size: 12px; color: #aaa; margin-top: 8px;">
+                        Recommended: Square image, at least 200x200px
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 style="margin-bottom: 24px;">Profile Information</h2>
+
+            <form onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label for="displayName">Display Name</label>
+                    <input type="text" id="displayName" placeholder="Enter your name" autocomplete="name" value="User">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="@username" autocomplete="username" value="@user">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="your@email.com" autocomplete="email"
+                        value="user@bhuban.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" placeholder="Tell us about yourself...">Welcome to my Bhuban channel!</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="City, Country" autocomplete="address-level2" value="">
+                </div>
+
+                <button type="submit" class="save-btn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load saved profile data
+        function loadProfile() {
+            // Get user from AuthService
+            const user = AuthService.getUser();
+
+            if (!user) {
+                // If not logged in, AuthService.requireAuth() will handle redirect
+                return;
+            }
+
+// DEBUG: console.log('📝 Loading profile:', { name: user.name, email: user.email, hasPhoto: !!(user.avatar || user.picture) });
+
+            const photo = user.avatar || user.picture;
+            const name = user.name || 'User';
+
+            if (photo) {
+                document.getElementById('profileAvatar').innerHTML = `<img src="${photo}" alt="Profile">`;
+            } else {
+                document.getElementById('avatarLetter').textContent = name.charAt(0).toUpperCase();
+            }
+
+            document.getElementById('displayName').value = name;
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('username').value = user.username || `@${(user.email || 'user').split('@')[0]}`;
+            document.getElementById('bio').value = user.bio || '';
+            document.getElementById('location').value = user.location || '';
+        }
+
+        // Upload photo
+        function uploadPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const photoData = e.target.result;
+
+                // Update UI immediately
+                document.getElementById('profileAvatar').innerHTML = `<img src="${photoData}" alt="Profile">`;
+
+                // Update AuthService user object
+                const user = AuthService.getUser();
+                if (user) {
+                    user.avatar = photoData;
+                    user.picture = photoData;
+                    AuthService.saveSession(AuthService.getToken(), user);
+
+                    // In a real app, this would also be sent to the backend
+// DEBUG: console.log('✅ Photo updated in local session');
+                    showSuccess();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove photo
+        function removePhoto() {
+            if (confirm('Are you sure you want to remove your profile photo?')) {
+                const user = AuthService.getUser();
+                if (user) {
+                    user.avatar = null;
+                    user.picture = null;
+                    AuthService.saveSession(AuthService.getToken(), user);
+
+                    const name = user.name || 'User';
+                    document.getElementById('profileAvatar').innerHTML = `<span id="avatarLetter">${name.charAt(0).toUpperCase()}</span>`;
+
+// DEBUG: console.log('✅ Photo removed from local session');
+                    showSuccess();
+                }
+            }
+        }
+
+        // Save profile
+        async function saveProfile(event) {
+            event.preventDefault();
+
+            const displayName = document.getElementById('displayName').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const bio = document.getElementById('bio').value;
+            const location = document.getElementById('location').value;
+
+            // Update AuthService user object
+            const user = AuthService.getUser();
+            if (user) {
+                user.name = displayName;
+                user.username = username;
+                user.email = email;
+                user.bio = bio;
+                user.location = location;
+
+                AuthService.saveSession(AuthService.getToken(), user);
+
+                // Update avatar letter if no image
+                const avatarLetter = document.getElementById('avatarLetter');
+                if (avatarLetter && !(user.avatar || user.picture)) {
+                    avatarLetter.textContent = displayName.charAt(0).toUpperCase();
+                }
+
+// DEBUG: console.log('✅ Profile saved to local session:', { displayName, email });
+                showSuccess();
+
+                // Trigger UI update
+                if (window.updateAuthUI) window.updateAuthUI();
+            }
+        }
+
+        // Show success message
+        function showSuccess() {
+            const message = document.getElementById('successMessage');
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        // Load profile on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Enforce authentication
+            if (AuthService.requireAuth()) {
+                loadProfile();
+            }
+        });
+    </script>
+</body>
+
+</html>

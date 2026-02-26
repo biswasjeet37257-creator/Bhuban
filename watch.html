@@ -1,0 +1,3460 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Version 4.0 - Fixed Duplicate Buttons - 2026-02-18 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="/shared/auth-sync.js"></script>
+    <script src="pathway-manager.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="video-player-controls.css">
+
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: rgba(30, 27, 75, 0.6);
+            --bg-card: rgba(30, 27, 75, 0.4);
+            --accent-primary: #ff6b35;
+            --accent-secondary: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.3);
+            --glow-color: rgba(255, 0, 110, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .watch-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 80px 24px 24px;
+        }
+
+        .watch-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+        }
+
+        /* Video Player */
+        .video-section {
+            width: 100%;
+        }
+
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        /* Enhanced Video Controls Overlay */
+        .video-controls-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom,
+                    rgba(0, 0, 0, 0.3) 0%,
+                    transparent 30%,
+                    transparent 70%,
+                    rgba(0, 0, 0, 0.8) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .video-player:hover .video-controls-overlay,
+        .video-player.paused .video-controls-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Center Play/Pause Button */
+        .center-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            z-index: 20;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-player:hover .center-play-btn,
+        .video-player.paused .center-play-btn {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .center-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            background: #fff;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .center-play-btn:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        .center-play-icon {
+            width: 36px;
+            height: 36px;
+            color: #000;
+            margin-left: 4px;
+        }
+
+        /* Loading Spinner */
+        .video-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 15;
+            display: none;
+        }
+
+        .video-loading.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .video-info {
+            margin-top: 24px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+
+        .video-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-stats {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 24px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .like-dislike-pill {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            margin-right: 8px;
+        }
+
+        .like-pill-btn,
+        .dislike-pill-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .like-pill-btn::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .like-pill-btn:hover,
+        .dislike-pill-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .like-pill-btn.active,
+        .dislike-pill-btn.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn i,
+        .like-pill-btn i,
+        .dislike-pill-btn i {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Video Player Controls */
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 4px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .controls-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-player:hover .controls-bottom {
+            opacity: 1;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .controls-left,
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-display {
+            color: white;
+            font-size: 14px;
+            margin: 0 12px;
+        }
+
+        .progress-container {
+            position: absolute;
+            top: -8px;
+            left: 0;
+            right: 0;
+            height: 16px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-player:hover .progress-container {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            transform: translateY(-50%);
+        }
+
+        .progress-filled {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        /* Volume Control */
+        .volume-control {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-slider {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 2px;
+            display: none;
+        }
+
+        .volume-control:hover .volume-slider {
+            display: block;
+        }
+
+        .volume-slider-inner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        /* Channel Info */
+        .channel-info {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 16px 0;
+            margin-bottom: 8px;
+        }
+
+        .channel-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-right: 12px;
+        }
+
+        .channel-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .channel-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: #fff;
+        }
+
+        .channel-details p {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .subscribe-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .subscribe-btn.not-subscribed {
+            background: #fff;
+            color: #000;
+        }
+
+        .subscribe-btn.subscribed {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .subscribe-btn:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .notification-btn.show {
+            display: flex;
+        }
+
+        /* Video Description */
+        .video-description {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .video-description:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .description-meta {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .description-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #fff;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .description-text.expanded {
+            display: block;
+            overflow: visible;
+        }
+
+        .show-more-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        /* Comments Section */
+        #comments-container {
+            margin-top: 32px;
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comments-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .comments-sort {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .comments-sort:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .comment-input-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .comment-input-wrapper {
+            flex: 1;
+        }
+
+        .comment-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 0;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .comment-input:focus {
+            border-bottom-color: var(--accent-primary);
+        }
+
+        .comment-input::placeholder {
+            color: #888;
+        }
+
+        .comment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .comment-input:focus~.comment-actions,
+        .comment-actions:hover {
+            opacity: 1;
+        }
+
+        .comment-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-btn-cancel {
+            background: transparent;
+            color: #aaa;
+        }
+
+        .comment-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .comment-btn-submit {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .comment-btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .comment-btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .comment-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .comment-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            color: #aaa;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .comment-action-btn.active {
+            color: var(--accent-primary);
+        }
+
+        .comment-action-btn i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 48px 24px;
+            color: #888;
+        }
+
+        .no-comments i {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-comments h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .no-comments p {
+            font-size: 14px;
+        }
+
+        /* Related Videos Sidebar */
+        .related-section {
+            position: sticky;
+            top: 80px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .related-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .related-video {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .related-video:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .related-thumb {
+            width: 168px;
+            aspect-ratio: 16/9;
+            background: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .related-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .related-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .related-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .related-info p {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* Live Chat Replay Styling */
+        .live-chat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .live-chat-header {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .live-chat-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .live-chat-preview {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        .open-panel-btn {
+            width: 100%;
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .open-panel-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Header */
+        .watch-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            color: #ff3b30;
+            text-decoration: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .watch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .related-section {
+                position: static;
+                max-height: none;
+            }
+
+            .watch-container {
+                padding: 70px 12px 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-actions {
+                flex-wrap: wrap;
+            }
+
+            .action-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .channel-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .related-thumb {
+                width: 120px;
+            }
+        }
+
+        /* Next Video Button Styling - Removed per user request to fix controllers */
+        /* Keeping basic styles consistent with other buttons */
+
+        /* Settings Menu & Quality Selector */
+        .settings-menu,
+        .quality-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 12px;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            width: 280px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: slideInUp 0.2s ease;
+        }
+
+        .settings-menu.show,
+        .quality-menu.show {
+            display: block;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .menu-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .menu-header i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .menu-item-left i {
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+        }
+
+        .menu-item-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #444;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent-primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        /* Quality Options */
+        .quality-option {
+            padding: 10px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .quality-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .quality-option.active {
+            color: var(--accent-primary);
+        }
+
+        .hd-badge {
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+
+        /* Playlist Mix Sidebar */
+        .playlist-mix {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .playlist-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .playlist-header h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .playlist-header p {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .playlist-items {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .playlist-item {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .playlist-item.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .playlist-index {
+            width: 20px;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .playlist-thumb {
+            width: 100px;
+            aspect-ratio: 16/9;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .playlist-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .playlist-info h4 {
+            font-size: 13px;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .playlist-info p {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-tab {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-tab.active {
+            background: #fff;
+            color: #000;
+        }
+
+        .filter-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Theater Mode Toggle */
+        .watch-container.theater-mode {
+            padding: 0;
+            max-width: 100%;
+            margin-top: 64px;
+            /* Account for fixed header */
+        }
+
+        .theater-mode .watch-grid {
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            padding-bottom: 40px;
+        }
+
+        .theater-mode .video-section {
+            display: contents;
+            /* Flattens hierarchy so children join the main grid */
+        }
+
+        .theater-mode #videoPlayerContainer {
+            grid-column: 1 / -1;
+            /* Span full width */
+            width: 100%;
+            height: 75vh;
+            border-radius: 0;
+            margin-bottom: 24px;
+            background: #000;
+        }
+
+        /* Adjust content below player */
+        .theater-mode .video-info {
+            grid-column: 1;
+            margin-left: 24px;
+            /* Padding from edge */
+            max-width: 100%;
+        }
+
+        .theater-mode #comments-container {
+            grid-column: 1;
+            margin-left: 24px;
+            max-width: 100%;
+        }
+
+        .theater-mode .related-section {
+            grid-column: 2;
+            grid-row: 2 / 5;
+            /* Span rows alongside info and comments */
+            margin-right: 24px;
+            /* Padding from edge */
+            margin-top: 0;
+        }
+
+        /* AI Chat Modal Styles */
+        .ai-btn {
+            position: relative;
+        }
+
+        .ai-btn i {
+            color: #00d4ff;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+        }
+
+        .ai-btn:hover i {
+            filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.9));
+            animation: sparkle 0.6s ease-in-out;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        .ai-chat-modal {
+            position: absolute;
+            bottom: 70px;
+            right: 12px;
+            width: 400px;
+            max-height: 600px;
+            background: rgba(15, 15, 26, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.2);
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .ai-chat-modal.show {
+            display: flex;
+        }
+
+        .ai-chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 0, 180, 0.1) 100%);
+        }
+
+        .ai-chat-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .ai-close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .ai-close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            max-height: 400px;
+        }
+
+        .ai-welcome-message {
+            text-align: center;
+            padding: 24px 16px;
+        }
+
+        .ai-icon-large {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #00d4ff 0%, #ff00b4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .ai-icon-large i {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+        }
+
+        .ai-welcome-message h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #00d4ff;
+        }
+
+        .ai-welcome-message p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .ai-welcome-message ul {
+            text-align: left;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ai-welcome-message li {
+            font-size: 13px;
+            color: #ccc;
+            padding: 6px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .ai-welcome-message li:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .ai-message {
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message.user {
+            text-align: right;
+        }
+
+        .ai-message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .ai-message.user .ai-message-bubble {
+            background: linear-gradient(135deg, #00d4ff 0%, #0088ff 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message.assistant .ai-message-bubble {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-bottom-left-radius: 4px;
+            text-align: left;
+        }
+
+        .ai-loading {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+        }
+
+        .ai-loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .ai-loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .ai-loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .ai-quick-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .ai-quick-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .ai-quick-btn i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .ai-chat-input-container {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .ai-chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .ai-chat-input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-chat-input::placeholder {
+            color: #888;
+        }
+
+        .ai-send-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0088ff 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .ai-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.5);
+        }
+
+        .ai-send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .ai-send-btn i {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Responsive for Theater Mode */
+        @media (max-width: 1024px) {
+            .theater-mode .watch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .theater-mode .video-info,
+            .theater-mode #comments-container {
+                grid-column: 1;
+                margin: 0 16px;
+                grid-row: auto;
+            }
+
+            .theater-mode .related-section {
+                grid-column: 1;
+                grid-row: auto;
+                margin: 24px 16px 0;
+                padding: 0;
+            }
+
+            .theater-mode #videoPlayerContainer {
+                height: 56.25vw;
+                /* 16:9 aspect on mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="watch-header">
+        <div class="header-left">
+            <button class="back-btn" id="watch-back-btn" onclick="window.history.back()" title="Go Back">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <i data-lucide="play"></i>
+                BHUBAN
+            </a>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn"
+                onclick="if(typeof notificationPanel !=== 'undefined') notificationPanel.toggle()">
+                <i data-lucide="bell"></i>
+                <span class="notification-badge">0</span>
+            </button>
+            <span id="headerUserName"
+                style="margin-left: 8px; font-weight: 600; font-size: 14px; color: var(--text-primary); display: none;"></span>
+            <button class="header-btn" id="headerAvatar" onclick="window.location.href='account.html'"
+                style="display: none;">
+                <i data-lucide="user"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="watch-container">
+        <div class="watch-grid">
+            <!-- Video Section -->
+            <div class="video-section">
+                <!-- Video Player -->
+                <div class="video-player" id="videoPlayerContainer">
+                    <video id="video-player" playsinline crossorigin="anonymous">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <!-- Loading Spinner -->
+                    <div class="video-loading" id="videoLoading"></div>
+
+                    <!-- Controls Overlay -->
+                    <div class="video-controls-overlay" id="videoControls">
+                        <!-- Center Play/Pause Button -->
+                        <div class="center-play-btn" id="centerPlayBtn" onclick="togglePlayPause()">
+                            <svg class="center-play-icon" id="centerPlayIcon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </div>
+
+                        <!-- Bottom Controls -->
+                        <div class="controls-bottom">
+                            <div class="progress-container" id="progressContainer">
+                                <div class="progress-bar">
+                                    <div class="progress-filled" id="progressFilled" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="controls-row">
+                                <div class="controls-left">
+                                    <button class="control-btn" onclick="playPrevVideo()" title="Previous (P)">
+                                        <i data-lucide="skip-back"></i>
+                                    </button>
+                                    <button class="control-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                                        <i data-lucide="play" id="playPauseIcon"></i>
+                                    </button>
+                                    <button class="control-btn" id="nextVideoBtn" onclick="playNextVideo()"
+                                        title="Next Video (N)">
+                                        <i data-lucide="skip-forward"></i>
+                                    </button>
+                                    <button class="control-btn" onclick="toggleMute()">
+                                        <i data-lucide="volume-2" id="volumeIcon"></i>
+                                    </button>
+                                    <div class="time-display">
+                                        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                                    </div>
+                                </div>
+                                <div class="controls-right">
+                                    <button class="control-btn" onclick="toggleCC()"
+                                        title="Subtitles/Closed Captions (c)">
+                                        <i data-lucide="subtitles"></i>
+                                    </button>
+                                    <button class="control-btn ai-btn" onclick="toggleAIChat()" title="AI Video Analysis (A)">
+                                        <i data-lucide="sparkles"></i>
+                                    </button>
+                                    <button class="control-btn" onclick="toggleSettingsMenu()" title="Settings">
+                                        <i data-lucide="settings"></i>
+                                    </button>
+                                    <button class="control-btn" onclick="toggleTheaterMode()" title="Theater mode (t)">
+                                        <i data-lucide="layout"></i>
+                                    </button>
+                                    <button class="control-btn" onclick="toggleFullscreen()">
+                                        <i data-lucide="maximize"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Menu -->
+                    <div class="settings-menu" id="settingsMenu">
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <i data-lucide="sun"></i>
+                                <span>Ambient mode</span>
+                            </div>
+                            <label class="switch" for="ambientSwitch">
+                                <span class="sr-only">Ambient mode</span>
+                                <input type="checkbox" id="ambientSwitch" checked
+                                    onchange="toggleAmbientMode(this.checked)" aria-label="Ambient mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <i data-lucide="message-square"></i>
+                                <span>Annotations</span>
+                            </div>
+                            <label class="switch" for="annotationSwitch">
+                                <span class="sr-only">Annotations</span>
+                                <input type="checkbox" id="annotationSwitch" checked aria-label="Annotations">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="menu-item" onclick="alert('Subtitles settings')">
+                            <div class="menu-item-left">
+                                <i data-lucide="captions"></i>
+                                <span>Subtitles/CC (2)</span>
+                            </div>
+                            <div class="menu-item-right">
+                                <span>Bangla</span>
+                                <i data-lucide="chevron-right"></i>
+                            </div>
+                        </div>
+                        <div class="menu-item" onclick="alert('Sleep timer settings')">
+                            <div class="menu-item-left">
+                                <i data-lucide="moon"></i>
+                                <span>Sleep timer</span>
+                            </div>
+                            <div class="menu-item-right">
+                                <span>Off</span>
+                                <i data-lucide="chevron-right"></i>
+                            </div>
+                        </div>
+                        <div class="menu-item" onclick="alert('Playback speed settings')">
+                            <div class="menu-item-left">
+                                <i data-lucide="gauge"></i>
+                                <span>Playback speed</span>
+                            </div>
+                            <div class="menu-item-right">
+                                <span>Normal</span>
+                                <i data-lucide="chevron-right"></i>
+                            </div>
+                        </div>
+                        <div class="menu-item" onclick="toggleQualityMenu()">
+                            <div class="menu-item-left">
+                                <i data-lucide="settings-2"></i>
+                                <span>Quality</span>
+                            </div>
+                            <div class="menu-item-right">
+                                <span id="currentQualityLabel">Auto (480p)</span>
+                                <i data-lucide="chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quality Menu -->
+                    <div class="quality-menu" id="qualityMenu">
+                        <div class="menu-header" onclick="toggleQualityMenu()">
+                            <i data-lucide="chevron-left"></i>
+                            <span>Quality</span>
+                        </div>
+                        <div class="quality-option" onclick="setQuality('1440p')">
+                            <span>1440p</span>
+                            <span class="hd-badge">HD</span>
+                        </div>
+                        <div class="quality-option" onclick="setQuality('1080p')">
+                            <span>1080p</span>
+                            <span class="hd-badge">HD</span>
+                        </div>
+                        <div class="quality-option" onclick="setQuality('720p')">
+                            <span>720p</span>
+                            <span class="hd-badge">HD</span>
+                        </div>
+                        <div class="quality-option active" onclick="setQuality('480p')">
+                            <span>480p</span>
+                        </div>
+                        <div class="quality-option" onclick="setQuality('360p')">
+                            <span>360p</span>
+                        </div>
+                        <div class="quality-option" onclick="setQuality('Auto')">
+                            <span>Auto</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Chat Modal -->
+                    <div class="ai-chat-modal" id="aiChatModal">
+                        <div class="ai-chat-header">
+                            <div class="ai-chat-title">
+                                <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+                                <span>AI Video Assistant</span>
+                            </div>
+                            <button class="ai-close-btn" onclick="toggleAIChat()">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                        <div class="ai-chat-messages" id="aiChatMessages">
+                            <div class="ai-welcome-message">
+                                <div class="ai-icon-large">
+                                    <i data-lucide="sparkles"></i>
+                                </div>
+                                <h3>AI Video Analysis</h3>
+                                <p>Ask me anything about this video! I can:</p>
+                                <ul>
+                                    <li>Describe what's happening in the current frame</li>
+                                    <li>Read text visible in the video</li>
+                                    <li>Identify objects and people</li>
+                                    <li>Answer questions about the content</li>
+                                    <li>Provide information about the channel</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="ai-quick-actions">
+                            <button class="ai-quick-btn" onclick="analyzeCurrentFrame()">
+                                <i data-lucide="eye"></i>
+                                <span>What's happening?</span>
+                            </button>
+                            <button class="ai-quick-btn" onclick="readTextInFrame()">
+                                <i data-lucide="type"></i>
+                                <span>Read text</span>
+                            </button>
+                            <button class="ai-quick-btn" onclick="identifyObjects()">
+                                <i data-lucide="scan"></i>
+                                <span>Identify objects</span>
+                            </button>
+                            <button class="ai-quick-btn" onclick="analyzeSequence()">
+                                <i data-lucide="film"></i>
+                                <span>Analyze sequence</span>
+                            </button>
+                            <button class="ai-quick-btn" id="continuousBtn" onclick="toggleContinuousAnalysis()">
+                                <i data-lucide="play-circle"></i>
+                                <span>Live analysis</span>
+                            </button>
+                        </div>
+                        <div class="ai-chat-input-container">
+                            <input type="text" 
+                                   class="ai-chat-input" 
+                                   id="aiChatInput" 
+                                   placeholder="Ask about this video..."
+                                   onkeypress="if(event.key==='Enter') sendAIMessage()">
+                            <button class="ai-send-btn" onclick="sendAIMessage()">
+                                <i data-lucide="send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Info -->
+                <div class="video-info">
+                    <h1 class="video-title" id="video-title">Loading...</h1>
+
+                    <div class="video-meta">
+                        <div class="video-stats" id="video-stats" style="display: none;">
+                            <span id="view-count">0 views</span> • <span id="upload-date">Just now</span>
+                        </div>
+                        <div class="video-actions">
+                            <div class="like-dislike-pill">
+                                <button class="like-pill-btn" id="like-btn" onclick="handleLike()">
+                                    <i data-lucide="thumbs-up"></i>
+                                    <span id="like-count">0</span>
+                                </button>
+                                <button class="dislike-pill-btn" id="dislike-btn" onclick="handleDislike()">
+                                    <i data-lucide="thumbs-down"></i>
+                                </button>
+                            </div>
+                            <button class="action-btn" onclick="handleShare()">
+                                <i data-lucide="share"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn" onclick="handleDownload()">
+                                <i data-lucide="download"></i>
+                                <span>Download</span>
+                            </button>
+                            <button class="action-btn" onclick="handleSave()">
+                                <i data-lucide="list-plus"></i>
+                                <span>Save</span>
+                            </button>
+                            <button class="action-btn" onclick="alert('More options coming soon!')" title="More">
+                                <i data-lucide="more-horizontal"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Channel Info -->
+                    <div class="channel-info">
+                        <div class="channel-left" id="channel-link-container">
+                            <div class="channel-avatar" id="channel-avatar">U</div>
+                            <div class="channel-details">
+                                <h3 id="channel-name">Loading...</h3>
+                                <p id="channel-subs">0 subscribers</p>
+                            </div>
+                        </div>
+                        <button class="subscribe-btn not-subscribed" id="subscribe-btn">
+                            Subscribe
+                        </button>
+                        <button class="notification-btn" id="notification-btn">
+                            <i data-lucide="bell"></i>
+                        </button>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="video-description" onclick="toggleDescription()">
+                        <div class="description-meta">
+                            <span id="desc-view-count">0 views</span> • <span id="desc-upload-date">Just now</span>
+                        </div>
+                        <div class="description-text" id="video-description">
+                            Loading description...
+                        </div>
+                        <button class="show-more-btn" id="show-more-btn">...more</button>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div id="comments-container">
+                        <div class="comments-header">
+                            <h2 class="comments-count"><span id="comment-count">0</span> Comments</h2>
+                            <div class="comments-sort">
+                                <i data-lucide="arrow-down-up"></i>
+                                <span>Sort by</span>
+                            </div>
+                        </div>
+
+                        <div class="comment-input-container">
+                            <div class="comment-avatar" id="comment-user-avatar">U</div>
+                            <div class="comment-input-wrapper">
+                                <input type="text" class="comment-input" id="comment-input"
+                                    placeholder="Add a comment..." aria-label="Add a comment" />
+                                <div class="comment-actions">
+                                    <button class="comment-btn comment-btn-cancel"
+                                        onclick="cancelComment()">Cancel</button>
+                                    <button class="comment-btn comment-btn-submit" id="comment-submit-btn"
+                                        onclick="submitComment()" disabled>Comment</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comments-list" id="comments-list">
+                            <div class="no-comments">
+                                <i data-lucide="message-square"></i>
+                                <h3>No comments yet</h3>
+                                <p>Be the first to comment!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Videos -->
+            <div class="related-section">
+                <!-- Playlist Mix -->
+                <div class="playlist-mix">
+                    <div class="playlist-header">
+                        <h3>Mix - Bhuban</h3>
+                        <p>Mixes are playlists YouTube makes for you</p>
+                    </div>
+                    <div class="playlist-items" id="playlistItems">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Live Chat Card -->
+                <div class="live-chat-card">
+                    <div class="live-chat-header">Live chat replay</div>
+                    <div class="live-chat-content">
+                        <i data-lucide="message-square" style="width: 24px; height: 24px; color: #aaa;"></i>
+                        <div class="live-chat-preview">
+                            See what others said about this video while it was live.
+                        </div>
+                    </div>
+                    <button class="open-panel-btn">Open panel</button>
+                </div>
+
+                <div class="filter-tabs">
+                    <div class="filter-tab active">All</div>
+                    <div class="filter-tab">From the series</div>
+                    <div class="filter-tab">Related</div>
+                    <div class="filter-tab">Recently uploaded</div>
+                    <div class="filter-tab">Watched</div>
+                </div>
+
+                <h3 class="related-title" id="relatedTitle">Related Videos</h3>
+                <div id="related-videos"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Service -->
+    <script src="api-service.js"></script>
+
+    <!-- UI Components -->
+    <script src="ui-components.js"></script>
+
+    <!-- Watch Page Logic -->
+    <script>
+// DEBUG: console.log('🎬 Watch page script loading...');
+
+        // Verify dependencies
+        console.log('✅ AuthService available:', typeof AuthService !=== 'undefined');
+        console.log('✅ api available:', typeof api !=== 'undefined');
+        console.log('✅ lucide available:', typeof lucide !=== 'undefined');
+
+        // Navigation helper - Define if not already defined
+        if (typeof BhubanNav === 'undefined') {
+// DEBUG: console.log('⚠️ BhubanNav not found, creating fallback');
+            window.BhubanNav = {
+                getVideoId: function () {
+                    const params = new URLSearchParams(window.location.search);
+                    return params.get('v');
+                },
+                goTo: function (page) {
+                    if (page === 'home') {
+                        window.location.href = 'index.html';
+                    } else {
+                        window.location.href = page + '.html';
+                    }
+                },
+                watchVideo: function (videoId) {
+                    window.location.href = 'watch.html?v=' + videoId;
+                }
+            };
+        } else {
+// DEBUG: console.log('✅ BhubanNav already defined');
+        }
+
+        // API helper - Use existing api from api-service.js or create fallback
+        if (typeof api === 'undefined') {
+// DEBUG: console.log('⚠️ api not found, creating fallback');
+            window.api = {
+                baseURL: 'http://localhost:5000/api',
+                getVideo: async function (id) {
+// DEBUG: console.log('📡 Fetching video:', id);
+                    const response = await fetch(`${this.baseURL}/videos/${id}`);
+                    const data = await response.json();
+// DEBUG: console.log('✅ Video data:', data);
+                    return data;
+                },
+                getVideos: async function (params = {}) {
+                    const query = new URLSearchParams(params).toString();
+                    const response = await fetch(`${this.baseURL}/videos${query ? '?' + query : ''}`);
+                    return await response.json();
+                },
+                getRelatedVideos: async function (videoId, limit = 10) {
+// DEBUG: console.log('📡 Fetching related videos for:', videoId);
+                    const response = await fetch(`${this.baseURL}/videos?limit=${limit}`);
+                    return await response.json();
+                },
+                likeVideo: async function (id) {
+// DEBUG: console.log('👍 Liking video:', id);
+                    const token = AuthService.getToken();
+                    if (!token) {
+                        throw new Error('Not authenticated');
+                    }
+                    const response = await fetch(`${this.baseURL}/videos/${id}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    return await response.json();
+                },
+                dislikeVideo: async function (id) {
+// DEBUG: console.log('👎 Disliking video:', id);
+                    const token = AuthService.getToken();
+                    if (!token) {
+                        throw new Error('Not authenticated');
+                    }
+                    const response = await fetch(`${this.baseURL}/videos/${id}/dislike`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    return await response.json();
+                },
+                trackView: async function (id) {
+// DEBUG: console.log('👁️ Tracking view for:', id);
+                    const response = await fetch(`${this.baseURL}/videos/${id}/view`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    return await response.json();
+                },
+                shareVideo: async function (id) {
+// DEBUG: console.log('🔗 Sharing video:', id);
+                    const response = await fetch(`${this.baseURL}/videos/${id}/share`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    return await response.json();
+                },
+                request: async function (endpoint, options = {}) {
+                    const response = await fetch(`${this.baseURL}${endpoint}`, options);
+                    return await response.json();
+                }
+            };
+        } else {
+// DEBUG: console.log('✅ api already defined from api-service.js');
+        }
+
+        // Fallback thumbnail
+        const FALLBACK_THUMBNAIL = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2220%22%3ENo Thumbnail%3C/text%3E%3C/svg%3E';
+
+        let currentVideoId = null;
+        let currentVideo = null;
+        let watchStartTime = Date.now();
+        let totalWatchTime = 0;
+
+        // Initialize the page
+        async function initPage() {
+// DEBUG: console.log('🚀 Initializing watch page...');
+            currentVideoId = BhubanNav.getVideoId();
+// DEBUG: console.log('📹 Video ID from URL:', currentVideoId);
+
+            if (!currentVideoId) {
+                console.error('❌ No video ID specified');
+                alert('No video specified');
+                BhubanNav.goTo('home');
+                return;
+            }
+
+            try {
+// DEBUG: console.log('📡 Fetching video details...');
+                // Fetch video details
+                const response = await api.getVideo(currentVideoId);
+// DEBUG: console.log('📦 API Response:', response);
+
+                if (response.success) {
+                    currentVideo = response.data;
+// DEBUG: console.log('✅ Video loaded:', currentVideo.title);
+                    renderVideo(currentVideo);
+                    loadRelatedVideos();
+                    loadPlaylistMix();
+                    initializeComments();
+                    initializeSubscribeButton();
+                    trackView();
+
+                    // Initialize controls
+                    initVideoControls();
+                    lucide.createIcons();
+// DEBUG: console.log('✅ Page initialization complete');
+                } else {
+                    throw new Error(response.message || 'Failed to load video');
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize page:', error);
+                alert('Error loading video content: ' + error.message);
+                BhubanNav.goTo('home');
+            }
+
+            // Close menus when clicking outside
+            document.addEventListener('click', (e) => {
+                const settingsBtn = e.target.closest('.control-btn');
+                const menu = document.getElementById('settingsMenu');
+                const qualityMenu = document.getElementById('qualityMenu');
+
+                if (!e.target.closest('.settings-menu') &&
+                    !e.target.closest('.quality-menu') &&
+                    (!settingsBtn || !settingsBtn.title.includes('Settings'))) {
+                    menu.classList.remove('show');
+                    qualityMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // Render video details
+        function renderVideo(video) {
+            const player = document.getElementById('video-player');
+
+            // Set source
+            const videoUrl = video.videoUrl || video.url;
+            if (videoUrl) {
+                player.src = videoUrl;
+            } else {
+                player.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+            }
+
+            player.load();
+
+            // Update info
+            document.getElementById('video-title').textContent = video.title;
+            const viewsText = formatViews(video.views || 0) + ' views';
+            const timeAgoText = getTimeAgo(video.createdAt);
+
+            document.getElementById('view-count').textContent = viewsText;
+            document.getElementById('upload-date').textContent = timeAgoText;
+            document.getElementById('desc-view-count').textContent = viewsText;
+            document.getElementById('desc-upload-date').textContent = timeAgoText;
+
+            document.getElementById('like-count').textContent = formatCount(video.likes || 0);
+            
+            // Parse and render description with clickable hashtags
+            const descriptionElement = document.getElementById('video-description');
+            const description = video.description || 'No description provided.';
+            descriptionElement.innerHTML = parseHashtags(description);
+
+            // Channel info
+            const uploader = video.user || {};
+            const channelName = video.channel || uploader.name || 'Bhuban Channel';
+            const channelId = uploader._id || uploader.id;
+
+            document.getElementById('channel-name').textContent = channelName;
+            document.getElementById('channel-subs').textContent = formatCount(video.subscribers || 0) + ' subscribers';
+
+            // Make channel clickable
+            const channelLinkContainer = document.getElementById('channel-link-container');
+            const channelNameElement = document.getElementById('channel-name');
+
+            if (channelId) {
+                channelLinkContainer.onclick = () => {
+                    window.location.href = `channel.html?id=${channelId}`;
+                };
+                channelNameElement.onclick = () => {
+                    window.location.href = `channel.html?id=${channelId}`;
+                };
+                channelLinkContainer.style.cursor = 'pointer';
+                channelNameElement.style.cursor = 'pointer';
+// DEBUG: console.log('✅ Channel link set to:', channelId);
+            }
+
+            const avatar = document.getElementById('channel-avatar');
+            const photo = getSafePhotoUrl(uploader.avatar || uploader.picture);
+            const initial = channelName.charAt(0).toUpperCase();
+            if (photo) {
+                avatar.innerHTML = `<img src="${photo}" alt="${channelName}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="handleImageError(this, '${initial}')">`;
+            } else {
+                avatar.textContent = initial;
+            }
+            avatar.style.background = 'var(--accent-gradient)';
+            avatar.style.color = 'white';
+
+            // Check if already liked
+            checkLikeStatus();
+
+            initVideoErrorHandling();
+
+            // Add to local history
+            addToWatchHistory(video);
+
+            lucide.createIcons();
+        }
+
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsMenu');
+            const qualityMenu = document.getElementById('qualityMenu');
+            qualityMenu.classList.remove('show');
+            menu.classList.toggle('show');
+        }
+
+        function toggleQualityMenu() {
+            const menu = document.getElementById('settingsMenu');
+            const qualityMenu = document.getElementById('qualityMenu');
+            menu.classList.remove('show');
+            qualityMenu.classList.toggle('show');
+        }
+
+        function setQuality(quality) {
+// DEBUG: console.log('⚙️ Setting quality to:', quality);
+            document.getElementById('currentQualityLabel').textContent = quality === 'Auto' ? 'Auto (480p)' : quality;
+
+            // Highlight active
+            const options = document.querySelectorAll('.quality-option');
+            options.forEach(opt => {
+                opt.classList.toggle('active', opt.textContent.trim() === quality);
+            });
+
+            toggleQualityMenu();
+            alert('Quality switched to ' + quality);
+        }
+
+        function toggleTheaterMode() {
+            const container = document.querySelector('.watch-container');
+            container.classList.toggle('theater-mode');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+// DEBUG: console.log('🎭 Theater mode toggled');
+        }
+
+        // AI Chat Functions
+        let aiFrameInterval = null;
+        let aiContinuousMode = false;
+
+        function toggleAIChat() {
+            const modal = document.getElementById('aiChatModal');
+            modal.classList.toggle('show');
+            if (modal.classList.contains('show')) {
+                document.getElementById('aiChatInput').focus();
+// DEBUG: console.log('🤖 AI Chat opened');
+            } else {
+// DEBUG: console.log('🤖 AI Chat closed');
+                stopContinuousAnalysis();
+            }
+            lucide.createIcons();
+        }
+
+        async function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+// DEBUG: console.log('🤖 Sending AI message:', message);
+            
+            // Add user message
+            addAIMessage('user', message);
+            input.value = '';
+
+            // Show loading
+            showAILoading();
+
+            try {
+                // Capture current frame with high quality
+                const frameData = await captureVideoFrame();
+                
+                // Get video metadata
+                const video = document.getElementById('video-player');
+                const currentTime = video.currentTime;
+                const duration = video.duration;
+                const isPlaying = !video.paused;
+                const isLive = duration === Infinity || isNaN(duration);
+                
+                // Prepare comprehensive context about the video
+                const videoContext = `Video Information:
+- Title: ${currentVideo?.title || 'Unknown'}
+- Channel: ${currentVideo?.channel || currentVideo?.user?.name || 'Unknown'}
+- Description: ${currentVideo?.description || 'No description'}
+- Current Time: ${formatDuration(currentTime)}
+- Duration: ${isLive ? 'LIVE STREAM' : formatDuration(duration)}
+- Status: ${isPlaying ? 'Playing' : 'Paused'}
+- Type: ${isLive ? 'Live Stream' : 'Video'}
+
+User Question: ${message}
+
+Please analyze the video frame and provide a detailed response.`;
+
+                // Send to Shree AI backend with video/analyze-frame endpoint
+                const response = await fetch('http://localhost:8000/video/analyze-frame', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_data: frameData,
+                        query: videoContext,
+                        metadata: {
+                            video_id: currentVideoId,
+                            title: currentVideo?.title,
+                            channel: currentVideo?.channel || currentVideo?.user?.name,
+                            timestamp: currentTime,
+                            is_live: isLive,
+                            is_playing: isPlaying
+                        }
+                    })
+                });
+
+                const data = await response.json();
+// DEBUG: console.log('✅ AI Response:', data);
+
+                // Remove loading and add response
+                removeAILoading();
+                if (data.success) {
+                    const output = data.output || data.response || 'I analyzed the video frame.';
+                    const metadata = data.provider ? `\n\n_Model: ${data.model || 'Unknown'} | Provider: ${data.provider} | Latency: ${data.latency_ms || 0}ms_` : '';
+                    addAIMessage('assistant', output + metadata);
+                } else {
+                    // Fallback to /ask endpoint
+                    await sendToAskEndpoint(videoContext, frameData);
+                }
+            } catch (error) {
+                console.error('❌ AI request failed:', error);
+                removeAILoading();
+                
+                // Try fallback endpoint
+                try {
+                    const frameData = await captureVideoFrame();
+                    const videoContext = `Video: ${currentVideo?.title || 'Unknown'}\nChannel: ${currentVideo?.channel || currentVideo?.user?.name || 'Unknown'}\n\nUser Question: ${message}`;
+                    await sendToAskEndpoint(videoContext, frameData);
+                } catch (fallbackError) {
+                    addAIMessage('assistant', '⚠️ Connection error. Please ensure Shree AI backend is running:\n\n1. Open terminal\n2. Run: cd ShreeApp/backend\n3. Run: python main.py\n\nThe backend should start on http://localhost:8000');
+                }
+            }
+        }
+
+        async function sendToAskEndpoint(prompt, frameData) {
+            try {
+                const response = await fetch('http://localhost:8000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        image_data: frameData,
+                        use_memory: true
+                    })
+                });
+
+                const data = await response.json();
+                removeAILoading();
+                
+                if (data.success) {
+                    addAIMessage('assistant', data.output || data.response || 'I analyzed the video frame.');
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (error) {
+                removeAILoading();
+                throw error;
+            }
+        }
+
+        function startContinuousAnalysis() {
+            if (aiContinuousMode) return;
+            
+            aiContinuousMode = true;
+// DEBUG: console.log('🎥 Starting continuous frame analysis...');
+            addAIMessage('assistant', '🎥 Continuous analysis started. I\'ll analyze frames every 5 seconds.');
+            
+            // Analyze immediately
+            analyzeCurrentFrame();
+            
+            // Then analyze every 5 seconds
+            aiFrameInterval = setInterval(async () => {
+                if (!aiContinuousMode) return;
+                
+                const video = document.getElementById('video-player');
+                if (!video.paused) {
+// DEBUG: console.log('📸 Auto-capturing frame for continuous analysis...');
+                    await analyzeCurrentFrame();
+                }
+            }, 5000);
+        }
+
+        function stopContinuousAnalysis() {
+            if (!aiContinuousMode) return;
+            
+            aiContinuousMode = false;
+            if (aiFrameInterval) {
+                clearInterval(aiFrameInterval);
+                aiFrameInterval = null;
+            }
+// DEBUG: console.log('⏹️ Stopped continuous frame analysis');
+            addAIMessage('assistant', '⏹️ Continuous analysis stopped.');
+        }
+
+        async function analyzeCurrentFrame() {
+// DEBUG: console.log('🔍 Analyzing current frame...');
+            const input = document.getElementById('aiChatInput');
+            input.value = 'What is happening in this video frame? Describe everything you see in detail.';
+            await sendAIMessage();
+        }
+
+        async function readTextInFrame() {
+// DEBUG: console.log('📝 Reading text in frame...');
+            const input = document.getElementById('aiChatInput');
+            input.value = 'Read and transcribe all visible text in this video frame.';
+            await sendAIMessage();
+        }
+
+        async function identifyObjects() {
+// DEBUG: console.log('🔎 Identifying objects...');
+            const input = document.getElementById('aiChatInput');
+            input.value = 'Identify and list all objects, people, and items visible in this frame.';
+            await sendAIMessage();
+        }
+
+        async function analyzeSequence() {
+// DEBUG: console.log('🎬 Analyzing video sequence...');
+            addAIMessage('user', 'Analyze the last 3 seconds of video');
+            showAILoading();
+            
+            try {
+                // Capture 3 frames over 2 seconds
+                const frames = await captureMultipleFrames(3, 1000);
+                
+                if (frames.length === 0) {
+                    throw new Error('No frames captured');
+                }
+                
+                const videoContext = `Video: ${currentVideo?.title || 'Unknown'}
+Channel: ${currentVideo?.channel || currentVideo?.user?.name || 'Unknown'}
+
+Analyze this sequence of ${frames.length} frames captured over ${frames.length} seconds. Describe what's happening, any motion or changes, and the overall scene.`;
+
+                // Send first frame with context about sequence
+                const response = await fetch('http://localhost:8000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: videoContext,
+                        image_data: frames[0],
+                        use_memory: true
+                    })
+                });
+
+                const data = await response.json();
+                removeAILoading();
+                
+                if (data.success) {
+                    addAIMessage('assistant', `📊 Sequence Analysis (${frames.length} frames):\n\n${data.output || data.response}`);
+                } else {
+                    throw new Error('Analysis failed');
+                }
+            } catch (error) {
+                console.error('❌ Sequence analysis failed:', error);
+                removeAILoading();
+                addAIMessage('assistant', '⚠️ Failed to analyze sequence. Make sure the video is playing.');
+            }
+        }
+
+        function toggleContinuousAnalysis() {
+            const btn = document.getElementById('continuousBtn');
+            
+            if (aiContinuousMode) {
+                stopContinuousAnalysis();
+                btn.innerHTML = '<i data-lucide="play-circle"></i><span>Live analysis</span>';
+            } else {
+                startContinuousAnalysis();
+                btn.innerHTML = '<i data-lucide="stop-circle"></i><span>Stop live</span>';
+            }
+            
+            lucide.createIcons();
+        }
+
+        async function captureVideoFrame(quality = 0.85) {
+            const video = document.getElementById('video-player');
+            
+            // Check if video is ready
+            if (video.readyState < 2) {
+                console.warn('⚠️ Video not ready for capture');
+                throw new Error('Video not ready');
+            }
+            
+            const canvas = document.createElement('canvas');
+            
+            // Use native video dimensions for best quality
+            const width = video.videoWidth || video.clientWidth;
+            const height = video.videoHeight || video.clientHeight;
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d', { alpha: false });
+            
+            // Draw current frame
+            ctx.drawImage(video, 0, 0, width, height);
+            
+            // Convert to base64 JPEG with specified quality
+            const base64 = canvas.toDataURL('image/jpeg', quality);
+            
+            // Calculate size
+            const sizeKB = Math.round((base64.length * 0.75) / 1024);
+            
+// DEBUG: console.log('📸 Frame captured:', width + 'x' + height, '|', sizeKB + 'KB', '| Quality:', Math.round(quality * 100) + '%');
+            
+            return base64;
+        }
+
+        async function captureMultipleFrames(count = 3, intervalMs = 1000) {
+// DEBUG: console.log(`📸 Capturing ${count} frames with ${intervalMs}ms interval...`);
+            const frames = [];
+            
+            for (let i = 0; i < count; i++) {
+                try {
+                    const frame = await captureVideoFrame(0.75); // Lower quality for multiple frames
+                    frames.push(frame);
+// DEBUG: console.log(`✅ Captured frame ${i + 1}/${count}`);
+                    
+                    if (i < count - 1) {
+                        await new Promise(resolve => setTimeout(resolve, intervalMs));
+                    }
+                } catch (error) {
+                    console.error(`❌ Failed to capture frame ${i + 1}:`, error);
+                }
+            }
+            
+            return frames;
+        }
+
+        async function captureLiveStreamFrame() {
+            const video = document.getElementById('video-player');
+            const isLive = video.duration === Infinity || isNaN(video.duration);
+            
+            if (isLive) {
+// DEBUG: console.log('📡 Capturing live stream frame...');
+                return await captureVideoFrame(0.90); // Higher quality for live streams
+            } else {
+                return await captureVideoFrame();
+            }
+        }
+
+        function addAIMessage(role, content) {
+            const messagesContainer = document.getElementById('aiChatMessages');
+            
+            // Remove welcome message if it exists
+            const welcome = messagesContainer.querySelector('.ai-welcome-message');
+            if (welcome) {
+                welcome.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${role}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'ai-message-bubble';
+            bubble.textContent = content;
+            
+            messageDiv.appendChild(bubble);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            lucide.createIcons();
+        }
+
+        function showAILoading() {
+            const messagesContainer = document.getElementById('aiChatMessages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'ai-message assistant';
+            loadingDiv.id = 'ai-loading-message';
+            loadingDiv.innerHTML = `
+                <div class="ai-message-bubble">
+                    <div class="ai-loading">
+                        <div class="ai-loading-dot"></div>
+                        <div class="ai-loading-dot"></div>
+                        <div class="ai-loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeAILoading() {
+            const loading = document.getElementById('ai-loading-message');
+            if (loading) {
+                loading.remove();
+            }
+        }
+
+        function toggleCC() {
+            const ccBtn = document.querySelector('button[title*="Subtitles"]');
+            ccBtn.style.color = ccBtn.style.color === 'var(--accent-primary)' ? '#fff' : 'var(--accent-primary)';
+// DEBUG: console.log('📝 Subtitles toggled');
+        }
+
+        function toggleAmbientMode(enabled) {
+// DEBUG: console.log('💡 Ambient mode:', enabled);
+            const container = document.getElementById('videoPlayerContainer');
+            if (enabled) {
+                container.style.boxShadow = '0 0 100px rgba(255, 255, 255, 0.1)';
+            } else {
+                container.style.boxShadow = 'none';
+            }
+        }
+
+        async function loadPlaylistMix() {
+            const items = document.getElementById('playlistItems');
+            try {
+                const response = await api.getVideos({ limit: 5 });
+                if (response.success) {
+                    items.innerHTML = response.data.map((video, index) => `
+                        <div class="playlist-item ${video._id === currentVideoId ? 'active' : ''}" 
+                             onclick="window.location.href='watch.html?v=${video._id}'">
+                            <div class="playlist-index">${index + 1}</div>
+                            <div class="playlist-thumb">
+                                <img src="${video.thumbnailUrl || video.thumbnail || FALLBACK_THUMBNAIL}" alt="${video.title}">
+                            </div>
+                            <div class="playlist-info">
+                                <h4>${video.title}</h4>
+                                <p>${video.user?.name || 'Bhuban Channel'}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Playlist load failed:', e);
+            }
+        }
+
+        // Check if current user liked this video
+        async function checkLikeStatus() {
+            if (!AuthService.isAuthenticated()) return;
+            try {
+                const user = AuthService.getUser();
+                if (user && Array.isArray(user.likedVideos) && user.likedVideos.includes(currentVideoId)) {
+                    document.getElementById('like-btn').classList.add('active');
+                }
+            } catch (e) {
+                console.warn('Could not verify like status:', e);
+            }
+        }
+
+        function initVideoErrorHandling() {
+            const player = document.getElementById('video-player');
+            player.addEventListener('error', function () {
+// DEBUG: console.log('Video load failed, trying fallback...');
+                if (!player.src.includes('BigBuckBunny')) {
+                    player.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                    player.load();
+                }
+            });
+
+            player.addEventListener('waiting', () => {
+                document.getElementById('videoLoading').classList.add('show');
+            });
+
+            player.addEventListener('playing', () => {
+                document.getElementById('videoLoading').classList.remove('show');
+            });
+        }
+
+        // Load related videos using API service
+        async function loadRelatedVideos() {
+            const container = document.getElementById('related-videos');
+            container.innerHTML = '<div class="loading">Loading suggestions...</div>';
+
+            try {
+                const response = await api.getRelatedVideos(currentVideoId);
+                if (response.success && response.data.length > 0) {
+                    container.innerHTML = response.data.map(video => {
+                        const thumb = getSafePhotoUrl(video.thumbnailUrl || video.thumbnail || FALLBACK_THUMBNAIL);
+                        return `
+                            <div class="related-video" onclick="window.location.href='watch.html?v=${video._id}'">
+                                <div class="related-thumb">
+                                    <img src="${thumb}" 
+                                         alt="${video.title}" 
+                                         crossorigin="anonymous"
+                                         onerror="this.onerror=null; this.src='${FALLBACK_THUMBNAIL}';">
+                                    <span class="related-duration">${video.duration || '0:00'}</span>
+                                </div>
+                                <div class="related-info">
+                                    <h4>${video.title}</h4>
+                                    <p>${video.user?.name || 'Bhuban User'}</p>
+                                    <p>${formatViews(video.views)} views • ${getTimeAgo(video.createdAt)}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<p>No related videos found.</p>';
+                }
+            } catch (error) {
+                container.innerHTML = '<p>Error loading suggestions.</p>';
+            }
+            lucide.createIcons();
+        }
+
+        // Component initializers
+        function initializeComments() {
+            loadComments();
+        }
+
+        function initializeSubscribeButton() {
+            const channelId = currentVideo.user?._id || currentVideo.uploaderId;
+            if (channelId) {
+                const container = document.getElementById('subscribe-btn').parentElement;
+                // No longer clearing innerHTML, letting the class manage the existing buttons
+                window.subscribeButton = new SubscribeButton(channelId, container.id);
+            }
+        }
+
+        // Interactive actions
+        async function handleLike() {
+// DEBUG: console.log('👍 Like button clicked');
+            if (!AuthService.isAuthenticated()) {
+// DEBUG: console.log('⚠️ User not authenticated');
+                alert('Please sign in to like videos');
+                return;
+            }
+            try {
+// DEBUG: console.log('📡 Sending like request...');
+                const res = await api.likeVideo(currentVideoId);
+// DEBUG: console.log('✅ Like response:', res);
+                if (res.success) {
+                    const btn = document.getElementById('like-btn');
+                    const dislikeBtn = document.getElementById('dislike-btn');
+                    btn.classList.toggle('active');
+                    dislikeBtn.classList.remove('active');
+                    // Refresh count
+                    const countEl = document.getElementById('like-count');
+                    countEl.textContent = formatCount(res.data?.likes || (parseInt(countEl.textContent) + 1));
+// DEBUG: console.log('✅ Like updated successfully');
+                }
+            } catch (e) {
+                console.error('❌ Like failed:', e);
+                alert('Failed to like video: ' + e.message);
+            }
+        }
+
+        async function handleDislike() {
+// DEBUG: console.log('👎 Dislike button clicked');
+            if (!AuthService.isAuthenticated()) {
+// DEBUG: console.log('⚠️ User not authenticated');
+                alert('Please sign in to dislike videos');
+                return;
+            }
+            try {
+// DEBUG: console.log('📡 Sending dislike request...');
+                const res = await api.dislikeVideo(currentVideoId);
+// DEBUG: console.log('✅ Dislike response:', res);
+                if (res.success) {
+                    const btn = document.getElementById('dislike-btn');
+                    const likeBtn = document.getElementById('like-btn');
+                    btn.classList.toggle('active');
+                    likeBtn.classList.remove('active');
+// DEBUG: console.log('✅ Dislike updated successfully');
+                }
+            } catch (e) {
+                console.error('❌ Dislike failed:', e);
+                alert('Failed to dislike video: ' + e.message);
+            }
+        }
+
+        function handleShare() {
+// DEBUG: console.log('🔗 Share button clicked');
+            const url = window.location.href;
+            try {
+                // Background tracking
+                api.shareVideo(currentVideoId).catch(() => { });
+
+                if (navigator.share) {
+// DEBUG: console.log('📱 Using native share');
+                    navigator.share({
+                        title: currentVideo.title,
+                        url: url
+                    });
+                } else {
+// DEBUG: console.log('📋 Copying to clipboard');
+                    navigator.clipboard.writeText(url);
+                    alert('Link copied to clipboard!');
+                }
+            } catch (error) {
+                console.error('❌ Failed to share:', error);
+            }
+        }
+
+        function handleDownload() {
+// DEBUG: console.log('📥 Download button clicked');
+            if (!currentVideo) return;
+            const videoUrl = currentVideo.videoUrl || currentVideo.url;
+            if (videoUrl) {
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.download = currentVideo.title + '.mp4';
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+// DEBUG: console.log('✅ Download initiated');
+            } else {
+                alert('Download link not available for this video.');
+            }
+        }
+
+        function toggleDescription() {
+            const desc = document.getElementById('video-description');
+            const btn = document.getElementById('show-more-btn');
+            desc.classList.toggle('expanded');
+            btn.textContent = desc.classList.contains('expanded') ? 'Show less' : '...more';
+        }
+
+        function handleSave() {
+// DEBUG: console.log('💾 Save button clicked');
+            if (!AuthService.isAuthenticated()) {
+// DEBUG: console.log('⚠️ User not authenticated');
+                alert('Please sign in to save videos');
+                return;
+            }
+
+            try {
+                let saved = JSON.parse(localStorage.getItem('bhuban_saved_videos') || '[]');
+                const isSaved = saved.some(v => v._id === currentVideoId);
+
+                if (isSaved) {
+                    saved = saved.filter(v => v._id !=== currentVideoId);
+// DEBUG: console.log('✅ Removed from Watch Later');
+                    alert('Removed from Watch Later');
+                } else {
+                    saved.unshift(currentVideo);
+// DEBUG: console.log('✅ Saved to Watch Later');
+                    alert('Saved to Watch Later');
+                }
+
+                localStorage.setItem('bhuban_saved_videos', JSON.stringify(saved));
+            } catch (e) {
+                console.error('❌ Save failed:', e);
+            }
+        }
+
+        // Analytics
+        async function trackView() {
+            try {
+                const res = await api.trackView(currentVideoId);
+                if (res.success && res.data?.views) {
+                    document.getElementById('view-count').textContent = formatViews(res.data.views) + ' views';
+                }
+            } catch (e) { }
+        }
+
+        // History helper
+        function addToWatchHistory(video) {
+            let history = JSON.parse(localStorage.getItem('bhuban_history') || '[]');
+            // Standardize object for history page
+            const entry = {
+                _id: video._id,
+                title: video.title,
+                thumbnail: video.thumbnailUrl || video.thumbnail,
+                views: formatViews(video.views),
+                createdAt: video.createdAt,
+                watchedAt: new Date().toISOString(),
+                channel: video.channel || video.user?.name || 'Bhuban Channel'
+            };
+
+            history = history.filter(v => v._id !=== video._id).slice(0, 99);
+            history.unshift(entry);
+            localStorage.setItem('bhuban_history', JSON.stringify(history));
+        }
+
+        // Formatting utilities
+        function formatViews(views) {
+            const n = parseInt(views) || 0;
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return n.toString();
+        }
+
+        function formatCount(num) {
+            return formatViews(num);
+        }
+        
+        // Parse hashtags in text and make them clickable
+        function parseHashtags(text) {
+            if (!text) return text;
+            
+            // Escape HTML to prevent XSS
+            const escapeHtml = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+            
+            const escapedText = escapeHtml(text);
+            
+            // Replace hashtags with clickable links
+            return escapedText.replace(/#(\w+)/g, (match, tag) => {
+                return `<a href="search.html?q=${encodeURIComponent('#' + tag)}" 
+                           style="color: #3b82f6; text-decoration: none; font-weight: 600; transition: color 0.2s;"
+                           onmouseover="this.style.color='#60a5fa'" 
+                           onmouseout="this.style.color='#3b82f6'"
+                           onclick="searchHashtag('${tag}'); return false;">#${tag}</a>`;
+            });
+        }
+        
+        // Search by hashtag
+        function searchHashtag(tag) {
+            window.location.href = `search.html?q=${encodeURIComponent('#' + tag)}`;
+        }
+
+        function getTimeAgo(date) {
+            if (!date) return 'Recently';
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return Math.floor(seconds / 86400) + 'd ago';
+        }
+
+        // Video Player Logic
+        let watchInterval = null;
+
+        async function togglePip() {
+            const video = document.getElementById('video-player');
+            try {
+                if (video !=== document.pictureInPictureElement) {
+                    await video.requestPictureInPicture();
+// DEBUG: console.log('🖼️ PiP Mode enabled');
+                } else {
+                    await document.exitPictureInPicture();
+// DEBUG: console.log('🖼️ PiP Mode disabled');
+                }
+            } catch (error) {
+                console.error('❌ PiP failed:', error);
+            }
+        }
+
+        function initVideoControls() {
+            const video = document.getElementById('video-player');
+            const progressFilled = document.getElementById('progressFilled');
+            const currentTimeEl = document.getElementById('currentTime');
+            const durationEl = document.getElementById('duration');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+
+            video.addEventListener('timeupdate', () => {
+                const percent = (video.currentTime / video.duration) * 100;
+                progressFilled.style.width = percent + '%';
+                currentTimeEl.textContent = formatDuration(video.currentTime);
+                if (!isNaN(video.duration)) durationEl.textContent = formatDuration(video.duration);
+            });
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ignore if user is typing in input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                const v = document.getElementById('video-player');
+                if (!v) return;
+
+                switch (e.key.toLowerCase()) {
+                    case 'k':
+                    case ' ':
+                        e.preventDefault();
+                        togglePlayPause();
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        toggleAIChat();
+                        break;
+                    case 'j':
+                        v.currentTime = Math.max(0, v.currentTime - 10);
+                        break;
+                    case 'l':
+                        v.currentTime = Math.min(v.duration, v.currentTime + 10);
+                        break;
+                    case 'f':
+                        toggleFullscreen();
+                        break;
+                    case 'm':
+                        toggleMute();
+                        break;
+                    case 't':
+                        toggleTheaterMode();
+                        break;
+                    case 'p':
+                        togglePip();
+                        break;
+                    case 'n':
+                        playNextVideo();
+                        break;
+                }
+
+                // Numbers 0-9 for seeking
+                if (e.key >= '0' && e.key <= '9') {
+                    const percent = parseInt(e.key) * 10;
+                    v.currentTime = (v.duration * percent) / 100;
+                }
+            });
+
+            video.addEventListener('play', () => {
+                playPauseIcon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+                startWatchTimer();
+            });
+
+            video.addEventListener('pause', () => {
+                playPauseIcon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+                stopWatchTimer();
+            });
+
+            video.addEventListener('ended', () => {
+                stopWatchTimer();
+                playNextVideo();
+            });
+
+            video.addEventListener('volumechange', updateVolumeIcon);
+
+            // Progress bar seek
+            document.getElementById('progressContainer').addEventListener('click', (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                video.currentTime = pos * video.duration;
+            });
+        }
+
+        function startWatchTimer() {
+            if (watchInterval) return;
+            watchStartTime = Date.now();
+            watchInterval = setInterval(() => {
+                const now = Date.now();
+                totalWatchTime += (now - watchStartTime) / 1000;
+                watchStartTime = now;
+            }, 1000);
+        }
+
+        function stopWatchTimer() {
+            if (watchInterval) {
+                clearInterval(watchInterval);
+                watchInterval = null;
+                const now = Date.now();
+                totalWatchTime += (now - watchStartTime) / 1000;
+            }
+        }
+
+        function togglePlayPause() {
+// DEBUG: console.log('⏯️ Toggle play/pause');
+            const video = document.getElementById('video-player');
+            if (video.paused) {
+// DEBUG: console.log('▶️ Playing video');
+                video.play();
+            } else {
+// DEBUG: console.log('⏸️ Pausing video');
+                video.pause();
+            }
+        }
+
+        function skipBackward(amount = 10) {
+// DEBUG: console.log('⏪ Skip backward', amount, 'seconds');
+            document.getElementById('video-player').currentTime -= amount;
+        }
+
+        function skipForward(amount = 10) {
+// DEBUG: console.log('⏩ Skip forward', amount, 'seconds');
+            document.getElementById('video-player').currentTime += amount;
+        }
+
+        function toggleMute() {
+// DEBUG: console.log('🔇 Toggle mute');
+            const v = document.getElementById('video-player');
+            v.muted = !v.muted;
+// DEBUG: console.log('🔊 Muted:', v.muted);
+        }
+
+        function updateVolumeIcon() {
+            const v = document.getElementById('video-player');
+            const icon = document.getElementById('volumeIcon');
+            let iconName = 'volume-2';
+            if (v.muted || v.volume === 0) iconName = 'volume-x';
+            else if (v.volume < 0.5) iconName = 'volume-1';
+
+            icon.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+        }
+
+        function adjustVolume(delta) {
+            const v = document.getElementById('video-player');
+            v.volume = Math.max(0, Math.min(1, v.volume + delta));
+            if (v.volume > 0) v.muted = false;
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('videoPlayerContainer');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function playPrevVideo() {
+// DEBUG: console.log('⏮️ Previous video clicked');
+            const video = document.getElementById('video-player');
+            if (video && video.currentTime > 5) {
+                video.currentTime = 0;
+            } else {
+                window.history.back();
+            }
+        }
+
+        async function playNextVideo() {
+// DEBUG: console.log('⏭️ Next video clicked');
+            try {
+                const res = await api.getRelatedVideos(currentVideoId, 5);
+                if (res.success && res.data.length > 0) {
+                    window.location.href = `watch.html?v=${res.data[0]._id}`;
+                } else {
+                    const all = await api.request('/videos?limit=10');
+                    if (all.success && all.data.length > 0) {
+                        const otherVideos = all.data.filter(v => v._id !=== currentVideoId);
+                        const next = otherVideos.length > 0 ? otherVideos[0] : all.data[0];
+                        window.location.href = `watch.html?v=${next._id}`;
+                    }
+                }
+            } catch (e) {
+                console.error('Next video failed:', e);
+            }
+        }
+
+        function formatDuration(sec) {
+            if (isNaN(sec)) return '0:00';
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = Math.floor(sec % 60);
+
+            if (h > 0) {
+                return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // Analytics tracking on unload
+        window.addEventListener('beforeunload', () => {
+            stopWatchTimer();
+            if (totalWatchTime > 0 && currentVideoId) {
+                const data = JSON.stringify({ watchTime: Math.floor(totalWatchTime), incremental: true });
+                navigator.sendBeacon(`${api.baseURL}/videos/${currentVideoId}/view`, data);
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+            const key = e.key.toLowerCase();
+            if (key === ' ' || key === 'k') { e.preventDefault(); togglePlayPause(); }
+            if (key === 'm') toggleMute();
+            if (key === 'f') toggleFullscreen();
+            if (key === 't') toggleTheaterMode();
+            if (key === 'c') toggleCC();
+            if (key === 'n') playNextVideo();
+            if (key === 'p') playPrevVideo();
+            if (key === 'j') skipBackward(10);
+            if (key === 'l') skipForward(10);
+            if (key === 'arrowleft') { e.preventDefault(); skipBackward(5); }
+            if (key === 'arrowright') { e.preventDefault(); skipForward(5); }
+            if (key === 'arrowup') { e.preventDefault(); adjustVolume(0.1); }
+            if (key === 'arrowdown') { e.preventDefault(); adjustVolume(-0.1); }
+        });
+
+        // Initialize Lucide icons on start
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !=== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // Comment functions
+        function cancelComment() {
+// DEBUG: console.log('❌ Comment cancelled');
+            const input = document.getElementById('comment-input');
+            input.value = '';
+            input.blur();
+        }
+
+        async function submitComment() {
+// DEBUG: console.log('💬 Submit comment clicked');
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+
+            if (!text) {
+// DEBUG: console.log('⚠️ Empty comment');
+                return;
+            }
+
+            if (!AuthService.isAuthenticated()) {
+// DEBUG: console.log('⚠️ User not authenticated');
+                alert('Please sign in to comment');
+                return;
+            }
+
+            try {
+                const user = AuthService.getUser();
+// DEBUG: console.log('📡 Posting comment as:', user.name);
+
+                // Use the centralized api service which has correct paths
+                const data = await api.addComment(currentVideoId, text);
+// DEBUG: console.log('✅ Comment response:', data);
+
+                if (data.success) {
+                    input.value = '';
+// DEBUG: console.log('✅ Comment posted, reloading comments...');
+                    loadComments();
+                } else {
+                    console.error('❌ Failed to post comment:', data);
+                    alert('Failed to post comment: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('❌ Error posting comment:', error);
+                alert('Error posting comment: ' + error.message);
+            }
+        }
+
+        async function loadComments() {
+// DEBUG: console.log('📡 Loading comments for video:', currentVideoId);
+            try {
+                // Use the centralized api service which has correct paths
+                const data = await api.getComments(currentVideoId);
+// DEBUG: console.log('✅ Comments loaded:', data);
+
+                if (data.success) {
+                    renderComments(data.data || []);
+                } else {
+                    console.error('❌ Failed to load comments:', data);
+                }
+            } catch (error) {
+                console.error('❌ Error loading comments:', error);
+            }
+        }
+
+        function renderComments(comments) {
+// DEBUG: console.log('🎨 Rendering', comments.length, 'comments');
+            const list = document.getElementById('comments-list');
+            const countEl = document.getElementById('comment-count');
+
+            countEl.textContent = comments.length;
+
+            if (comments.length === 0) {
+// DEBUG: console.log('ℹ️ No comments to display');
+                list.innerHTML = `
+                    <div class="no-comments">
+                        <i data-lucide="message-square"></i>
+                        <h3>No comments yet</h3>
+                        <p>Be the first to comment!</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            list.innerHTML = comments.map(comment => {
+                const user = comment.userId || comment.user || {};
+                const author = user.name || 'Anonymous';
+                const initial = author.charAt(0).toUpperCase();
+                const photo = getSafePhotoUrl(user.avatar || user.picture);
+                const authorHandle = author.toLowerCase().replace(/\s+/g, '') + (user._id?.slice(-4) || Math.floor(Math.random() * 100));
+                const date = getTimeAgo(comment.createdAt);
+
+                return `
+                    <div class="comment-item">
+                        <div class="comment-avatar">
+                            ${photo ?
+                        `<img src="${photo}" alt="${author}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="handleImageError(this, '${initial}')">` :
+                        initial
+                    }
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">@${authorHandle}</span>
+                                <span class="comment-date">${date}</span>
+                            </div>
+                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-actions-row">
+                                <button class="comment-action-btn">
+                                    <i data-lucide="thumbs-up"></i>
+                                    <span>${comment.likes || 0}</span>
+                                </button>
+                                <button class="comment-action-btn">
+                                    <i data-lucide="thumbs-down"></i>
+                                </button>
+                                <button class="comment-action-btn">
+                                    Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+// DEBUG: console.log('✅ Comments rendered successfully');
+        }
+
+        // Enable/disable comment submit button based on input
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('comment-input');
+            const submitBtn = document.getElementById('comment-submit-btn');
+
+            if (input && submitBtn) {
+                input.addEventListener('input', function () {
+                    submitBtn.disabled = !this.value.trim();
+                });
+            }
+        });
+
+        // Run
+        document.addEventListener('DOMContentLoaded', initPage);
+        // Global fallback for images
+        function handleImageError(img, initial) {
+// DEBUG: console.log('🖼️ Image failed to load, falling back to initial:', initial);
+            img.style.display = 'none';
+            if (img.parentElement) {
+                img.parentElement.innerHTML = `<span style="font-size: 16px; font-weight: 600;">${initial}</span>`;
+            }
+        }
+
+        // Global fallback specifically for the header/rounded avatars
+        function handleAvatarError(img, initial) {
+            img.style.display = 'none';
+            if (img.parentElement) {
+                img.parentElement.innerHTML = initial;
+            }
+        }
+        // Helper to bypass Google photo rate limits (429 errors)
+        // Helper to bypass Google photo rate limits (429 errors) and CORB
+        function getSafePhotoUrl(url) {
+            if (!url || url === 'null' || url === 'undefined') return null;
+
+            // If it's a Google photo or already proxied through our old broken proxy, route it through weserv.nl
+            if (url.includes('googleusercontent.com') || url.includes('lh3.google.com') || url.includes('focus-opensocial')) {
+                // Return proxy URL with fallbacks
+                return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&default=letter&l=9&af`;
+            }
+            return url;
+        }
+    </script>
+</body>
+
+</html>

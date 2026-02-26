@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Videos - Bhuban</title>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 { color: #ff3b30; }
+        .status {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+        button {
+            background: #ff3b30;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #e63027; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .video-list {
+            text-align: left;
+            margin-top: 20px;
+            padding: 20px;
+            background: #000;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Bhuban Video Sync</h1>
+    <div class="status" id="status">
+        <p>Click the button below to sync your uploaded videos</p>
+        <button onclick="syncVideos()">Sync Videos from Database</button>
+    </div>
+    <div id="videoList"></div>
+
+    <script>
+        async function syncVideos() {
+            const statusDiv = document.getElementById('status');
+            const videoListDiv = document.getElementById('videoList');
+            
+            statusDiv.innerHTML = '<p>⏳ Syncing videos from database...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/videos');
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    const videos = data.data.map(video => ({
+                        id: video._id,
+                        title: video.title,
+                        channel: video.user?.name || 'Bhuban Creator',
+                        views: video.views || 0,
+                        duration: '10:00',
+                        img: video.thumbnailUrl,
+                        videoUrl: `http://localhost:5000/uploads/${video.videoUrl}`
+                    }));
+                    
+                    localStorage.setItem('bhuban_videos', JSON.stringify(videos));
+                    
+                    statusDiv.innerHTML = `
+                        <p class="success">✅ Successfully synced ${videos.length} videos!</p>
+                        <button onclick="window.location.href='index-working.html'">Open Bhuban</button>
+                    `;
+                    
+                    videoListDiv.className = 'video-list';
+                    videoListDiv.innerHTML = '<strong>Synced Videos:</strong><br>' + 
+                        videos.map((v, i) => `${i+1}. ${v.title}`).join('<br>');
+                } else {
+                    throw new Error('No videos found');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p class="error">❌ Failed to sync: ${error.message}</p>
+                    <p>Make sure backend server is running on port 5000</p>
+                    <button onclick="syncVideos()">Try Again</button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

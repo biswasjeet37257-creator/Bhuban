@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Bhuban Premium</title>
+    <!-- Use Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Auth Service -->
+    <script src="/shared/auth-service.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --accent-orange: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Dynamic Background */
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: moveGlow 20s infinite alternate;
+        }
+
+        @keyframes moveGlow {
+            0% {
+                transform: translate(-20%, -20%) scale(1);
+            }
+
+            100% {
+                transform: translate(20%, 20%) scale(1.2);
+            }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 16px 16px 16px 48px;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-input:focus+i {
+            color: var(--accent-orange);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 12px;
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-google {
+            width: 100%;
+            background: white;
+            color: #0c0a09;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-google:hover {
+            background: #f4f4f5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 32px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 32px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .footer-links a {
+            color: var(--accent-orange);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-pink);
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .alert-error {
+            background: rgba(220, 38, 38, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        /* Particle effects */
+        #particles {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+    <div id="particles"></div>
+
+    <div class="login-container">
+        <div class="logo">
+            <h1>BHUBAN</h1>
+            <p>Welcome to the premium experience</p>
+        </div>
+
+        <div id="errorAlert" class="alert alert-error"></div>
+        <div id="successAlert" class="alert alert-success"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required
+                        autocomplete="username">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required
+                        autocomplete="current-password">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
+        </form>
+
+        <div class="divider">OR</div>
+
+        <button class="btn-google" id="googleBtn" aria-label="Sign in with Google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20"
+                alt="Google Logo" crossorigin="anonymous">
+            Continue with Google
+        </button>
+
+        <div class="footer-links">
+            Don't have an account? <a href="signup.html">Create Account</a>
+            <br><br>
+            <a href="index.html" style="font-size: 13px; opacity: 0.7;">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Process token from URL if present (from OAuth callback)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+        
+        if (tokenFromUrl) {
+// DEBUG: console.log('🔑 Token received from OAuth callback');
+            
+            // Store token
+            localStorage.setItem('accessToken', tokenFromUrl);
+            localStorage.setItem('token', tokenFromUrl);
+            
+            // Fetch user data
+            fetch('http://localhost:5000/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${tokenFromUrl}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+// DEBUG: console.log('✅ User data fetched:', data.data);
+                    
+                    // Store user and session data
+                    localStorage.setItem('user', JSON.stringify(data.data));
+                    localStorage.setItem('sessionData', JSON.stringify({
+                        user: data.data,
+                        token: tokenFromUrl
+                    }));
+                    
+                    // Redirect to target page
+                    const redirect = urlParams.get('redirect') || 'index.html';
+// DEBUG: console.log('✅ Redirecting to:', redirect);
+                    window.location.href = decodeURIComponent(redirect);
+                }
+            })
+            .catch(err => {
+                console.error('❌ Error fetching user data:', err);
+            });
+        }
+        
+        // Redirect if already logged in (but not if processing token)
+        else if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+            const redirect = urlParams.get('redirect') || 'index.html';
+            window.location.href = decodeURIComponent(redirect);
+        }
+
+
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Clear alerts
+            errorAlert.classList.remove('show');
+            successAlert.classList.remove('show');
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            try {
+                const result = await AuthService.login(email, password);
+
+                if (result.success) {
+                    successAlert.textContent = 'Welcome back! Redirecting...';
+                    successAlert.classList.add('show');
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect') || 'index.html';
+
+                    setTimeout(() => {
+                        window.location.href = decodeURIComponent(redirect);
+                    }, 1200);
+                } else {
+                    errorAlert.textContent = result.message;
+                    errorAlert.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign In';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorAlert.textContent = 'An unexpected error occurred. Please try again.';
+                errorAlert.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        });
+
+        document.getElementById('googleBtn').addEventListener('click', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            let authUrl = 'http://localhost:5000/api/auth/google';
+            if (redirect) authUrl += '?redirect=' + encodeURIComponent(redirect);
+            window.location.href = authUrl;
+        });
+
+        // Simple particle effect
+        const particleContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = Math.random() * 4 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.background = 'white';
+            particle.style.opacity = Math.random() * 0.3;
+            particle.style.borderRadius = '50%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.pointerEvents = 'none';
+            particleContainer.appendChild(particle);
+        }
+
+        // Check backend health on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                if (!response.ok) throw new Error('Backend unreachable');
+// DEBUG: console.log('✅ Backend connection successful');
+            } catch (err) {
+                console.warn('⚠️ Backend server might be offline:', err.message);
+                errorAlert.textContent = 'Warning: Backend server appears to be offline. Login may not work.';
+                errorAlert.classList.add('show');
+            }
+        });
+    </script>
+</body>
+
+</html>

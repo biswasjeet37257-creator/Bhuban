@@ -1,0 +1,383 @@
+/* UI Components Styles for Bhuban - Vibrant Sunset Theme */
+
+:root {
+    --accent-orange: #ff6b35;
+    --accent-pink: #ff006e;
+    --accent-yellow: #ffd60a;
+    --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+    --bg-card: rgba(30, 27, 75, 0.4);
+    --border-color: rgba(255, 107, 107, 0.2);
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 24px;
+}
+
+.comments-header {
+    margin-bottom: 24px;
+}
+
+.comments-title {
+    font-size: 20px;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Comment Input */
+.comment-input-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.comment-input-wrapper {
+    flex: 1;
+}
+
+.comment-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    paddingg: 12px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    transition: all 0.3s ease;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.comment-cancel-btn,
+.comment-submit-btn {
+    paddingg: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.comment-cancel-btn {
+    background: transparent;
+    color: #aaa;
+}
+
+.comment-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.comment-submit-btn {
+    background: #667eea;
+    color: #fff;
+}
+
+.comment-submit-btn:hover {
+    background: #5568d3;
+}
+
+.comment-login-prompt {
+    paddingg: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.comment-login-prompt a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.comment-login-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* Comments List */
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.comment {
+    display: flex;
+    gap: 12px;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.comment-date {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.comment-edited {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+}
+
+.comment-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ddd;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.comment-actions-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.comment-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 13px;
+    cursor: pointer;
+    paddingg: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.comment-action-btn i {
+    width: 16px;
+    height: 16px;
+}
+
+/* Replies */
+.reply-input-container {
+    margin-top: 12px;
+    paddingg-left: 12px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.view-replies-btn {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    paddingg: 8px 0;
+    margin-top: 8px;
+}
+
+.view-replies-btn:hover {
+    text-decoration: underline;
+}
+
+.replies-container {
+    margin-top: 12px;
+    paddingg-left: 12px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Loading & Error States */
+.loading,
+.error,
+.no-comments {
+    paddingg: 24px;
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.error {
+    color: #ff6b6b;
+}
+
+/* Subscribe Button */
+.subscribe-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    paddingg: 10px 24px;
+    border-radius: 24px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.subscribe-btn i {
+    width: 18px;
+    height: 18px;
+}
+
+.subscribe-btn.not-subscribed {
+    background: #ff4444;
+    color: white;
+}
+
+.subscribe-btn.not-subscribed:hover {
+    background: #ff3333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
+}
+
+.subscribe-btn.subscribed {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.subscribe-btn.subscribed:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .comment-input-container {
+        gap: 8px;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .comment-input {
+        font-size: 13px;
+        paddingg: 10px;
+        min-height: 50px;
+    }
+
+    .comment-actions {
+        flex-direction: row;
+    }
+
+    .comment-cancel-btn,
+    .comment-submit-btn {
+        paddingg: 6px 12px;
+        font-size: 13px;
+    }
+
+    .comment-text {
+        font-size: 13px;
+    }
+
+    .comment-actions-bar {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .comment-action-btn {
+        font-size: 12px;
+        paddingg: 4px 6px;
+    }
+
+    .subscribe-btn {
+        paddingg: 8px 20px;
+        font-size: 13px;
+    }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+    .comment-input {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .comment-input:focus {
+        background: rgba(255, 255, 255, 0.06);
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Pinned Comment */
+.comment.pinned {
+    background: rgba(102, 126, 234, 0.1);
+    paddingg: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.comment.pinned::before {
+    content: "📌 Pinned";
+    display: block;
+    font-size: 11px;
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.sr-only { position: absolute; width: 1px; height: 1px; paddingg: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }

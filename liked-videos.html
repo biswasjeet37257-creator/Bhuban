@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liked Videos | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="api-service.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .liked-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .liked-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sort-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sort-btn.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .sort-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .liked-container {
+            padding: 0 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-bar {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .like-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .play-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .play-btn:hover {
+            background: #ff521a;
+        }
+
+        .add-btn {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .add-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .browse-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .browse-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .liked-date {
+            font-size: 11px;
+            color: var(--accent);
+            background: rgba(255, 107, 53, 0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .liked-controls {
+                flex-direction: column;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Enhanced touch feedback */
+        .video-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .action-btn:focus,
+        .sort-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="liked-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">Liked Videos</div>
+        <div style="flex: 1;"></div>
+        <i data-lucide="search" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="liked-controls">
+        <button class="sort-btn active" onclick="sortVideos('newest')">
+            <i data-lucide="clock"></i> Newest First
+        </button>
+        <button class="sort-btn" onclick="sortVideos('oldest')">
+            <i data-lucide="rotate-ccw"></i> Oldest First
+        </button>
+        <button class="sort-btn" onclick="sortVideos('popular')">
+            <i data-lucide="trending-up"></i> Most Popular
+        </button>
+    </div>
+
+    <div class="liked-container">
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="total-videos">0</div>
+                <div class="stat-label">Videos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="total-views">0</div>
+                <div class="stat-label">Total Views</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="total-likes">0</div>
+                <div class="stat-label">Likes Given</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="watch-time">0</div>
+                <div class="stat-label">Hours Watched</div>
+            </div>
+        </div>
+
+        <div class="videos-grid" id="videos-container">
+            <!-- Liked videos will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample data - in real app this would come from API
+        let likedVideosData = []; // No fake data - will load from localStorage/backend
+
+        function calculateStats() {
+            const totalVideos = likedVideosData.length;
+            const totalViews = likedVideosData.reduce((sum, video) => {
+                const views = parseInt(video.views) || 0;
+                return sum + (video.views.includes('M') ? views * 1000000 : views * 1000);
+            }, 0);
+
+            const totalLikes = likedVideosData.reduce((sum, video) => {
+                const likes = parseInt(video.likes) || 0;
+                return sum + (video.likes.includes('K') ? likes * 1000 : likes);
+            }, 0);
+
+            // Estimate watch time (assuming average watch time of 30% of video duration)
+            const watchTime = likedVideosData.reduce((sum, video) => {
+                const minutes = parseInt(video.duration) || 0;
+                return sum + (minutes * 0.3 / 60); // Convert to hours
+            }, 0);
+
+            document.getElementById('total-videos').textContent = totalVideos;
+            document.getElementById('total-views').textContent = formatNumber(totalViews);
+            document.getElementById('total-likes').textContent = formatNumber(totalLikes);
+            document.getElementById('watch-time').textContent = watchTime.toFixed(1);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) return 'Today';
+            if (diffDays === 2) return 'Yesterday';
+            if (diffDays <= 7) return `${diffDays - 1} days ago`;
+            if (diffDays <= 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function renderLikedVideos() {
+            const container = document.getElementById('videos-container');
+
+            if (likedVideosData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="heart"></i>
+                        <h3>No Liked Videos</h3>
+                        <p>Like videos to save them here for later</p>
+                        <button class="browse-btn" onclick="window.location.href='index.html'">
+                            Browse Videos
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = likedVideosData.map(video => `
+                <div class="video-card">
+                    <div class="video-thumbnail" onclick="window.location.href='watch.html?v=${video._id}'">
+                        <img src="${video.thumbnailUrl || video.thumbnail}" alt="${video.title}">
+                        <div class="video-duration">${video.duration || '0:00'}</div>
+                        <div class="like-badge">
+                            <i data-lucide="heart" style="width: 14px; height: 14px;"></i>
+                            Liked
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title" onclick="window.location.href='watch.html?v=${video._id}'" style="cursor:pointer;">${video.title}</div>
+                        <div class="video-channel">${video.user ? video.user.name : 'Unknown Channel'}</div>
+                        <div class="video-meta">
+                            <span>${formatCount(video.views || 0)} views</span>
+                            <span>${formatCount(video.likes || 0)} likes</span>
+                        </div>
+                        <div class="liked-date">Liked ${video.likedAt ? formatDate(new Date(video.likedAt)) : 'Recently'}</div>
+                        <div class="video-actions">
+                            <button class="action-btn play-btn" onclick="window.location.href='watch.html?v=${video._id}'">
+                                <i data-lucide="play"></i> Play
+                            </button>
+                            <button class="action-btn add-btn" onclick="shareVideo('${video._id}')">
+                                <i data-lucide="share"></i> Share
+                            </button>
+                            <button class="action-btn add-btn" onclick="unlikeVideo('${video._id}')">
+                                <i data-lucide="heart-off"></i> Unlike
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function sortVideos(sortType) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            event.target.closest('.sort-btn').classList.add('active');
+
+            // Sort the data
+            switch (sortType) {
+                case 'newest':
+                    likedVideosData.sort((a, b) => new Date(b.likedAt) - new Date(a.likedAt));
+                    break;
+                case 'oldest':
+                    likedVideosData.sort((a, b) => new Date(a.likedAt) - new Date(b.likedAt));
+                    break;
+                case 'popular':
+                    likedVideosData.sort((a, b) => {
+                        const aViews = parseInt(a.views) || 0;
+                        const bViews = parseInt(b.views) || 0;
+                        return bViews - aViews;
+                    });
+                    break;
+            }
+
+            renderLikedVideos();
+        }
+
+        function playVideo(videoId) {
+            const video = likedVideosData.find(v => v.id === videoId);
+            if (video) {
+                // Show video player overlay
+                showVideoPlayer(video);
+            }
+        }
+
+        function showVideoPlayer(video) {
+            const playerOverlay = document.createElement('div');
+            playerOverlay.className = 'video-player-overlay';
+            playerOverlay.innerHTML = `
+                <div class="player-content">
+                    <div style="position: relative; padding-top: 56.25%;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center;">
+                                <i data-lucide="play" style="width: 60px; height: 60px; color: #ff6b35;"></i>
+                                <p style="color: white; margin-top: 10px;">Playing: ${video.title}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: white; margin-bottom: 10px;">${video.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">${video.channel} • ${video.views} views</p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn play-btn" onclick="this.parentElement.parentElement.parentElement.remove(); lucide.createIcons();">
+                                <i data-lucide="check"></i> OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(playerOverlay);
+            lucide.createIcons();
+        }
+
+        function addToPlaylist(videoId) {
+            const video = likedVideosData.find(v => v.id === videoId);
+            if (video) {
+                // In a real app, this would show playlist selection modal
+                alert(`Add "${video.title}" to playlist`);
+            }
+        }
+
+        function shareVideo(videoId) {
+            const video = likedVideosData.find(v => v.id === videoId);
+            if (video) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: video.title,
+                        text: `Check out this video: ${video.title} by ${video.channel}`,
+                        url: window.location.href
+// DEBUG: }).catch(err => console.log('Error sharing:', err));
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(window.location.href + '?video=' + videoId);
+                    alert('Link copied to clipboard!');
+                }
+            }
+        }
+
+        async function loadLikedVideos() {
+            const container = document.getElementById('videos-container');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            // Check if AuthService is loaded
+            if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+// DEBUG: console.log('📡 Fetching liked videos from API...');
+                try {
+                    const res = await api.getLikedVideos();
+                    if (res.success) {
+                        likedVideosData = res.data;
+                    }
+                } catch (error) {
+                    console.error('Failed to load liked videos from API:', error);
+                    // Fallback to local
+                    const savedLikedVideos = localStorage.getItem('bhuban_liked_videos');
+                    if (savedLikedVideos) {
+                        likedVideosData = JSON.parse(savedLikedVideos);
+                    }
+                }
+            } else {
+// DEBUG: console.log('💾 Loading liked videos from localStorage...');
+                const savedLikedVideos = localStorage.getItem('bhuban_liked_videos');
+                if (savedLikedVideos) {
+                    likedVideosData = JSON.parse(savedLikedVideos);
+                }
+            }
+
+            calculateStats();
+            sortVideos('newest');
+        }
+
+        function formatCount(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        async function unlikeVideo(videoId) {
+            if (confirm('Remove this video from your liked videos?')) {
+                if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+                    try {
+                        // In a real app we'd have an unlike endpoint
+                        // For now we use the same as dislike or just skip
+// DEBUG: console.log('Unliking video:', videoId);
+                        // api.unlikeVideo(videoId)
+                    } catch (e) { console.error(e); }
+                }
+
+                const index = likedVideosData.findIndex(v => v._id === videoId || v.id === videoId);
+                if (index > -1) {
+                    likedVideosData.splice(index, 1);
+                    localStorage.setItem('bhuban_liked_videos', JSON.stringify(likedVideosData));
+                    calculateStats();
+                    renderLikedVideos();
+                }
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadLikedVideos);
+    </script>
+</body>
+
+</html>

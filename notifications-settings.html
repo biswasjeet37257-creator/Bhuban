@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 24px;
+        }
+
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+
+        .preference-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preference-info p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .toggle-switch input:checked+.toggle-slider:before {
+            transform: translateX(24px);
+            background: #667eea;
+        }
+
+        .save-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            margin: 32px auto 0;
+        }
+
+        .save-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='settings.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Notifications</h1>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Choose when and how to be notified</h1>
+        <p class="page-subtitle">Select push and email notifications you'd like to receive</p>
+
+        <!-- General Section -->
+        <div class="section">
+            <h2 class="section-title">General</h2>
+            <p class="section-subtitle">Manage your mobile and desktop notifications</p>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Your preferences</h3>
+                </div>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Subscriptions</h3>
+                    <p>Notify me about activity from the channels I'm subscribed to</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="subscriptions" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Recommended videos</h3>
+                    <p>Notify me of videos I might like based on what I watch</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="recommended" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Activity on my channel</h3>
+                    <p>Notify me about comments and other activity on my channel or videos</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="activity" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Replies to my comments</h3>
+                    <p>Notify me about replies to my comments</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="replies" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Mentions</h3>
+                    <p>Notify me when others mention my channel</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mentions">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Shared content</h3>
+                    <p>Notify me when others share my content</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="shared">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Email Notifications -->
+        <div class="section">
+            <h2 class="section-title">Email notifications</h2>
+            <p class="section-subtitle">Choose which emails you'd like to receive</p>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Send me emails about my Bhuban activity</h3>
+                    <p>Includes updates about my videos, comments, and channel</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="email-activity" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Product updates and announcements</h3>
+                    <p>News about Bhuban features and updates</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="email-updates">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Promotional content and offers</h3>
+                    <p>Special offers and promotions from Bhuban</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="email-promo">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Push Notifications -->
+        <div class="section">
+            <h2 class="section-title">Push notifications</h2>
+            <p class="section-subtitle">Get notifications on your device</p>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Desktop notifications</h3>
+                    <p>Show notifications on your desktop</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="push-desktop" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Mobile notifications</h3>
+                    <p>Show notifications on your mobile device</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="push-mobile" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Sound</h3>
+                    <p>Play sound with notifications</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="push-sound" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Frequency -->
+        <div class="section">
+            <h2 class="section-title">Notification frequency</h2>
+            <p class="section-subtitle">Control how often you receive notifications</p>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <label for="notificationFrequency" class="preference-title"
+                        style="font-size: 16px; font-weight: 600; margin-bottom: 4px; display: block;">Notification
+                        frequency</label>
+                    <p>All notifications (default)</p>
+                </div>
+                <select id="notificationFrequency" name="notificationFrequency"
+                    style="background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <option>All notifications</option>
+                    <option>Periodic</option>
+                    <option>Only important</option>
+                </select>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-info">
+                    <h3>Quiet hours</h3>
+                    <p>Pause notifications during specific hours</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="quiet-hours">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><i class="fas fa-info-circle"></i> Your notification preferences are saved automatically. You can change
+                them anytime.</p>
+        </div>
+
+        <button class="save-btn" onclick="savePreferences()">
+            <i class="fas fa-check"></i> Save Preferences
+        </button>
+    </div>
+
+    <script>
+        // Save preferences to localStorage
+        function savePreferences() {
+            const preferences = {
+                subscriptions: document.getElementById('subscriptions').checked,
+                recommended: document.getElementById('recommended').checked,
+                activity: document.getElementById('activity').checked,
+                replies: document.getElementById('replies').checked,
+                mentions: document.getElementById('mentions').checked,
+                shared: document.getElementById('shared').checked,
+                emailActivity: document.getElementById('email-activity').checked,
+                emailUpdates: document.getElementById('email-updates').checked,
+                emailPromo: document.getElementById('email-promo').checked,
+                pushDesktop: document.getElementById('push-desktop').checked,
+                pushMobile: document.getElementById('push-mobile').checked,
+                pushSound: document.getElementById('push-sound').checked,
+                quietHours: document.getElementById('quiet-hours').checked
+            };
+
+            localStorage.setItem('bhuban_notification_preferences', JSON.stringify(preferences));
+
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Saved!';
+            btn.style.background = '#4ade80';
+            btn.style.color = 'white';
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'rgba(255, 255, 255, 0.9)';
+                btn.style.color = '#667eea';
+            }, 2000);
+        }
+
+        // Load saved preferences
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('bhuban_notification_preferences');
+            if (saved) {
+                try {
+                    const preferences = JSON.parse(saved);
+                    Object.keys(preferences).forEach(key => {
+                        const element = document.getElementById(key.replace(/([A-Z])/g, '-$1').toLowerCase());
+                        if (element) {
+                            element.checked = preferences[key];
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading preferences:', e);
+                }
+            }
+        });
+
+        // Auto-save on toggle change
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                setTimeout(savePreferences, 300);
+            });
+        });
+    </script>
+</body>
+
+</html>

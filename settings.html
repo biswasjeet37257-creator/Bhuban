@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .settings-section {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .settings-section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .setting-label i {
+            font-size: 20px;
+            color: #aaa;
+        }
+        .setting-info h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .setting-info p {
+            font-size: 12px;
+            color: #aaa;
+        }
+        select, input {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .toggle {
+            width: 48px;
+            height: 24px;
+            background: #444;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle.active {
+            background: #ff4500;
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+        .toggle.active::after {
+            left: 26px;
+        }
+        .btn {
+            background: #ff4500;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .btn:hover {
+            background: #ff6b35;
+        }
+        .back-link {
+            color: #ff4500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        
+        <div class="header">
+            <h1>Settings</h1>
+        </div>
+
+        <!-- Appearance -->
+        <div class="settings-section">
+            <h2>Appearance</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-palette"></i>
+                    <div class="setting-info">
+                        <h3>Theme</h3>
+                        <p>Choose your display theme</p>
+                    </div>
+                </div>
+                <select id="theme-select">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="device">Device theme</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Language & Region -->
+        <div class="settings-section">
+            <h2>Language & Region</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-language"></i>
+                    <div class="setting-info">
+                        <h3>Display language</h3>
+                        <p>Choose your preferred language</p>
+                    </div>
+                </div>
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-globe"></i>
+                    <div class="setting-info">
+                        <h3>Location</h3>
+                        <p>Your content location</p>
+                    </div>
+                </div>
+                <select id="location-select">
+                    <option value="BD">Bangladesh</option>
+                    <option value="IN">India</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Content Settings -->
+        <div class="settings-section">
+            <h2>Content Settings</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="setting-info">
+                        <h3>Restricted Mode</h3>
+                        <p>Filter potentially mature content</p>
+                    </div>
+                </div>
+                <div class="toggle" id="restricted-toggle"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="setting-info">
+                        <h3>Autoplay</h3>
+                        <p>Automatically play next video</p>
+                    </div>
+                </div>
+                <div class="toggle active" id="autoplay-toggle"></div>
+            </div>
+        </div>
+
+        <!-- Playback Settings -->
+        <div class="settings-section">
+            <h2>Playback</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-cog"></i>
+                    <div class="setting-info">
+                        <h3>Playback quality</h3>
+                        <p>Default video quality</p>
+                    </div>
+                </div>
+                <select id="quality-select">
+                    <option value="auto">Auto</option>
+                    <option value="1080p">1080p</option>
+                    <option value="720p">720p</option>
+                    <option value="480p">480p</option>
+                    <option value="360p">360p</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Privacy -->
+        <div class="settings-section">
+            <h2>Privacy</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-history"></i>
+                    <div class="setting-info">
+                        <h3>Watch history</h3>
+                        <p>Save videos you watch</p>
+                    </div>
+                </div>
+                <div class="toggle active" id="history-toggle"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-search"></i>
+                    <div class="setting-info">
+                        <h3>Search history</h3>
+                        <p>Save your searches</p>
+                    </div>
+                </div>
+                <div class="toggle active" id="search-toggle"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <button class="btn" onclick="saveSettings()">Save Settings</button>
+        </div>
+    </div>
+
+    <script>
+        // Load saved settings
+        function loadSettings() {
+            const theme = localStorage.getItem('bhuban_theme') || 'dark';
+            const language = localStorage.getItem('bhuban_language') || 'en';
+            const location = localStorage.getItem('bhuban_location') || 'BD';
+            const quality = localStorage.getItem('bhuban_quality') || 'auto';
+            
+            document.getElementById('theme-select').value = theme;
+            document.getElementById('language-select').value = language;
+            document.getElementById('location-select').value = location;
+            document.getElementById('quality-select').value = quality;
+            
+            // Load toggles
+            const restricted = localStorage.getItem('bhuban_restricted') === 'true';
+            const autoplay = localStorage.getItem('bhuban_autoplay') !=== 'false';
+            const history = localStorage.getItem('bhuban_history') !=== 'false';
+            const search = localStorage.getItem('bhuban_search') !=== 'false';
+            
+            if (restricted) document.getElementById('restricted-toggle').classList.add('active');
+            if (autoplay) document.getElementById('autoplay-toggle').classList.add('active');
+            if (history) document.getElementById('history-toggle').classList.add('active');
+            if (search) document.getElementById('search-toggle').classList.add('active');
+        }
+
+        // Toggle functionality
+        document.querySelectorAll('.toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Save settings
+        function saveSettings() {
+            localStorage.setItem('bhuban_theme', document.getElementById('theme-select').value);
+            localStorage.setItem('bhuban_language', document.getElementById('language-select').value);
+            localStorage.setItem('bhuban_location', document.getElementById('location-select').value);
+            localStorage.setItem('bhuban_quality', document.getElementById('quality-select').value);
+            
+            localStorage.setItem('bhuban_restricted', document.getElementById('restricted-toggle').classList.contains('active'));
+            localStorage.setItem('bhuban_autoplay', document.getElementById('autoplay-toggle').classList.contains('active'));
+            localStorage.setItem('bhuban_history', document.getElementById('history-toggle').classList.contains('active'));
+            localStorage.setItem('bhuban_search', document.getElementById('search-toggle').classList.contains('active'));
+            
+            alert('Settings saved successfully!');
+            
+            // Apply theme immediately
+            applyTheme();
+        }
+
+        // Apply theme
+        function applyTheme() {
+            const theme = document.getElementById('theme-select').value;
+            if (theme === 'light') {
+                document.body.style.background = '#fff';
+                document.body.style.color = '#000';
+            } else {
+                document.body.style.background = '#0f0f0f';
+                document.body.style.color = '#fff';
+            }
+        }
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- API Service -->
+    <script src="api-service.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0f0a 0%, #2d1b14 50%, #ff006e 100%);
+            background-size: 400% 400%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ddd;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            color: #666;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
+        }
+
+        .link a {
+            color: #ff3b30;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #00ff88;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .btn-oauth {
+            width: 100%;
+            padding: 15px;
+            background: #fff;
+            color: #333;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .btn-oauth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-oauth svg {
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🎬 Bhuban</h1>
+            <p style="color: #888;">Welcome back!</p>
+        </div>
+
+        <div class="card">
+            <h2>Login to Your Account</h2>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="your@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" class="btn" id="login-btn">
+                    <span id="btn-text">Login</span>
+                </button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <button type="button" class="btn-oauth google" id="google-btn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4" />
+                    <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z" fill="#34A853" />
+                    <path d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z" fill="#FBBC05" />
+                    <path d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z" fill="#EA4335" />
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="link">
+                Don't have an account? <a href="signup.html">Sign up</a>
+            </div>
+
+            <div class="link" style="margin-top: 10px;">
+                <a href="index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const form = document.getElementById('login-form');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const loginBtn = document.getElementById('login-btn');
+        const btnText = document.getElementById('btn-text');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Hide previous messages
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+
+            // Disable button
+            loginBtn.disabled = true;
+            btnText.textContent = 'Logging in...';
+
+            try {
+                // Use API service for login
+                const response = await api.login(email, password);
+
+                // Store user data
+                if (response.data) {
+                    const userData = response.data;
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    // Store token for profile display
+                    if (response.token) {
+                        localStorage.setItem('token', response.token);
+                        localStorage.setItem('accessToken', response.token);
+                    }
+
+                    // Save user profile data
+                    if (userData.name) {
+                        localStorage.setItem('displayName', userData.name);
+                    }
+                    if (userData.email) {
+                        localStorage.setItem('email', userData.email);
+                    }
+                    if (userData.picture || userData.avatar) {
+                        localStorage.setItem('profilePhoto', userData.picture || userData.avatar);
+                    }
+                }
+
+                // Show success
+                successDiv.textContent = '✅ Login successful! Redirecting...';
+                successDiv.classList.add('show');
+
+                // Redirect to home
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } catch (error) {
+                errorDiv.textContent = '❌ ' + (error.message || 'Login failed. Please check your credentials.');
+                errorDiv.classList.add('show');
+                loginBtn.disabled = false;
+                btnText.textContent = 'Login';
+            }
+        });
+
+        // Google OAuth
+        document.getElementById('google-btn').addEventListener('click', () => {
+            window.location.href = 'http://localhost:5000/api/auth/google';
+        });
+
+        // Check for logout request or already logged in
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('logout')) {
+            localStorage.clear();
+// DEBUG: console.log('🧹 Storage cleared via logout param');
+        } else if (localStorage.getItem('token') || localStorage.getItem('accessToken')) {
+            window.location.href = 'index.html';
+        }
+
+        // Handle OAuth callback (token in URL)
+        const token = urlParams.get('token');
+        if (token) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('accessToken', token);
+            api.token = token;
+
+            // Fetch user data using API service
+            api.getCurrentUser()
+                .then(response => {
+                    if (response.success && response.data) {
+                        const userData = response.data;
+                        localStorage.setItem('user', JSON.stringify(userData));
+
+                        // Save Google profile data
+// DEBUG: console.log('Google user data:', userData);
+                        if (userData.name) {
+                            localStorage.setItem('displayName', userData.name);
+                        }
+                        if (userData.email) {
+                            localStorage.setItem('email', userData.email);
+                        }
+                        // Check for photo in various possible fields
+                        const photoUrl = userData.picture || userData.avatar || userData.photo || userData.image;
+                        if (photoUrl) {
+// DEBUG: console.log('Saving profile photo:', photoUrl);
+                            localStorage.setItem('profilePhoto', photoUrl);
+                        } else {
+// DEBUG: console.log('No photo found in user data');
+                        }
+                        if (userData.googleId) {
+                            localStorage.setItem('googleId', userData.googleId);
+                        }
+
+                        successDiv.textContent = '✅ Login successful! Redirecting...';
+                        successDiv.classList.add('show');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching user:', err);
+                    window.location.href = 'index.html';
+                });
+        }
+    </script>
+</body>
+
+</html>

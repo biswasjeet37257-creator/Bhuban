@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscriptions | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="api-service.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .subscriptions-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subscriptions-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .channel-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .channel-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .channel-banner {
+            height: 100px;
+            background: var(--accent-gradient);
+            position: relative;
+        }
+
+        .channel-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid var(--bg-secondary);
+            margin: -40px auto 15px;
+            overflow: hidden;
+        }
+
+        .channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .channel-info {
+            text-align: center;
+            padding: 0 15px 20px;
+        }
+
+        .channel-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .channel-subscribers {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .unsubscribe-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unsubscribe-btn:hover {
+            background: #ff521a;
+            transform: scale(1.05);
+        }
+
+        .recent-videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .subscribe-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .subscribe-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .channels-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .recent-videos {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Enhanced touch feedback */
+        .video-card:active,
+        .channel-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .action-btn:focus,
+        .unsubscribe-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="subscriptions-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">Subscriptions</div>
+        <div style="flex: 1;"></div>
+        <i data-lucide="search" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="subscriptions-container">
+        <div class="section-title">Your Channels</div>
+        <div class="channels-grid" id="channels-container">
+            <!-- Channels will be loaded here -->
+        </div>
+
+        <div class="section-title">Recent Uploads</div>
+        <div class="recent-videos" id="recent-videos-container">
+            <!-- Recent videos will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample data - in real app this would come from API
+        const subscriptionsData = []; // No fake data
+
+        const recentVideosData = []; // No fake data
+
+        function renderSubscriptions() {
+            const container = document.getElementById('channels-container');
+
+            if (subscriptionsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="users"></i>
+                        <h3>No Subscriptions Yet</h3>
+                        <p>Subscribe to channels to see their content here</p>
+                        <button class="subscribe-btn" onclick="window.location.href='index.html'">
+                            Browse Channels
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = subscriptionsData.map(subscription => {
+                const channel = subscription.channelId || subscription;
+                const channelName = channel.name || 'Bhuban Creator';
+                const avatarUrl = getSafePhotoUrl(channel.avatar || channel.picture);
+                const initial = channelName.charAt(0).toUpperCase();
+
+                return `
+                    <div class="channel-card" onclick="window.location.href='channel.html?id=${channel._id}'">
+                        <div class="channel-banner" style="background: linear-gradient(135deg, #ff6b35 0%, #ff006e 100%);"></div>
+                        <div class="channel-avatar" style="display:flex; align-items:center; justify-content:center; color:#333; font-weight:bold; font-size:24px; overflow:hidden;">
+                            ${avatarUrl ?
+                        `<img src="${avatarUrl}" alt="${channelName}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.style.display='none'; this.parentElement.textContent='${initial}';">` :
+                        initial
+                    }
+                        </div>
+                        <div class="channel-info">
+                            <div class="channel-name">${channelName}</div>
+                            <div class="channel-subscribers">${formatCount(channel.subscriberCount || 0)} subscribers</div>
+                            <button class="unsubscribe-btn" onclick="event.stopPropagation(); unsubscribe('${channel._id}')">
+                                Unsubscribe
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecentVideos() {
+            const container = document.getElementById('recent-videos-container');
+
+            if (recentVideosData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="video"></i>
+                        <h3>No Recent Uploads</h3>
+                        <p>Your subscribed channels haven't uploaded anything recently</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = recentVideosData.map(video => {
+                const thumb = getSafePhotoUrl(video.thumbnailUrl || video.thumbnail);
+                return `
+                <div class="video-card" onclick="window.location.href='watch.html?v=${video._id}'">
+                    <div class="video-thumbnail">
+                        <img src="${thumb}" 
+                             alt="${video.title}"
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';">
+                        <div class="video-duration">${video.duration || '0:00'}</div>
+                        <div class="play-overlay">
+                            <div class="play-icon">
+                                <i data-lucide="play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-channel">${video.user ? video.user.name : 'Unknown'}</div>
+                        <div class="video-meta">
+                            <span>${video.views || 0} views</span>
+                            <span>${video.createdAt ? formatTimeAgo(new Date(video.createdAt)) : 'Recently'}</span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="action-btn play-btn" onclick="event.stopPropagation(); window.location.href='watch.html?v=${video._id}'">
+                                <i data-lucide="play"></i> Play
+                            </button>
+                            <button class="action-btn" onclick="event.stopPropagation(); shareVideo('${video._id}')">
+                                <i data-lucide="share"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        async function loadData() {
+            if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+// DEBUG: console.log('📡 Fetching subscriptions from API...');
+                try {
+                    const res = await api.getSubscriptions();
+                    if (res.success) {
+                        subscriptionsData.length = 0;
+                        subscriptionsData.push(...res.data);
+                        renderSubscriptions();
+
+                        // Load recent videos from these channels
+                        // In a real app we'd have a specific feed endpoint
+                        // For now we just get general videos
+                        const videosRes = await api.getVideos();
+                        if (videosRes.success) {
+                            recentVideosData.length = 0;
+                            recentVideosData.push(...videosRes.data.slice(0, 10));
+                            renderRecentVideos();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load subscriptions:', error);
+                    renderSubscriptions();
+                    renderRecentVideos();
+                }
+            } else {
+                renderSubscriptions();
+                renderRecentVideos();
+            }
+            lucide.createIcons();
+        }
+
+        async function unsubscribe(channelId) {
+            if (confirm('Are you sure you want to unsubscribe?')) {
+                try {
+                    if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+                        await api.unsubscribe(channelId);
+                    }
+
+                    const index = subscriptionsData.findIndex(s => (s.channelId?._id || s._id) === channelId);
+                    if (index > -1) {
+                        subscriptionsData.splice(index, 1);
+                        renderSubscriptions();
+                    }
+                } catch (e) {
+                    console.error('Unsubscribe failed:', e);
+                }
+            }
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>

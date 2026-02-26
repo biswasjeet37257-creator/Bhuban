@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts - Bhuban</title>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="/shared/auth-sync.js"></script>
+    <script src="video-identification-rules.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --accent-primary: #ff6b35;
+            --accent-secondary: #f7931e;
+            --accent-pink: #ff006e;
+            --accent-red: #e63946;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --glow-color: rgba(255, 107, 107, 0.35);
+            --success: #06d6a0;
+            --warning: #ffd60a;
+            --error: #e63946;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Animated Background - Sunset Gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 10% 90%, rgba(255, 107, 53, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 10%, rgba(255, 0, 110, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 214, 10, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 80%, rgba(230, 57, 70, 0.15) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+            animation: backgroundPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.95) 0%, rgba(255, 0, 110, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(255, 214, 10, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 0, 110, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 4px 15px rgba(255, 214, 10, 0.5);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd60a 0%, #fff 50%, #ffd60a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 214, 10, 0.5);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .shorts-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shorts-icon {
+            color: #ffd60a;
+            font-size: 20px;
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Shorts Container - Full Screen Vertical Scroll */
+        .shorts-container {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .shorts-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Individual Short - 9:16 Aspect Ratio Optimized */
+        .short-item {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* Video Container - Maintains 9:16 Aspect Ratio */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .short-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* Desktop: Center video with max width for 9:16 */
+        @media (min-width: 769px) {
+            .short-video {
+                max-width: calc(100vh * 9 / 16);
+                width: auto;
+                height: 100vh;
+                object-fit: cover;
+            }
+            
+            .short-item {
+                background: #0a0a0a;
+            }
+        }
+
+        /* Mobile: Full screen cover */
+        @media (max-width: 768px) {
+            .short-video {
+                width: 100vw;
+                height: 100vh;
+                object-fit: cover;
+            }
+        }
+
+        /* Overlay Info - Bottom 20% Safe Zone */
+        .short-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 80px;
+            padding: 20px 16px 100px 16px;
+            background: linear-gradient(to top, 
+                rgba(0,0,0,0.95) 0%, 
+                rgba(0,0,0,0.7) 40%,
+                rgba(0,0,0,0.3) 70%,
+                transparent 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .short-creator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            pointer-events: all;
+        }
+
+        .creator-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 10px rgba(255, 0, 110, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .creator-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .creator-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(255, 214, 10, 0.6);
+        }
+
+        .creator-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .creator-name {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            color: #fff;
+        }
+
+        .creator-name:hover {
+            color: #ffd60a;
+        }
+
+        .subscribe-btn {
+            background: linear-gradient(135deg, #fff 0%, #ffd60a 100%);
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(255, 214, 10, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subscribe-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 214, 10, 0.5);
+        }
+
+        .subscribe-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .subscribe-btn.subscribed {
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .short-title {
+            font-size: 15px;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-clamp: 2;
+            overflow: hidden;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            color: #fff;
+        }
+
+        .short-description {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-clamp: 2;
+            overflow: hidden;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Action Buttons - Right Side (Safe Zone) */
+        .short-actions {
+            position: absolute;
+            right: 10px;
+            bottom: 110px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 20;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            cursor: pointer;
+            font-size: 26px;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(255, 214, 10, 0.5);
+            border-color: rgba(255, 214, 10, 0.6);
+            background: rgba(255, 107, 53, 0.3);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn span {
+            font-size: 10px;
+            font-weight: 700;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+            color: #fff;
+        }
+
+        .action-btn.liked {
+            background: rgba(255, 68, 68, 0.4);
+            border-color: #ff4444;
+        }
+
+        .action-btn.liked i {
+            color: #ff4444;
+            filter: drop-shadow(0 0 8px #ff4444);
+        }
+        
+        .action-btn.disliked {
+            background: rgba(136, 136, 136, 0.4);
+            border-color: #888;
+        }
+
+        .action-btn.disliked i {
+            color: #888;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        /* Loading State */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .loading i {
+            font-size: 64px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            animation: spin 1s linear infinite, colorShift 3s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes colorShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(90deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .empty-state i {
+            font-size: 100px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #ffd60a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            margin-bottom: 32px;
+            max-width: 350px;
+            line-height: 1.6;
+        }
+
+        .empty-state a {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #ff6b35, #ff006e, #ffd60a);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .empty-state a:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 214, 10, 0.6);
+        }
+
+        .empty-state a:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        /* Video Controls Overlay */
+        .video-controls {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .short-item:active .video-controls {
+            opacity: 1;
+        }
+
+        .play-pause-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: #fff;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Mute/Unmute Button */
+        .mute-btn {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 25;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .mute-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 107, 53, 0.4);
+            border-color: rgba(255, 214, 10, 0.6);
+        }
+        
+        .mute-btn.muted {
+            background: rgba(255, 68, 68, 0.4);
+            border-color: #ff4444;
+        }
+        
+        .mute-btn.muted i {
+            color: #ff4444;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 30;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ff006e, #ffd60a);
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(255, 214, 10, 0.6);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .header {
+                height: 50px;
+                padding: 0 12px;
+            }
+
+            .shorts-title {
+                font-size: 14px;
+            }
+
+            .action-btn {
+                font-size: 24px;
+                gap: 3px;
+                padding: 8px;
+            }
+
+            .action-btn span {
+                font-size: 9px;
+            }
+
+            .short-overlay {
+                padding: 16px 12px 90px 12px;
+                right: 70px;
+            }
+
+            .short-actions {
+                right: 8px;
+                bottom: 100px;
+                gap: 14px;
+            }
+            
+            .creator-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            
+            .subscribe-btn {
+                padding: 6px 14px;
+                font-size: 11px;
+            }
+            
+            .short-title {
+                font-size: 14px;
+            }
+            
+            .short-description {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="window.location.href='index.html'" title="Back to Home">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="logo">BHUBAN</div>
+            <div class="shorts-title">
+                <i class="fas fa-bolt shorts-icon"></i>
+                Shorts
+            </div>
+        </div>
+    </div>
+
+    <!-- Shorts Container -->
+    <div class="shorts-container" id="shortsContainer">
+        <div class="loading">
+            <i class="fas fa-spinner"></i>
+            <div class="loading-text">Loading Shorts...</div>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANT: Wait for AuthService to be fully loaded
+        function waitForAuthService() {
+            return new Promise((resolve) => {
+                if (typeof AuthService !=== 'undefined') {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForAuthService().then(resolve), 100);
+                }
+            });
+        }
+
+        // Debug: Check authentication state on page load
+        waitForAuthService().then(() => {
+// DEBUG: console.log('=== Shorts Page Authentication Debug ===');
+            console.log('AuthService available:', typeof AuthService !=== 'undefined');
+            if (typeof AuthService !=== 'undefined') {
+// DEBUG: console.log('Is authenticated:', AuthService.isAuthenticated());
+// DEBUG: console.log('Token exists:', !!AuthService.getToken());
+// DEBUG: console.log('User data:', AuthService.getUser());
+// DEBUG: console.log('Token value:', AuthService.getToken());
+            }
+// DEBUG: console.log('localStorage bhuban_auth_data:', localStorage.getItem('bhuban_auth_data'));
+// DEBUG: console.log('localStorage token:', localStorage.getItem('token'));
+// DEBUG: console.log('========================================');
+        });
+        
+        let currentPage = 1;
+        let isLoading = false;
+        let hasMore = true;
+        let currentVideoIndex = 0;
+        let videos = [];
+        let soundUnlocked = true; // Start with sound enabled
+        
+        // Try to unlock sound immediately on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create a silent audio context to unlock audio
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const audioContext = new AudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0; // Silent
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start(0);
+                oscillator.stop(0.001);
+// DEBUG: console.log('🔊 Audio context unlocked on page load');
+            }
+        });
+        
+        // Unlock sound on any user interaction
+        function unlockSound() {
+            if (!soundUnlocked) {
+                soundUnlocked = true;
+// DEBUG: console.log('🔊 Sound unlocked! Enabling audio for all videos...');
+                
+                // Unmute all currently playing videos
+                document.querySelectorAll('.short-video').forEach(video => {
+                    if (!video.paused) {
+                        video.muted = false;
+                        const muteBtn = video.closest('.video-wrapper')?.querySelector('.mute-btn');
+                        if (muteBtn) {
+                            muteBtn.classList.remove('muted');
+                            muteBtn.querySelector('i').className = 'fas fa-volume-up';
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Listen for any user interaction to unlock sound
+        ['click', 'touchstart', 'keydown', 'scroll'].forEach(event => {
+            document.addEventListener(event, unlockSound, { once: true, passive: true });
+        });
+
+        // Load Shorts
+        async function loadShorts(channelId = null) {
+            if (isLoading || !hasMore) return;
+            
+            isLoading = true;
+            
+            try {
+                const apiBase = typeof BhubanConfig !=== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                
+                // Build API URL based on whether we're filtering by channel
+                let apiUrl;
+                if (channelId) {
+                    // Load channel-specific Shorts
+                    apiUrl = `${apiBase}/api/videos?user=${channelId}&limit=50`;
+                } else {
+                    // Load all Shorts feed
+                    apiUrl = `${apiBase}/api/videos/shorts/feed?page=${currentPage}&limit=10`;
+                }
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    let shortsData = data.data;
+                    
+                    // If loading by channel, filter for Shorts only
+                    if (channelId) {
+                        shortsData = shortsData.filter(video => {
+                            // Use VideoIdentificationRules if available, otherwise basic check
+                            if (typeof VideoIdentificationRules !=== 'undefined') {
+                                return VideoIdentificationRules.isShort(video);
+                            }
+                            return video.isShort === true && video.duration <= 180;
+                        });
+                    }
+                    
+                    if (shortsData.length > 0) {
+                        videos = [...videos, ...shortsData];
+                        renderShorts(shortsData);
+                        
+                        if (!channelId) {
+                            currentPage++;
+                            hasMore = currentPage <= data.pages;
+                        } else {
+                            hasMore = false; // No pagination for channel Shorts
+                        }
+                    } else {
+                        hasMore = false;
+                        if (videos.length === 0) {
+                            document.getElementById('shortsContainer').innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-bolt"></i>
+                                    <h2>No Shorts Yet</h2>
+                                    <p>${channelId ? 'This channel hasn\'t uploaded any Shorts yet.' : 'Be the first to create a Short! Upload vertical videos (9:16) under 60 seconds.'}</p>
+                                    ${!channelId ? '<a href="upload.html"><i class="fas fa-upload"></i> Upload Short</a>' : ''}
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    hasMore = false;
+                    if (videos.length === 0) {
+                        document.getElementById('shortsContainer').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-bolt"></i>
+                                <h2>No Shorts Yet</h2>
+                                <p>${channelId ? 'This channel hasn\'t uploaded any Shorts yet.' : 'Be the first to create a Short! Upload vertical videos (9:16) under 60 seconds.'}</p>
+                                ${!channelId ? '<a href="upload.html"><i class="fas fa-upload"></i> Upload Short</a>' : ''}
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading Shorts:', error);
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Render Shorts
+        function renderShorts(shorts) {
+            const container = document.getElementById('shortsContainer');
+            
+            // Clear loading message on first load
+            if (currentPage === 1) {
+                container.innerHTML = '';
+            }
+            
+            shorts.forEach((short, index) => {
+                const shortElement = document.createElement('div');
+                shortElement.className = 'short-item';
+                shortElement.dataset.index = videos.length - shorts.length + index;
+                
+                const creatorInitial = short.user?.name?.charAt(0).toUpperCase() || 'B';
+                const creatorName = short.user?.name || 'Unknown Creator';
+                const profileImage = short.user?.profileImage || short.user?.avatar || '';
+                
+                // Build profile image HTML
+                const avatarContent = profileImage 
+                    ? `<img src="${profileImage.startsWith('http') ? profileImage : 'http://localhost:5000/' + profileImage}" alt="${creatorName}" onerror="this.style.display='none'">
+                       <span style="position: relative; z-index: 1;">${creatorInitial}</span>`
+                    : creatorInitial;
+                
+                // Build video URL
+                const videoUrl = short.videoUrl.startsWith('http') 
+                    ? short.videoUrl 
+                    : `http://localhost:5000/${short.videoUrl}`;
+                
+                shortElement.innerHTML = `
+                    <div class="video-wrapper">
+                        <video class="short-video" 
+                               src="${videoUrl}" 
+                               loop 
+                               playsinline
+                               autoplay
+                               preload="metadata"
+                               data-id="${short._id}">
+                        </video>
+                        
+                        <button class="mute-btn" onclick="toggleMute(this)">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        
+                        <div class="video-controls">
+                            <button class="play-pause-btn" onclick="togglePlayPause(this)">
+                                <i class="fas fa-pause"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="short-overlay">
+                        <div class="short-creator">
+                            <div class="creator-avatar" onclick="viewChannel('${short.user?._id || ''}')" style="cursor: pointer;">${avatarContent}</div>
+                            <div class="creator-info">
+                                <div class="creator-name" onclick="viewChannel('${short.user?._id || ''}')" style="cursor: pointer;">@${creatorName}</div>
+                            </div>
+                            <button class="subscribe-btn" onclick="subscribeToChannel('${short.user?._id || ''}', this)">Subscribe</button>
+                        </div>
+                        <div class="short-title">${short.title}</div>
+                        ${short.description ? `<div class="short-description">${parseHashtags(short.description.substring(0, 150))}${short.description.length > 150 ? '...' : ''}</div>` : ''}
+                    </div>
+                    
+                    <div class="short-actions">
+                        <button class="action-btn" onclick="likeShort('${short._id}', this)" title="Like">
+                            <i class="fas fa-heart"></i>
+                            <span>${formatNumber(short.likes || 0)}</span>
+                        </button>
+                        <button class="action-btn" onclick="dislikeShort('${short._id}', this)" title="Dislike">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span>Dislike</span>
+                        </button>
+                        <button class="action-btn" title="Comments" onclick="window.location.href='watch.html?v=${short._id}'">
+                            <i class="fas fa-comment"></i>
+                            <span>${formatNumber(short.comments || 0)}</span>
+                        </button>
+                        <button class="action-btn" onclick="shareShort('${short._id}')" title="Share">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(shortElement);
+            });
+            
+            // Setup video playback
+            setupVideoPlayback();
+        }
+
+        // Toggle play/pause
+        function togglePlayPause(button) {
+            const videoWrapper = button.closest('.video-wrapper');
+            const video = videoWrapper.querySelector('.short-video');
+            const muteBtn = videoWrapper.querySelector('.mute-btn');
+            const icon = button.querySelector('i');
+            
+            if (video.paused) {
+                video.play();
+                icon.className = 'fas fa-pause';
+                button.closest('.video-controls').style.opacity = '0';
+                button.closest('.video-controls').style.pointerEvents = 'none';
+            } else {
+                video.pause();
+                icon.className = 'fas fa-play';
+            }
+        }
+        
+        // Toggle mute/unmute
+        function toggleMute(button) {
+            const videoWrapper = button.closest('.video-wrapper');
+            const video = videoWrapper.querySelector('.short-video');
+            const icon = button.querySelector('i');
+            
+            if (video.muted) {
+                video.muted = false;
+                button.classList.remove('muted');
+                icon.className = 'fas fa-volume-up';
+                showNotification('Sound on', 'success');
+            } else {
+                video.muted = true;
+                button.classList.add('muted');
+                icon.className = 'fas fa-volume-mute';
+                showNotification('Sound off', 'info');
+            }
+        }
+
+        // Setup video playback on scroll
+        function setupVideoPlayback() {
+            const container = document.getElementById('shortsContainer');
+            const videoElements = container.querySelectorAll('.short-video');
+            
+            // Smooth scroll navigation
+            let currentScrollIndex = 0;
+            let isScrolling = false;
+            let touchStartY = 0;
+            let touchEndY = 0;
+            
+            // Navigate to specific short
+            function navigateToShort(index) {
+                if (isScrolling) return;
+                
+                const shortItems = container.querySelectorAll('.short-item');
+                if (index < 0 || index >= shortItems.length) return;
+                
+                isScrolling = true;
+                currentScrollIndex = index;
+                
+                shortItems[index].scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 800);
+            }
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                    e.preventDefault();
+                    navigateToShort(currentScrollIndex + 1);
+                } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                    e.preventDefault();
+                    navigateToShort(currentScrollIndex - 1);
+                }
+            });
+            
+            // Touch/swipe navigation
+            container.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            container.addEventListener('touchend', (e) => {
+                touchEndY = e.changedTouches[0].clientY;
+                const swipeDistance = touchStartY - touchEndY;
+                
+                // Swipe threshold: 50px
+                if (Math.abs(swipeDistance) > 50) {
+                    if (swipeDistance > 0) {
+                        // Swiped up - next short
+                        navigateToShort(currentScrollIndex + 1);
+                    } else {
+                        // Swiped down - previous short
+                        navigateToShort(currentScrollIndex - 1);
+                    }
+                }
+            }, { passive: true });
+            
+            // Mouse wheel navigation (smooth)
+            let wheelTimeout;
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                clearTimeout(wheelTimeout);
+                wheelTimeout = setTimeout(() => {
+                    if (e.deltaY > 0) {
+                        navigateToShort(currentScrollIndex + 1);
+                    } else {
+                        navigateToShort(currentScrollIndex - 1);
+                    }
+                }, 50);
+            }, { passive: false });
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    const progressBar = video.closest('.video-wrapper').querySelector('.progress-fill');
+                    const controls = video.closest('.video-wrapper').querySelector('.video-controls');
+                    
+                    if (entry.isIntersecting) {
+                        // Update current index
+                        const shortItem = video.closest('.short-item');
+                        const index = parseInt(shortItem.dataset.index);
+                        if (!isNaN(index)) {
+                            currentScrollIndex = index;
+                        }
+                        
+                        // Always try to play with sound (soundUnlocked starts as true)
+                        video.muted = false;
+                        
+                        // Play video when in view
+                        const playPromise = video.play();
+                        
+                        if (playPromise !=== undefined) {
+                            playPromise.then(() => {
+                                // Autoplay started successfully with sound!
+// DEBUG: console.log('✅ Video playing with sound:', video.dataset.id);
+                                soundUnlocked = true; // Confirm sound is working
+                                // Update mute button to show unmuted state
+                                const muteBtn = video.closest('.video-wrapper').querySelector('.mute-btn');
+                                if (muteBtn) {
+                                    muteBtn.classList.remove('muted');
+                                    muteBtn.querySelector('i').className = 'fas fa-volume-up';
+                                }
+                            }).catch(error => {
+                                // Browser blocked unmuted autoplay, try muted as fallback
+// DEBUG: console.log('⚠️ Unmuted autoplay blocked, playing muted (will unmute on interaction)');
+                                video.muted = true;
+                                soundUnlocked = false; // Need user interaction
+                                const muteBtn = video.closest('.video-wrapper').querySelector('.mute-btn');
+                                if (muteBtn) {
+                                    muteBtn.classList.add('muted');
+                                    muteBtn.querySelector('i').className = 'fas fa-volume-mute';
+                                }
+                                
+                                video.play().catch(err => {
+                                    // Even muted autoplay failed
+// DEBUG: console.log('❌ All autoplay blocked, showing play button');
+                                    if (controls) {
+                                        controls.style.opacity = '1';
+                                        controls.style.pointerEvents = 'all';
+                                        const icon = controls.querySelector('i');
+                                        if (icon) icon.className = 'fas fa-play';
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // Track view
+                        trackView(video.dataset.id);
+                        
+                        // Update progress bar
+                        video.addEventListener('timeupdate', function updateProgress() {
+                            if (progressBar && video.duration) {
+                                const progress = (video.currentTime / video.duration) * 100;
+                                progressBar.style.width = progress + '%';
+                            }
+                        });
+                    } else {
+                        // Pause and reset when out of view
+                        video.pause();
+                        video.currentTime = 0;
+                        if (progressBar) progressBar.style.width = '0%';
+                    }
+                });
+            }, { threshold: 0.75 });
+            
+            videoElements.forEach(video => observer.observe(video));
+            
+            // Load more on scroll
+            container.addEventListener('scroll', () => {
+                const scrollPosition = container.scrollTop + container.clientHeight;
+                const scrollHeight = container.scrollHeight;
+                
+                if (scrollPosition >= scrollHeight - 1000 && !isLoading && hasMore) {
+                    loadShorts();
+                }
+            });
+            
+            // Click to play/pause and unmute
+            videoElements.forEach(video => {
+                video.addEventListener('click', function() {
+                    const videoWrapper = this.closest('.video-wrapper');
+                    const muteBtn = videoWrapper?.querySelector('.mute-btn');
+                    
+                    if (this.paused) {
+                        this.muted = false; // Always unmute on click
+                        this.play();
+                        if (muteBtn) {
+                            muteBtn.classList.remove('muted');
+                            muteBtn.querySelector('i').className = 'fas fa-volume-up';
+                        }
+                    } else {
+                        this.pause();
+                    }
+                });
+            });
+        }
+
+        // Like Short
+        async function likeShort(videoId, button) {
+            // Check if AuthService is available and user is authenticated
+            if (typeof AuthService === 'undefined') {
+                console.error('AuthService not loaded');
+                showNotification('Authentication system not loaded. Please refresh the page.', 'error');
+                return;
+            }
+            
+            // Better auth check - check both token and localStorage directly
+            const token = AuthService.getToken();
+            const hasAuthData = localStorage.getItem('bhuban_auth_data') || localStorage.getItem('token');
+            
+// DEBUG: console.log('🔍 Like button auth check:', {
+                'AuthService.isAuthenticated()': AuthService.isAuthenticated(),
+                'Has token': !!token,
+                'Has localStorage auth': !!hasAuthData
+            });
+            
+            if (!token && !hasAuthData) {
+// DEBUG: console.log('User not authenticated');
+                showNotification('Please login to like videos', 'warning');
+                return;
+            }
+            
+// DEBUG: console.log('User authenticated, proceeding with like');
+            
+            try {
+                const authToken = token || localStorage.getItem('token');
+                const apiBase = typeof BhubanConfig !=== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                const response = await fetch(`${apiBase}/api/videos/${videoId}/like`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const wasLiked = button.classList.contains('liked');
+                    button.classList.toggle('liked');
+                    
+                    const countSpan = button.querySelector('span');
+                    const currentCount = parseInt(countSpan.textContent.replace(/[^0-9]/g, '')) || 0;
+                    const newCount = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+                    countSpan.textContent = formatNumber(newCount);
+                    
+                    showNotification(wasLiked ? 'Removed from liked videos' : 'Added to liked videos', 'success');
+                    
+                    button.style.animation = 'heartBeat 0.3s ease';
+                    setTimeout(() => button.style.animation = '', 300);
+                } else {
+                    showNotification(data.error || 'Failed to like video', 'error');
+                }
+            } catch (error) {
+                console.error('Error liking Short:', error);
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+        
+        // Dislike Short
+        async function dislikeShort(videoId, button) {
+            // Check if AuthService is available and user is authenticated
+            if (typeof AuthService === 'undefined') {
+                console.error('AuthService not loaded');
+                showNotification('Authentication system not loaded. Please refresh the page.', 'error');
+                return;
+            }
+            
+            // Better auth check - check both token and localStorage directly
+            const token = AuthService.getToken();
+            const hasAuthData = localStorage.getItem('bhuban_auth_data') || localStorage.getItem('token');
+            
+// DEBUG: console.log('🔍 Dislike button auth check:', {
+                'AuthService.isAuthenticated()': AuthService.isAuthenticated(),
+                'Has token': !!token,
+                'Has localStorage auth': !!hasAuthData
+            });
+            
+            if (!token && !hasAuthData) {
+// DEBUG: console.log('User not authenticated');
+                showNotification('Please login to dislike videos', 'warning');
+                return;
+            }
+            
+// DEBUG: console.log('User authenticated, proceeding with dislike');
+            
+            try {
+                const authToken = token || localStorage.getItem('token');
+                const apiBase = typeof BhubanConfig !=== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                const response = await fetch(`${apiBase}/api/videos/${videoId}/dislike`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const wasDisliked = button.classList.contains('disliked');
+                    button.classList.toggle('disliked');
+                    
+                    showNotification(wasDisliked ? 'Removed dislike' : 'Disliked', 'success');
+                    
+                    button.style.animation = 'shake 0.3s ease';
+                    setTimeout(() => button.style.animation = '', 300);
+                } else {
+                    showNotification(data.error || 'Failed to dislike video', 'error');
+                }
+            } catch (error) {
+                console.error('Error disliking Short:', error);
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+
+        // Share Short
+        function shareShort(videoId) {
+            const url = `${window.location.origin}/watch.html?v=${videoId}`;
+            const title = 'Check out this Short on Bhuban!';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: 'Watch this amazing Short!',
+                    url: url
+                }).then(() => {
+                    showNotification('Shared successfully!', 'success');
+                }).catch((error) => {
+                    if (error.name !=== 'AbortError') {
+                        fallbackShare(url);
+                    }
+                });
+            } else {
+                fallbackShare(url);
+            }
+        }
+        
+        function fallbackShare(url) {
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showNotification('Link copied to clipboard!', 'success');
+                }).catch(() => {
+                    showShareModal(url);
+                });
+            } else {
+                showShareModal(url);
+            }
+        }
+        
+        function showShareModal(url) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 0, 110, 0.2)); backdrop-filter: blur(20px); border: 2px solid rgba(255, 214, 10, 0.3); border-radius: 24px; padding: 40px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
+                    <h3 style="margin-bottom: 24px; font-size: 24px; background: linear-gradient(135deg, #fff 0%, #ffd60a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">Share this Short</h3>
+                    <input type="text" value="${url}" readonly style="width: 100%; padding: 14px; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #fff; margin-bottom: 20px; font-size: 14px; font-family: monospace;" onclick="this.select()">
+                    <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
+                        <button onclick="window.open('https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}', '_blank')" style="padding: 14px 24px; background: linear-gradient(135deg, #1DA1F2, #0d8bd9); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4);" onmouseover="this.style.transform='translateY(-2px) scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(29, 161, 242, 0.6)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 15px rgba(29, 161, 242, 0.4)'">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </button>
+                        <button onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}', '_blank')" style="padding: 14px 24px; background: linear-gradient(135deg, #4267B2, #365899); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(66, 103, 178, 0.4);" onmouseover="this.style.transform='translateY(-2px) scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(66, 103, 178, 0.6)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 15px rgba(66, 103, 178, 0.4)'">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </button>
+                        <button onclick="window.open('https://wa.me/?text=${encodeURIComponent(url)}', '_blank')" style="padding: 14px 24px; background: linear-gradient(135deg, #25D366, #1ebe57); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);" onmouseover="this.style.transform='translateY(-2px) scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(37, 211, 102, 0.6)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.4)'">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                    </div>
+                    <button onclick="this.closest('div').parentElement.remove()" style="padding: 14px 32px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); backdrop-filter: blur(10px); color: white; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'; this.style.borderColor='rgba(255, 214, 10, 0.5)'" onmouseout="this.style.transform=''; this.style.borderColor='rgba(255, 255, 255, 0.3)'">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+        }
+        
+        // Subscribe to channel
+        async function subscribeToChannel(channelId, button) {
+            // Check if AuthService is available and user is authenticated
+            if (typeof AuthService === 'undefined') {
+                console.error('AuthService not loaded');
+                showNotification('Authentication system not loaded. Please refresh the page.', 'error');
+                return;
+            }
+            
+            // Better auth check - check both token and localStorage directly
+            const token = AuthService.getToken();
+            const hasAuthData = localStorage.getItem('bhuban_auth_data') || localStorage.getItem('token');
+            
+// DEBUG: console.log('🔍 Subscribe button auth check:', {
+                'AuthService.isAuthenticated()': AuthService.isAuthenticated(),
+                'Has token': !!token,
+                'Has localStorage auth': !!hasAuthData
+            });
+            
+            if (!token && !hasAuthData) {
+// DEBUG: console.log('User not authenticated');
+                showNotification('Please login to subscribe', 'warning');
+                return;
+            }
+            
+// DEBUG: console.log('User authenticated, proceeding with subscribe');
+            
+            try {
+                const authToken = token || localStorage.getItem('token');
+                const apiBase = typeof BhubanConfig !=== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                const response = await fetch(`${apiBase}/api/users/${channelId}/subscribe`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const isSubscribed = button.classList.contains('subscribed');
+                    button.classList.toggle('subscribed');
+                    button.textContent = isSubscribed ? 'Subscribe' : 'Subscribed';
+                    button.style.background = isSubscribed ? 'linear-gradient(135deg, #fff 0%, #ffd60a 100%)' : 'rgba(255, 255, 255, 0.3)';
+                    button.style.color = isSubscribed ? '#000' : '#fff';
+                    
+                    showNotification(isSubscribed ? 'Unsubscribed' : 'Subscribed!', 'success');
+                } else {
+                    showNotification(data.error || 'Failed to subscribe', 'error');
+                }
+            } catch (error) {
+                console.error('Error subscribing:', error);
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+        
+        // View channel profile
+        function viewChannel(channelId) {
+            window.location.href = `channel.html?id=${channelId}`;
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'linear-gradient(135deg, #06d6a0, #10b981)',
+                error: 'linear-gradient(135deg, #ef4444, #e63946)',
+                warning: 'linear-gradient(135deg, #ffd60a, #f7931e)',
+                info: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 18px 28px;
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(255, 214, 10, 0.3);
+                z-index: 10001;
+                animation: slideIn 0.3s ease;
+                font-size: 15px;
+                font-weight: 600;
+                max-width: 320px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(10px);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Track view
+        async function trackView(videoId) {
+            try {
+                const apiBase = typeof BhubanConfig !=== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                await fetch(`${apiBase}/api/videos/${videoId}/view`, { method: 'POST' });
+            } catch (error) {
+                console.error('Error tracking view:', error);
+            }
+        }
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+        
+        // Parse hashtags in text and make them clickable
+        function parseHashtags(text) {
+            if (!text) return text;
+            
+            // Escape HTML to prevent XSS
+            const escapeHtml = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+            
+            const escapedText = escapeHtml(text);
+            
+            // Replace hashtags with clickable links
+            return escapedText.replace(/#(\w+)/g, (match, tag) => {
+                return `<a href="search.html?q=${encodeURIComponent('#' + tag)}" 
+                           style="color: #ffd60a; text-decoration: none; font-weight: 600;"
+                           onclick="event.stopPropagation(); searchHashtag('${tag}'); return false;">#${tag}</a>`;
+            });
+        }
+        
+        // Search by hashtag
+        function searchHashtag(tag) {
+            window.location.href = `search.html?q=${encodeURIComponent('#' + tag)}`;
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            // Check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const shortId = urlParams.get('v');
+            const channelId = urlParams.get('channel');
+            
+            // Load Shorts (filtered by channel if provided)
+            await loadShorts(channelId);
+            
+            // If a specific Short ID is provided, scroll to it
+            if (shortId && videos.length > 0) {
+                // Find the index of the specific Short
+                const shortIndex = videos.findIndex(v => v._id === shortId);
+                
+                if (shortIndex !=== -1) {
+                    // Scroll to the specific Short
+                    currentIndex = shortIndex;
+                    const shortElement = document.querySelector(`.short-item[data-index="${shortIndex}"]`);
+                    if (shortElement) {
+                        shortElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+                        
+                        // Play the video
+                        const video = shortElement.querySelector('video');
+                        if (video) {
+// DEBUG: video.play().catch(err => console.log('Autoplay prevented:', err));
+                        }
+                    }
+                } else {
+// DEBUG: console.log('Short not found in channel Shorts');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

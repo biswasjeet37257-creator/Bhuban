@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .success { background: #10b981; }
+        .error { background: #ef4444; }
+        .info { background: #3b82f6; }
+        pre {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Backend Connection Test</h1>
+    
+    <button onclick="testBackend()">Test Backend API</button>
+    <button onclick="clearCache()">Clear Cache</button>
+    <button onclick="location.href='index.html'">Go to Main App</button>
+    
+    <div id="results"></div>
+
+    <script>
+// DEBUG: console.log('🧪 Test page loaded');
+
+        async function testBackend() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="status info">Testing backend connection...</div>';
+
+            try {
+                // Test 1: Backend health
+                results.innerHTML += '<h3>Test 1: Backend Server</h3>';
+                const healthResponse = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (healthResponse.ok) {
+                    results.innerHTML += '<div class="status success">✅ Backend server is ONLINE</div>';
+                } else {
+                    results.innerHTML += '<div class="status error">❌ Backend returned: ' + healthResponse.status + '</div>';
+                }
+
+                // Test 2: Videos API
+                results.innerHTML += '<h3>Test 2: Videos API</h3>';
+                const videosResponse = await fetch('http://localhost:5000/api/videos', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (videosResponse.ok) {
+                    const data = await response.json();
+                    const videoCount = data.data ? data.data.length : (Array.isArray(data) ? data.length : 0);
+                    results.innerHTML += '<div class="status success">✅ Videos API working! Found ' + videoCount + ' videos</div>';
+                    results.innerHTML += '<pre>' + JSON.stringify(data, null, 2).substring(0, 500) + '...</pre>';
+                } else {
+                    results.innerHTML += '<div class="status error">❌ Videos API returned: ' + videosResponse.status + '</div>';
+                }
+
+                // Test 3: CORS
+                results.innerHTML += '<h3>Test 3: CORS Headers</h3>';
+                const corsHeaders = videosResponse.headers.get('access-control-allow-origin');
+                if (corsHeaders) {
+                    results.innerHTML += '<div class="status success">✅ CORS configured: ' + corsHeaders + '</div>';
+                } else {
+                    results.innerHTML += '<div class="status error">❌ CORS headers missing</div>';
+                }
+
+            } catch (error) {
+                results.innerHTML += '<div class="status error">❌ Error: ' + error.message + '</div>';
+                results.innerHTML += '<pre>' + error.stack + '</pre>';
+            }
+        }
+
+        function clearCache() {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('✅ Cache cleared! Now reload the page.');
+        }
+
+        // Auto-run test on load
+        window.addEventListener('load', () => {
+            setTimeout(testBackend, 500);
+        });
+    </script>
+</body>
+</html>

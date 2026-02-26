@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy & Subscriptions - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .preference-item {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+
+        .preference-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .preference-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .preference-description {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .preference-description a {
+            color: #fff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .preference-description a:hover {
+            opacity: 0.8;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+            background: #667eea;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .save-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            margin: 32px auto 0;
+        }
+
+        .save-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='settings.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Privacy & Subscriptions</h1>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Manage your privacy settings</h1>
+        <p class="page-subtitle">Control how others see your activity and subscriptions</p>
+
+        <!-- Subscriptions Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2 class="section-title">Subscriptions</h2>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Keep all my subscriptions private</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="private-subscriptions">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    Your subscriptions won't be visible to others, unless you use features that make them public. 
+                    <a onclick="showLearnMore('subscriptions')">Learn more</a> about what could make your subscriptions visible or manage your subscriptions 
+                    <a onclick="window.location.href='account.html'">here</a>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Mentions Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-at"></i>
+                </div>
+                <h2 class="section-title">Mentions</h2>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Allow users to mention me</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="allow-mentions" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    Anyone can mention you in video titles, video descriptions, posts, and comments. Manage notifications settings for mentions 
+                    <a onclick="window.location.href='notifications-settings.html'">here</a>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Chat Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h2 class="section-title">Live Chat</h2>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Appear on top fans leaderboards</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="top-fans" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    You may be ranked in the top fans leaderboards as a viewer and earn experience points (XP) for your engagement. If you turn this off, you'll be removed from top fans leaderboards and your previous participation will be removed. 
+                    <a onclick="showLearnMore('leaderboards')">Learn more</a>.
+                </div>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Turn off Super Chat and Super Stickers celebrations</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="super-chat-celebrations">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    Super Chat and Super Stickers purchase milestones will not be publicly announced in live chat. 
+                    <a onclick="showLearnMore('superchat')">Learn more</a>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Ads Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-ad"></i>
+                </div>
+                <h2 class="section-title">Ads on Bhuban</h2>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-description">
+                    You may see ads on Bhuban based on general factors, like the topic of a video. The ads you see may also depend on your choices on this page and other sites. To learn more about how ads work for family audiences, visit the 
+                    <a onclick="showLearnMore('ads')">Google for Families Help Center</a>.
+                </div>
+                <div class="info-box">
+                    <p><i class="fas fa-info-circle"></i> Ad preferences are managed through your Google account settings. Bhuban uses contextual advertising to show relevant ads based on video content.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watch History Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h2 class="section-title">Watch History</h2>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Save watch history</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="watch-history" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    Keep track of videos you watch to get better recommendations and resume watching where you left off.
+                </div>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-header">
+                    <h3 class="preference-title">Save search history</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="search-history" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="preference-description">
+                    Save your searches to improve recommendations and make it easier to find what you're looking for.
+                </div>
+            </div>
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">
+            <i class="fas fa-check"></i> Save All Settings
+        </button>
+    </div>
+
+    <script>
+        // Load saved settings
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('bhuban_privacy_settings') || '{}');
+            
+            // Set toggle states
+            document.getElementById('private-subscriptions').checked = settings.privateSubscriptions || false;
+            document.getElementById('allow-mentions').checked = settings.allowMentions !=== false;
+            document.getElementById('top-fans').checked = settings.topFans !=== false;
+            document.getElementById('super-chat-celebrations').checked = settings.superChatCelebrations || false;
+            document.getElementById('watch-history').checked = settings.watchHistory !=== false;
+            document.getElementById('search-history').checked = settings.searchHistory !=== false;
+        }
+
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                privateSubscriptions: document.getElementById('private-subscriptions').checked,
+                allowMentions: document.getElementById('allow-mentions').checked,
+                topFans: document.getElementById('top-fans').checked,
+                superChatCelebrations: document.getElementById('super-chat-celebrations').checked,
+                watchHistory: document.getElementById('watch-history').checked,
+                searchHistory: document.getElementById('search-history').checked
+            };
+
+            localStorage.setItem('bhuban_privacy_settings', JSON.stringify(settings));
+            
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Saved!';
+            btn.style.background = '#4ade80';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'rgba(255, 255, 255, 0.9)';
+                btn.style.color = '#667eea';
+            }, 2000);
+        }
+
+        // Auto-save on toggle change
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                setTimeout(saveSettings, 300);
+            });
+        });
+
+        // Show learn more info
+        function showLearnMore(topic) {
+            const messages = {
+                'subscriptions': 'Your subscriptions may become visible when you:\n• Comment on videos\n• Create playlists\n• Like or share videos\n• Interact with community posts',
+                'leaderboards': 'Top fans leaderboards show the most engaged viewers in live chats. XP points are earned through:\n• Watching live streams\n• Sending messages\n• Using Super Chat\n• Consistent participation',
+                'superchat': 'Super Chat and Super Stickers are ways to support creators during live streams. Celebrations announce milestone purchases to the chat.',
+                'ads': 'Ads on Bhuban help support creators and keep the platform free. Ad preferences can be managed through your Google account settings.'
+            };
+            
+            alert(messages[topic] || 'Learn more information coming soon!');
+        }
+
+        // Initialize
+        window.addEventListener('load', loadSettings);
+    </script>
+</body>
+</html>

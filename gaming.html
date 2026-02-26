@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="api-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .gaming-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gaming-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .filter-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .gaming-container {
+            padding: 0 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .live-section {
+            background: linear-gradient(135deg, #ff006e, #6a00ff);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .live-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,20 30,40 10,40" fill="rgba(255,255,255,0.1)"/><polygon points="80,30 90,50 70,50" fill="rgba(255,255,255,0.1)"/><polygon points="40,70 60,80 50,60" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .live-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .live-thumbnail {
+            width: 160px;
+            height: 90px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .live-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .live-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ff0000;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-info {
+            flex: 1;
+        }
+
+        .live-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .live-streamer {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .streamer-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .live-stats {
+            display: flex;
+            gap: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .live-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .watch-btn-large {
+            background: white;
+            color: #ff006e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .watch-btn-large:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .games-section {
+            margin: 40px 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .game-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .game-card.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .game-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .game-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .channel-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .play-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .play-btn:hover {
+            background: #ff521a;
+        }
+
+        .like-btn {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .like-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .live-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .gaming-controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Enhanced touch feedback */
+        .game-card:active,
+        .video-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .action-btn:focus,
+        .filter-btn:focus,
+        .game-card:focus,
+        .watch-btn-large:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Improved modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gaming-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">
+            <i data-lucide="gamepad"></i>
+            Gaming
+        </div>
+        <div style="flex: 1;"></div>
+        <i data-lucide="search" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="gaming-controls">
+        <button class="filter-btn active" onclick="filterGaming('all')">
+            <i data-lucide="gamepad"></i> All Games
+        </button>
+        <button class="filter-btn" onclick="filterGaming('live')">
+            <i data-lucide="radio"></i> Live Streams
+        </button>
+        <button class="filter-btn" onclick="filterGaming('trending')">
+            <i data-lucide="trending-up"></i> Trending
+        </button>
+    </div>
+
+    <div class="gaming-container">
+        <!-- Live Stream Section -->
+        <div class="live-section">
+            <div class="live-content">
+                <div class="live-thumbnail">
+                    <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300" alt="Live Stream">
+                    <div class="live-badge">
+                        <i data-lucide="radio" style="width: 14px; height: 14px;"></i>
+                        LIVE
+                    </div>
+                </div>
+                <div class="live-info">
+                    <div class="live-title">Cyberpunk 2077 - Night City Adventures</div>
+                    <div class="live-streamer">
+                        <div class="streamer-avatar">G</div>
+                        GamingWithGuru
+                    </div>
+                    <div class="live-stats">
+                        <span>12.5K viewers</span>
+                        <span>2.3M followers</span>
+                        <span>Started 30 min ago</span>
+                    </div>
+                    <div class="live-actions">
+                        <button class="watch-btn-large" onclick="watchLiveStream()">
+                            <i data-lucide="play"></i> Watch Live
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Section -->
+        <div class="games-section">
+            <div class="section-title">
+                <i data-lucide="joystick"></i>
+                Popular Games
+            </div>
+            <div class="games-grid">
+                <div class="game-card active" onclick="selectGame('cyberpunk')">
+                    <div class="game-icon">🕹️</div>
+                    <div class="game-name">Cyberpunk</div>
+                </div>
+                <div class="game-card" onclick="selectGame('minecraft')">
+                    <div class="game-icon">🧱</div>
+                    <div class="game-name">Minecraft</div>
+                </div>
+                <div class="game-card" onclick="selectGame('fortnite')">
+                    <div class="game-icon">🔫</div>
+                    <div class="game-name">Fortnite</div>
+                </div>
+                <div class="game-card" onclick="selectGame('valorant')">
+                    <div class="game-icon">🎯</div>
+                    <div class="game-name">Valorant</div>
+                </div>
+                <div class="game-card" onclick="selectGame('gta')">
+                    <div class="game-icon">🚗</div>
+                    <div class="game-name">GTA</div>
+                </div>
+                <div class="game-card" onclick="selectGame('amongus')">
+                    <div class="game-icon">👥</div>
+                    <div class="game-name">Among Us</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gaming Videos -->
+        <div class="section-title">
+            <i data-lucide="play"></i>
+            Latest Gaming Videos
+        </div>
+        <div class="videos-grid" id="videos-container">
+            <!-- Gaming videos will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // No fake gaming data - only real gaming videos from backend
+        let gamingVideos = [];
+        let currentFilter = 'all';
+
+        async function loadGaming() {
+            const container = document.getElementById('videos-container');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            try {
+                let url = '/videos?category=Gaming&limit=20';
+
+                const res = await api.request(url);
+                if (res.success) {
+                    gamingVideos = res.data;
+                    renderGamingVideos();
+                }
+            } catch (error) {
+                console.error('Failed to load gaming videos:', error);
+                container.innerHTML = '<div class="empty-state"><h3>Error loading gaming content</h3><p>Please check your connection.</p></div>';
+            }
+        }
+
+        function renderGamingVideos() {
+            const container = document.getElementById('videos-container');
+
+            if (gamingVideos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="gamepad"></i>
+                        <h3>No Gaming Content</h3>
+                        <p>Check back later for new gaming videos</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = gamingVideos.map(video => {
+                const thumb = getSafePhotoUrl(video.thumbnailUrl || video.thumbnail);
+                const avatarUrl = getSafePhotoUrl(video.user?.avatar || video.user?.picture);
+                const initial = video.user?.name?.charAt(0) || video.channel?.charAt(0) || 'B';
+
+                return `
+                <div class="video-card" onclick="window.location.href='watch.html?v=${video._id}'" style="cursor:pointer;">
+                    <div class="video-thumbnail">
+                        <img src="${thumb}" 
+                             alt="${video.title}"
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';">
+                        <div class="video-duration">${video.duration || '0:00'}</div>
+                        <div class="game-badge">Gaming</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-channel">
+                            <div class="channel-avatar" style="background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; overflow: hidden;">
+                                ${avatarUrl ?
+                        `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.style.display='none'; this.parentElement.textContent='${initial}';">` :
+                        initial}
+                            </div>
+                            ${video.user?.name || video.channel || 'Bhuban Gamer'}
+                        </div>
+                        <div class="video-meta">
+                            <span>${formatCount(video.views || 0)} views</span>
+                            <span>${video.createdAt ? getTimeAgo(video.createdAt) : 'Recently'}</span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="action-btn play-btn" onclick="event.stopPropagation(); window.location.href='watch.html?v=${video._id}'">
+                                <i data-lucide="play"></i> Play
+                            </button>
+                            <button class="action-btn like-btn" onclick="event.stopPropagation(); toggleLike('${video._id}', this)">
+                                <i data-lucide="heart"></i> Like
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function formatCount(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return Math.floor(seconds / 86400) + 'd ago';
+        }
+
+        function filterGaming(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (event) event.target.closest('.filter-btn').classList.add('active');
+            loadGaming();
+        }
+
+        function selectGame(game) {
+            document.querySelectorAll('.game-card').forEach(card => card.classList.remove('active'));
+            if (event) event.target.closest('.game-card').classList.add('active');
+            loadGaming();
+        }
+
+        async function toggleLike(videoId, button) {
+            try {
+                if (!AuthService.isAuthenticated()) {
+                    alert('Please log in to like videos');
+                    return;
+                }
+                const res = await api.likeVideo(videoId);
+                if (res.success) {
+                    button.classList.toggle('liked');
+                    // Notification would be nice here
+                }
+            } catch (e) {
+                console.error('Like failed:', e);
+            }
+        }
+
+        function watchLiveStream() {
+            if (gamingVideos.length > 0) {
+                window.location.href = 'watch.html?v=' + gamingVideos[0]._id;
+            } else {
+                alert('No live streams found. Playing first gaming video instead.');
+                loadGaming();
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadGaming);
+    </script>
+</body>
+
+</html>

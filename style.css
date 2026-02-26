@@ -1,0 +1,34 @@
+/* BHUBAN V14.0 VIBRANT SUNSET THEME CSS */
+body {
+    background: var(--bg-primary) !important;
+    transition: background 0.5s ease !important;
+}
+
+#mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+    top: auto !important;
+    left: 12px !important;
+    right: 12px !important;
+    height: 72px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(50px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(50px) saturate(200%) !important;
+    border-radius: 35px !important;
+    border: 2px solid rgba(255, 107, 53, 0.3) !important;
+    z-index: 2147483647 !important;
+    box-shadow: 0 20px 60px rgba(255, 107, 53, 0.2) !important;
+}
+
+[data-theme="dark"] #mobile-bottom-nav {
+    background: rgba(45, 27, 20, 0.9) !important;
+    border: 2px solid rgba(255, 107, 53, 0.2) !important;
+    box-shadow: 0 20px 60px rgba(255, 0, 110, 0.3) !important;
+}
+
+#desktop-header,
+aside#sidebar,
+#top-nav {
+    display: none !important;
+}

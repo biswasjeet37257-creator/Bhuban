@@ -1,0 +1,33 @@
+# Bhuban Video Platform - Robots.txt
+# This file tells search engines which pages to crawl
+
+User-agent: *
+Allow: /
+
+# Allow all pages
+Allow: /index.html
+Allow: /watch.html
+Allow: /search.html
+Allow: /channel.html
+Allow: /shorts.html
+Allow: /about.html
+Allow: /contact.html
+Allow: /privacy.html
+Allow: /terms.html
+
+# Disallow admin and backend
+Disallow: /backend/
+Disallow: /admin/
+Disallow: /api/
+
+# Disallow test and debug files
+Disallow: /*test*.html
+Disallow: /*debug*.html
+Disallow: /*.bat
+Disallow: /*.ps1
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1

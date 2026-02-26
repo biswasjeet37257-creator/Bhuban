@@ -1,0 +1,12 @@
+# Ignore these files during Vercel deployment
+node_modules/
+.git/
+.vscode/
+.kiro/
+*.md
+*.bat
+*.ps1
+TEST-*
+test-*
+backend/
+.backups/

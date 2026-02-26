@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Settings - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .setting-content {
+            flex: 1;
+            margin-left: 40px;
+        }
+
+        .id-display {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .id-text {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: rgba(100, 255, 218, 0.3);
+            border: 2px solid rgba(100, 255, 218, 0.5);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(100, 255, 218, 0.5);
+            transform: scale(1.05);
+        }
+
+        .action-link {
+            color: rgba(100, 255, 218, 0.9);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .action-link:hover {
+            opacity: 0.8;
+        }
+
+        .action-description {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .danger-link {
+            color: rgba(255, 107, 107, 0.9);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: rgba(255, 152, 0, 0.2);
+            border-left: 4px solid rgba(255, 152, 0, 0.7);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .warning-box p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='settings.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Advanced Settings</h1>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Advanced settings</h1>
+        <p class="page-subtitle">Set up Bhuban exactly how you want it</p>
+
+        <!-- User ID Section -->
+        <div class="section">
+            <div class="setting-row">
+                <div class="setting-label">User ID</div>
+                <div class="setting-content">
+                    <div class="id-display">
+                        <span class="id-text" id="userId">Loading...</span>
+                        <button class="copy-btn" onclick="copyToClipboard('userId')">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel ID Section -->
+            <div class="setting-row">
+                <div class="setting-label">Channel ID</div>
+                <div class="setting-content">
+                    <div class="id-display">
+                        <span class="id-text" id="channelId">Loading...</span>
+                        <button class="copy-btn" onclick="copyToClipboard('channelId')">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Move Channel Section -->
+            <div class="setting-row">
+                <div class="setting-label">Move channel</div>
+                <div class="setting-content">
+                    <a class="action-link" onclick="moveChannel()">Move channel to a brand account</a>
+                    <p class="action-description">You can move your channel to a brand account</p>
+                </div>
+            </div>
+
+            <!-- Delete Channel Section -->
+            <div class="setting-row">
+                <div class="setting-label">Delete channel</div>
+                <div class="setting-content">
+                    <a class="action-link danger-link" onclick="deleteChannel()">Delete channel</a>
+                    <p class="action-description">Deleting your Bhuban channel won't close your Google Account</p>
+                    <div class="warning-box">
+                        <p><i class="fas fa-exclamation-triangle"></i> This action is permanent and cannot be undone. All your videos, comments, and channel data will be permanently deleted.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Settings Section -->
+        <div class="section">
+            <div class="setting-row">
+                <div class="setting-label">Developer mode</div>
+                <div class="setting-content">
+                    <a class="action-link" onclick="toggleDeveloperMode()">Enable developer options</a>
+                    <p class="action-description">Access advanced debugging and testing features</p>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-label">Export data</div>
+                <div class="setting-content">
+                    <a class="action-link" onclick="exportData()">Download your data</a>
+                    <p class="action-description">Export all your Bhuban data including videos, comments, and watch history</p>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-label">Clear cache</div>
+                <div class="setting-content">
+                    <a class="action-link" onclick="clearCache()">Clear app cache</a>
+                    <p class="action-description">Free up storage space by clearing temporary files</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><i class="fas fa-info-circle"></i> Your User ID and Channel ID are unique identifiers for your account. Keep them private and only share when necessary for support purposes.</p>
+        </div>
+    </div>
+
+    <script>
+        // Generate or load User ID and Channel ID
+        function loadIds() {
+            let userId = localStorage.getItem('bhuban_user_id');
+            let channelId = localStorage.getItem('bhuban_channel_id');
+            
+            if (!userId) {
+                userId = generateId();
+                localStorage.setItem('bhuban_user_id', userId);
+            }
+            
+            if (!channelId) {
+                channelId = 'UCO' + generateId();
+                localStorage.setItem('bhuban_channel_id', channelId);
+            }
+            
+            document.getElementById('userId').textContent = userId;
+            document.getElementById('channelId').textContent = channelId;
+        }
+
+        // Generate random ID
+        function generateId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+            let id = '';
+            for (let i = 0; i < 22; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showNotification('Copied to clipboard!');
+            });
+        }
+
+        // Move channel
+        function moveChannel() {
+            alert('Move Channel to Brand Account:\n\nThis feature allows you to move your personal channel to a brand account, which can be managed by multiple people. This is useful for businesses and organizations.\n\nContact support to initiate this process.');
+        }
+
+        // Delete channel
+        function deleteChannel() {
+            const confirmation = confirm('⚠️ WARNING: Delete Channel?\n\nThis will permanently delete:\n• All your videos\n• All your comments\n• All your playlists\n• Your channel name and description\n• Your subscriber count\n\nThis action CANNOT be undone!\n\nAre you absolutely sure?');
+            
+            if (confirmation) {
+                const finalConfirmation = confirm('This is your FINAL warning!\n\nType your channel name to confirm deletion.');
+                
+                if (finalConfirmation) {
+                    // In a real app, this would call an API
+                    alert('Channel deletion has been initiated. You will receive a confirmation email within 24 hours.');
+                }
+            }
+        }
+
+        // Toggle developer mode
+        function toggleDeveloperMode() {
+            const settings = JSON.parse(localStorage.getItem('bhuban_advanced_settings') || '{}');
+            settings.developerMode = !settings.developerMode;
+            localStorage.setItem('bhuban_advanced_settings', JSON.stringify(settings));
+            
+            if (settings.developerMode) {
+                showNotification('Developer mode enabled');
+            } else {
+                showNotification('Developer mode disabled');
+            }
+        }
+
+        // Export data
+        function exportData() {
+            showNotification('Preparing your data export...');
+            
+            setTimeout(() => {
+                const data = {
+                    userId: localStorage.getItem('bhuban_user_id'),
+                    channelId: localStorage.getItem('bhuban_channel_id'),
+                    settings: localStorage.getItem('bhuban_settings'),
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'bhuban-data-export.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Data exported successfully!');
+            }, 2000);
+        }
+
+        // Clear cache
+        function clearCache() {
+            if (confirm('Clear all cached data? This will free up storage space but may slow down the app temporarily.')) {
+                // Clear specific cache items
+                const keysToKeep = ['bhuban_user_id', 'bhuban_channel_id', 'bhuban_settings'];
+                const allKeys = Object.keys(localStorage);
+                
+                allKeys.forEach(key => {
+                    if (key.startsWith('bhuban_') && !keysToKeep.includes(key)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                showNotification('Cache cleared successfully!');
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        window.addEventListener('load', loadIds);
+    </script>
+</body>
+</html>

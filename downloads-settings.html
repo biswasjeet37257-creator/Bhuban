@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .radio-option.selected {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .radio-circle {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .radio-option.selected .radio-circle {
+            border-color: #fff;
+        }
+
+        .radio-option.selected .radio-circle::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .radio-label {
+            flex: 1;
+        }
+
+        .radio-label h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .radio-label p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .delete-section {
+            background: rgba(255, 59, 48, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .delete-btn {
+            background: rgba(255, 59, 48, 0.3);
+            border: 2px solid rgba(255, 59, 48, 0.5);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 59, 48, 0.5);
+            border-color: rgba(255, 59, 48, 0.7);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .storage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .storage-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .storage-info p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .storage-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .save-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            margin: 32px auto 0;
+        }
+
+        .save-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='settings.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Downloads</h1>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Control your downloads settings</h1>
+        <p class="page-subtitle">Downloads settings apply to this browser only</p>
+
+        <!-- Download Quality Section -->
+        <div class="section">
+            <h2 class="section-title">Download quality</h2>
+            
+            <div class="radio-group">
+                <div class="radio-option" onclick="selectQuality('ask')">
+                    <div class="radio-circle"></div>
+                    <div class="radio-label">
+                        <h3>Ask each time</h3>
+                    </div>
+                </div>
+
+                <div class="radio-option selected" onclick="selectQuality('standard')">
+                    <div class="radio-circle"></div>
+                    <div class="radio-label">
+                        <h3>Standard (480p)</h3>
+                        <p>Recommended for most devices</p>
+                    </div>
+                </div>
+
+                <div class="radio-option" onclick="selectQuality('hd')">
+                    <div class="radio-circle"></div>
+                    <div class="radio-label">
+                        <h3>HD (720p)</h3>
+                        <p>Better quality, larger file size</p>
+                    </div>
+                </div>
+
+                <div class="radio-option" onclick="selectQuality('full-hd')">
+                    <div class="radio-circle"></div>
+                    <div class="radio-label">
+                        <h3>Full HD (1080p)</h3>
+                        <p>Best quality, largest file size</p>
+                    </div>
+                </div>
+
+                <div class="radio-option" onclick="selectQuality('low')">
+                    <div class="radio-circle"></div>
+                    <div class="radio-label">
+                        <h3>Low (144p)</h3>
+                        <p>Smallest file size, lower quality</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Info Section -->
+        <div class="section">
+            <h2 class="section-title">Storage information</h2>
+            
+            <div class="storage-info">
+                <div>
+                    <h4>Downloaded videos</h4>
+                    <p>Total files stored</p>
+                </div>
+                <div class="storage-value" id="downloadCount">0</div>
+            </div>
+
+            <div class="storage-info">
+                <div>
+                    <h4>Storage used</h4>
+                    <p>Space occupied by downloads</p>
+                </div>
+                <div class="storage-value" id="storageUsed">0 MB</div>
+            </div>
+        </div>
+
+        <!-- Delete Downloads Section -->
+        <div class="delete-section">
+            <h2 class="section-title">Delete all downloads</h2>
+            <p style="margin-bottom: 16px; opacity: 0.9;">Deleting downloads will free space on this device</p>
+            
+            <button class="delete-btn" onclick="deleteAllDownloads()">
+                <i class="fas fa-trash-alt"></i>
+                Delete All Downloads
+            </button>
+        </div>
+
+        <div class="info-box">
+            <p><i class="fas fa-info-circle"></i> Downloaded videos are stored locally on your device and can be watched offline. Downloads are only available in the Bhuban app and expire after 30 days of inactivity.</p>
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">
+            <i class="fas fa-check"></i> Save Settings
+        </button>
+    </div>
+
+    <script>
+        // Load saved settings
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('bhuban_download_settings') || '{"quality": "standard"}');
+            
+            // Select the saved quality option
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            const qualityMap = {
+                'ask': 0,
+                'standard': 1,
+                'hd': 2,
+                'full-hd': 3,
+                'low': 4
+            };
+            
+            const index = qualityMap[settings.quality] || 1;
+            document.querySelectorAll('.radio-option')[index].classList.add('selected');
+
+            // Update storage info
+            const downloads = JSON.parse(localStorage.getItem('bhuban_downloads') || '[]');
+            document.getElementById('downloadCount').textContent = downloads.length;
+            
+            const totalSize = downloads.reduce((sum, d) => sum + (d.size || 0), 0);
+            document.getElementById('storageUsed').textContent = (totalSize / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // Select quality option
+        function selectQuality(quality) {
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Save immediately
+            const settings = JSON.parse(localStorage.getItem('bhuban_download_settings') || '{}');
+            settings.quality = quality;
+            localStorage.setItem('bhuban_download_settings', JSON.stringify(settings));
+        }
+
+        // Delete all downloads
+        function deleteAllDownloads() {
+            const downloads = JSON.parse(localStorage.getItem('bhuban_downloads') || '[]');
+            
+            if (downloads.length === 0) {
+                alert('No downloads to delete');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete all ${downloads.length} downloaded videos? This action cannot be undone.`)) {
+                localStorage.removeItem('bhuban_downloads');
+                document.getElementById('downloadCount').textContent = '0';
+                document.getElementById('storageUsed').textContent = '0 MB';
+                
+                // Show success message
+                alert('✅ All downloads deleted successfully!');
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Saved!';
+            btn.style.background = '#4ade80';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'rgba(255, 255, 255, 0.9)';
+                btn.style.color = '#667eea';
+            }, 2000);
+        }
+
+        // Initialize
+        window.addEventListener('load', loadSettings);
+    </script>
+</body>
+</html>

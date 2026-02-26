@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="config.js"></script>
+    <script src="pathway-manager.js"></script>
+    <!-- Shared Configuration and Auth Service -->
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="api-service.js"></script>
+    <style>
+        :root {
+            --accent: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1e, #0a0a0e);
+            border-bottom: 1px solid #222;
+        }
+
+        .profile-banner {
+            height: 150px;
+            background: linear-gradient(135deg, var(--accent), #ff6b30);
+            position: relative;
+        }
+
+        .profile-info {
+            padding: 20px;
+            text-align: center;
+            margin-top: -50px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #111);
+            border: 4px solid #000;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .edit-avatar {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: #1a1a1e;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .upload-card {
+            aspect-ratio: 16/9;
+            background: #1a1a1e;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upload-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #252529;
+        }
+
+        .badge {
+            background: var(--accent);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-banner"></div>
+
+    <div class="profile-info">
+        <div class="profile-avatar" id="profileAvatarContainer">
+            <i data-lucide="user" style="width:50px; height:50px; color:#666;" id="defaultAvatarIcon"></i>
+            <div class="edit-avatar">
+                <i data-lucide="camera" style="width:16px; height:16px; color:#fff;"></i>
+            </div>
+        </div>
+        <h1 style="font-size:24px; font-weight:900; margin-bottom:5px;" id="profileName">Bhuban Creator</h1>
+        <p style="color:#888; margin-bottom:15px;" id="profileHandle">@bhuban_pro • Creator since 2026</p>
+        <button
+            style="background:var(--accent); color:#fff; border:none; padding:10px 30px; border-radius:20px; font-weight:700; cursor:pointer;"
+            onclick="location.href='settings.html'">
+            Edit Profile
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="upload-count">0</div>
+            <div class="stat-label">Uploads</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="total-views">0</div>
+            <div class="stat-label">Views</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="total-likes">0</div>
+            <div class="stat-label">Likes</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <i data-lucide="video"></i>
+            Your Uploads
+        </div>
+        <div class="video-grid" id="uploads-grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <i data-lucide="bookmark"></i>
+            Saved Videos
+        </div>
+        <div id="saved-list"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <i data-lucide="download"></i>
+            Downloads
+        </div>
+        <div id="downloads-list"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <i data-lucide="settings"></i>
+            Quick Actions
+        </div>
+        <div class="menu-item" onclick="window.location.href='../Bhuban%20creator%20app/index.html'">
+            <i data-lucide="upload"></i>
+            <div>Upload Video</div>
+        </div>
+        <div class="menu-item" onclick="window.location.href='analytics.html'">
+            <i data-lucide="bar-chart-2"></i>
+            <div>Analytics</div>
+        </div>
+        <div class="menu-item" onclick="window.location.href='ai-assistant.html'">
+            <i data-lucide="sparkles"></i>
+            <div>AI Assistant</div>
+            <div class="badge">NEW</div>
+        </div>
+        <div class="menu-item" onclick="window.location.href='settings.html'">
+            <i data-lucide="settings"></i>
+            <div>Settings</div>
+        </div>
+        <div class="menu-item" onclick="window.location.href='index.html'">
+            <i data-lucide="home"></i>
+            <div>Back to Home</div>
+            <script src="api-service.js"></script>
+            <script>
+                lucide.createIcons();
+
+                // Fallback thumbnail (data URI - always works offline)
+                const FALLBACK_THUMBNAIL = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2220%22%3ENo Thumbnail%3C/text%3E%3C/svg%3E';
+
+                let currentUser = null;
+
+                // Load profile info from session
+                async function loadUserProfile() {
+// DEBUG: console.log('👤 Loading user profile...');
+
+                    // Check authentication via shared service
+                    if (!AuthService.isAuthenticated()) {
+// DEBUG: console.log('❌ Not authenticated, redirecting to login...');
+                        AuthService.requireAuth();
+                        return;
+                    }
+
+                    try {
+                        const user = AuthService.getUser();
+// DEBUG: console.log('✅ User loaded from session:', user);
+
+                        if (user) {
+                            document.getElementById('profileName').textContent = user.name || 'User';
+                            document.getElementById('profileHandle').textContent = user.email ? `@${user.email.split('@')[0]}` : '@user';
+
+                            // Check for profile photo
+                            const photoUrl = getSafePhotoUrl(user.avatar || user.picture);
+                            const initial = user.name ? user.name.charAt(0).toUpperCase() : 'B';
+// DEBUG: console.log('🖼️ Profile photo URL:', photoUrl);
+
+                            const container = document.getElementById('profileAvatarContainer');
+                            if (photoUrl) {
+                                if (document.getElementById('defaultAvatarIcon')) {
+                                    document.getElementById('defaultAvatarIcon').style.display = 'none';
+                                }
+                                // Remove existing img if any
+                                const existingImg = container.querySelector('img');
+                                if (existingImg) existingImg.remove();
+
+                                container.insertAdjacentHTML('afterbegin',
+                                    `<img src="${photoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; position:absolute; top:0; left:0;" crossorigin="anonymous" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerText='${initial}';">`
+                                );
+// DEBUG: console.log('✅ Profile photo displayed');
+                            } else {
+// DEBUG: console.log('⚠️ No profile photo found');
+                                if (document.getElementById('defaultAvatarIcon')) {
+                                    document.getElementById('defaultAvatarIcon').style.display = 'none';
+                                }
+                                container.innerText = initial;
+                            }
+
+                            // After User Loaded, Load Videos
+// DEBUG: console.log('🎬 Loading user videos for user ID:', user._id || user.id);
+                            loadUserVideos(user._id || user.id);
+                            console.error('❌ User response not successful:', userRes);
+                            loadLocalProfile();
+                        }
+                    } catch (err) {
+                        console.error('❌ Failed to load profile:', err);
+                        console.error('Error details:', err.message);
+                        // Fallback to localStorage if API fails (offline mode?)
+                        loadLocalProfile();
+                    }
+                }
+
+                async function loadUserVideos(userId) {
+// DEBUG: console.log('🎬 Loading videos for user:', userId);
+
+                    if (!userId) {
+                        console.error('❌ No user ID provided');
+                        return;
+                    }
+
+                    try {
+// DEBUG: console.log('📡 Fetching videos from API with user filter:', userId);
+                        const videosRes = await api.getVideos({ user: userId });
+// DEBUG: console.log('📦 Videos response:', videosRes);
+
+                        if (videosRes.success) {
+                            const videos = videosRes.data;
+// DEBUG: console.log(`✅ Found ${videos.length} videos`);
+
+                            document.getElementById('upload-count').innerText = videos.length;
+
+                            // Calc views/likes from real videos
+                            const views = videos.reduce((acc, v) => acc + (v.views || 0), 0);
+                            const likes = videos.reduce((acc, v) => acc + (v.likes || 0), 0);
+
+// DEBUG: console.log(`📊 Total views: ${views}, Total likes: ${likes}`);
+
+                            document.getElementById('total-views').innerText = views.toLocaleString();
+                            document.getElementById('total-likes').innerText = likes.toLocaleString();
+
+                            const grid = document.getElementById('uploads-grid');
+                            if (videos.length === 0) {
+// DEBUG: console.log('ℹ️ No videos uploaded yet');
+                                grid.innerHTML = '<p style="color:#888; grid-column:1/-1; text-align:center; padding:40px;">No uploads yet. Start creating!</p>';
+                            } else {
+// DEBUG: console.log('🎨 Rendering video grid...');
+                                grid.innerHTML = videos.map((v, index) => {
+// DEBUG: console.log(`  Video ${index + 1}:`, v.title);
+                                    const thumb = getSafePhotoUrl(v.thumbnailUrl || v.thumbnail);
+                                    return `
+                                        <div class="upload-card" onclick="window.location.href='watch.html?v=${v._id || v.id}'" style="cursor:pointer;">
+                                            <img src="${thumb}" 
+                                                 alt="${v.title}" crossorigin="anonymous"
+                                                 onerror="this.onerror=null; this.src=FALLBACK_THUMBNAIL">
+                                            <div class="upload-info">
+                                                <div style="font-size:13px; font-weight:700; margin-bottom:3px;">${v.title}</div>
+                                                <div style="font-size:11px; color:#888;">${v.views || 0} views • ${new Date(v.createdAt).toLocaleDateString()}</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('');
+// DEBUG: console.log('✅ Video grid rendered');
+                            }
+                        } else {
+                            console.error('❌ Videos response not successful:', videosRes);
+                            const grid = document.getElementById('uploads-grid');
+                            grid.innerHTML = '<p style="color:#f44336; grid-column:1/-1; text-align:center; padding:40px;">Failed to load videos. Please try again.</p>';
+                        }
+                    } catch (err) {
+                        console.error('❌ Failed to load user videos:', err);
+                        console.error('Error details:', err.message);
+                        const grid = document.getElementById('uploads-grid');
+                        grid.innerHTML = '<p style="color:#f44336; grid-column:1/-1; text-align:center; padding:40px;">Error loading videos. Check console for details.</p>';
+                    }
+                }
+
+                function loadLocalProfile() {
+// DEBUG: console.log('🔄 Loading profile from localStorage...');
+                    const userJson = localStorage.getItem('user') || localStorage.getItem('bhuban_user');
+                    if (userJson) {
+                        const user = JSON.parse(userJson);
+// DEBUG: console.log('✅ Loaded user from localStorage:', user);
+                        document.getElementById('profileName').textContent = user.name || 'User';
+                        document.getElementById('profileHandle').textContent = user.email ? `@${user.email.split('@')[0]}` : '@user';
+
+                        // Try to load videos with localStorage user ID
+                        if (user._id || user.id) {
+                            loadUserVideos(user._id || user.id);
+                        }
+                    } else {
+                        console.error('❌ No user data in localStorage');
+                        window.location.href = 'login.html';
+                    }
+                }
+
+                // Initialize on page load
+                window.addEventListener('DOMContentLoaded', () => {
+// DEBUG: console.log('📄 Profile page loaded');
+                    loadUserProfile();
+
+                    // Still load saved/downloads from local storage as they are client-side lists
+                    const saved = JSON.parse(localStorage.getItem('bhuban_saved') || '[]');
+                    const downloads = JSON.parse(localStorage.getItem('bhuban_downloads') || '[]');
+
+                    // Render saved videos
+                    const savedList = document.getElementById('saved-list');
+                    if (saved.length === 0) {
+                        savedList.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">No saved videos</p>';
+                    } else {
+                        savedList.innerHTML = saved.map(v => `
+                            <div class="menu-item" onclick="window.location.href='watch.html?v=${v.id}'">
+                                <i data-lucide="play-circle"></i>
+                                <div>${v.title}</div>
+                            </div>
+                        `).join('');
+                    }
+
+                    // Render downloads
+                    const downloadsList = document.getElementById('downloads-list');
+                    if (downloads.length === 0) {
+                        downloadsList.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">No downloads</p>';
+                    } else {
+                        downloadsList.innerHTML = downloads.map(v => `
+                            <div class="menu-item">
+                                <i data-lucide="download"></i>
+                                <div>${v.title}</div>
+                            </div>
+                        `).join('');
+                    }
+
+                    lucide.createIcons();
+                });
+            </script>
+</body>
+
+</html>

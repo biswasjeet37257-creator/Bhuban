@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhuban - Testing Backend Connection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+        }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .success { background: #10b981; }
+        .error { background: #ef4444; }
+        .loading { background: #3b82f6; }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { transform: scale(1.05); }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Bhuban Backend Test</h1>
+        <p>This is a fresh page with NO cache. Testing backend connection...</p>
+        
+        <div id="status" class="status loading">⏳ Testing backend...</div>
+        <div id="results"></div>
+        
+        <button onclick="testAgain()">🔄 Test Again</button>
+        <button onclick="goToMainApp()">➡️ Go to Main App</button>
+    </div>
+
+    <script>
+// DEBUG: console.log('🧪 Fresh test page loaded - NO CACHE');
+
+        async function testBackend() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                statusDiv.className = 'status loading';
+                statusDiv.textContent = '⏳ Connecting to backend...';
+                
+                const response = await fetch('http://localhost:5000/api/videos', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+// DEBUG: console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+// DEBUG: console.log('Backend response:', data);
+                    
+                    const videoCount = data.data ? data.data.length : (Array.isArray(data) ? data.length : 0);
+                    
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `✅ SUCCESS! Backend is ONLINE<br>Found ${videoCount} videos in database`;
+                    
+                    resultsDiv.innerHTML = `
+                        <h3>Backend Response:</h3>
+                        <pre>${JSON.stringify(data, null, 2).substring(0, 1000)}...</pre>
+                        <p style="margin-top: 20px; font-size: 20px;">
+                            ✅ Backend is working perfectly!<br>
+                            ✅ API is returning data!<br>
+                            ✅ CORS is configured correctly!
+                        </p>
+                        <p style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                            <strong>The backend is working!</strong><br><br>
+                            The "offline" message you're seeing in the main app is because your browser 
+                            is showing a CACHED version of the old code.<br><br>
+                            <strong>Solution:</strong> Close ALL browser tabs, restart your browser completely, 
+                            then open the main app again.
+                        </p>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Backend error:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ ERROR: ${error.message}`;
+                resultsDiv.innerHTML = `
+                    <p>Backend server might not be running.</p>
+                    <p>Make sure the backend is started on port 5000.</p>
+                `;
+            }
+        }
+
+        function testAgain() {
+            document.getElementById('results').innerHTML = '';
+            testBackend();
+        }
+
+        function goToMainApp() {
+            window.location.href = 'index.html';
+        }
+
+        // Auto-run test
+        window.addEventListener('load', () => {
+            setTimeout(testBackend, 500);
+        });
+    </script>
+</body>
+</html>

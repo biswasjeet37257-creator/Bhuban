@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Bhuban Desktop - Premium Video Platform</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .download-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .download-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-btn i {
+            width: 32px;
+            height: 32px;
+        }
+
+        .btn-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .btn-platform {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .btn-size {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .feature i {
+            color: #667eea;
+            width: 24px;
+            height: 24px;
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .requirements {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .requirements h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .req-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .req-item i {
+            color: #10b981;
+            width: 16px;
+            height: 16px;
+        }
+
+        .install-steps {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .install-steps h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .download-card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .download-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎬 Bhuban</div>
+            <div class="tagline">Premium Video Platform - Now on Desktop</div>
+        </div>
+
+        <div class="download-card">
+            <span class="version-badge">Version 1.0.0 - Latest Release</span>
+            
+            <h1>Download Bhuban Desktop</h1>
+            <p class="subtitle">Experience the power of Bhuban as a native desktop application</p>
+
+            <div class="download-buttons">
+                <a href="#" class="download-btn" onclick="downloadWindows()">
+                    <i data-lucide="download"></i>
+                    <div class="btn-info">
+                        <span class="btn-platform">Windows</span>
+                        <span class="btn-size">~150 MB • Windows 10/11</span>
+                    </div>
+                </a>
+
+                <a href="#" class="download-btn" onclick="downloadMac()">
+                    <i data-lucide="download"></i>
+                    <div class="btn-info">
+                        <span class="btn-platform">macOS</span>
+                        <span class="btn-size">~180 MB • macOS 10.15+</span>
+                    </div>
+                </a>
+
+                <a href="#" class="download-btn" onclick="downloadLinux()">
+                    <i data-lucide="download"></i>
+                    <div class="btn-info">
+                        <span class="btn-platform">Linux</span>
+                        <span class="btn-size">~160 MB • Ubuntu/Debian</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <i data-lucide="zap"></i>
+                    <span class="feature-text">Lightning Fast</span>
+                </div>
+                <div class="feature">
+                    <i data-lucide="wifi-off"></i>
+                    <span class="feature-text">Offline Support</span>
+                </div>
+                <div class="feature">
+                    <i data-lucide="shield-check"></i>
+                    <span class="feature-text">Secure & Private</span>
+                </div>
+                <div class="feature">
+                    <i data-lucide="sparkles"></i>
+                    <span class="feature-text">AI Assistant</span>
+                </div>
+                <div class="feature">
+                    <i data-lucide="cloud"></i>
+                    <span class="feature-text">Weather Updates</span>
+                </div>
+                <div class="feature">
+                    <i data-lucide="video"></i>
+                    <span class="feature-text">4K Streaming</span>
+                </div>
+            </div>
+
+            <div class="requirements">
+                <h3>
+                    <i data-lucide="info"></i>
+                    System Requirements
+                </h3>
+                <div class="req-list">
+                    <div class="req-item">
+                        <i data-lucide="check-circle"></i>
+                        <span>4GB RAM minimum</span>
+                    </div>
+                    <div class="req-item">
+                        <i data-lucide="check-circle"></i>
+                        <span>500MB free disk space</span>
+                    </div>
+                    <div class="req-item">
+                        <i data-lucide="check-circle"></i>
+                        <span>Internet connection</span>
+                    </div>
+                    <div class="req-item">
+                        <i data-lucide="check-circle"></i>
+                        <span>MongoDB (auto-installed)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="install-steps">
+                <h3>
+                    <i data-lucide="list-checks"></i>
+                    Installation Steps
+                </h3>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Download the Installer</h4>
+                        <p>Click the download button for your operating system above. The installer will be saved to your Downloads folder.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Run the Installer</h4>
+                        <p>Double-click the downloaded file. Windows may show a security warning - click "Run anyway" to proceed.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Follow Setup Wizard</h4>
+                        <p>Choose installation location and click "Install". The setup will install Bhuban and all required dependencies.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Launch Bhuban</h4>
+                        <p>Once installed, launch Bhuban from your desktop shortcut or Start menu. Enjoy the full desktop experience!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Need help? Check our <a href="LAUNCH_DESKTOP_NOW.md">documentation</a> or <a href="mailto:support@bhuban.com">contact support</a></p>
+            <p style="margin-top: 10px;">© 2026 Bhuban. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function downloadWindows() {
+            alert('Windows Installer\n\nTo build the installer:\n1. Run: npm run build:win\n2. Find installer in: dist/Bhuban Setup 1.0.0.exe\n3. Upload to your server\n4. Update this link\n\nFor now, use INSTALL_DESKTOP.bat to install from source.');
+            // window.location.href = 'https://your-server.com/downloads/Bhuban-Setup-1.0.0.exe';
+        }
+
+        function downloadMac() {
+            alert('macOS Installer\n\nTo build the installer:\n1. Run: npm run build:mac\n2. Find installer in: dist/Bhuban-1.0.0.dmg\n3. Upload to your server\n4. Update this link\n\nNote: Requires macOS to build.');
+            // window.location.href = 'https://your-server.com/downloads/Bhuban-1.0.0.dmg';
+        }
+
+        function downloadLinux() {
+            alert('Linux Installer\n\nTo build the installer:\n1. Run: npm run build:linux\n2. Find installer in: dist/Bhuban-1.0.0.AppImage\n3. Upload to your server\n4. Update this link\n\nNote: AppImage works on most Linux distributions.');
+            // window.location.href = 'https://your-server.com/downloads/Bhuban-1.0.0.AppImage';
+        }
+
+        // Auto-detect OS and highlight appropriate button
+        window.addEventListener('load', () => {
+            const platform = navigator.platform.toLowerCase();
+            const buttons = document.querySelectorAll('.download-btn');
+            
+            if (platform.includes('win')) {
+                buttons[0].style.border = '3px solid #10b981';
+            } else if (platform.includes('mac')) {
+                buttons[1].style.border = '3px solid #10b981';
+            } else if (platform.includes('linux')) {
+                buttons[2].style.border = '3px solid #10b981';
+            }
+        });
+    </script>
+</body>
+</html>

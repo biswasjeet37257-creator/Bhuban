@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connected Apps - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .page-link {
+            color: #fff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .page-link:hover {
+            opacity: 0.8;
+        }
+
+        .apps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.2s;
+        }
+
+        .app-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .app-icon.activision {
+            background: linear-gradient(135deg, #ff6b00, #ff9500);
+        }
+
+        .app-icon.battlenet {
+            background: linear-gradient(135deg, #00aeff, #0080ff);
+        }
+
+        .app-icon.ea {
+            background: linear-gradient(135deg, #ff0050, #ff3366);
+        }
+
+        .app-icon.epic {
+            background: linear-gradient(135deg, #313131, #000000);
+        }
+
+        .app-icon.steam {
+            background: linear-gradient(135deg, #1b2838, #2a475e);
+        }
+
+        .app-icon.discord {
+            background: linear-gradient(135deg, #5865f2, #7289da);
+        }
+
+        .app-info {
+            flex: 1;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .app-description {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .connect-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .connect-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .connect-btn.connected {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.7);
+        }
+
+        .connect-btn.connected:hover {
+            background: rgba(76, 175, 80, 0.4);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 32px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 40px 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='settings.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Connected Apps</h1>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <div class="hero-icon">
+                <i class="fas fa-plug"></i>
+            </div>
+            <h1 class="page-title">Expand your experience</h1>
+            <p class="page-subtitle">Connect Bhuban with other apps and watch more easily</p>
+            <a class="page-link" onclick="showAuthorizedSites()">See all sites authorized to access your Google Account</a>
+        </div>
+
+        <h2 class="section-title">Gaming Platforms</h2>
+        <div class="apps-list">
+            <div class="app-card">
+                <div class="app-icon activision">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Activision ID</div>
+                    <div class="app-description">Connect accounts and watch approved events and videos for a chance to win in-game rewards</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('activision')">Connect</button>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon battlenet">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Battle.net</div>
+                    <div class="app-description">Connect accounts and watch approved events and videos for a chance to win in-game rewards</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('battlenet')">Connect</button>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon ea">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Electronic Arts</div>
+                    <div class="app-description">Connect accounts and watch approved events and videos for a chance to win in-game rewards</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('ea')">Connect</button>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon epic">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Epic Games</div>
+                    <div class="app-description">Link your Epic Games account to earn rewards and access exclusive content</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('epic')">Connect</button>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon steam">
+                    <i class="fas fa-steam"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Steam</div>
+                    <div class="app-description">Connect your Steam account to share gameplay and access gaming content</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('steam')">Connect</button>
+            </div>
+        </div>
+
+        <h2 class="section-title">Social & Communication</h2>
+        <div class="apps-list">
+            <div class="app-card">
+                <div class="app-icon discord">
+                    <i class="fab fa-discord"></i>
+                </div>
+                <div class="app-info">
+                    <div class="app-name">Discord</div>
+                    <div class="app-description">Share your Bhuban videos directly to Discord servers and sync your activity status</div>
+                </div>
+                <button class="connect-btn" onclick="connectApp('discord')">Connect</button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><i class="fas fa-info-circle"></i> Connected apps can access certain information from your Bhuban account. You can disconnect apps at any time. Review permissions carefully before connecting.</p>
+        </div>
+    </div>
+
+    <script>
+        // Load connected apps from localStorage
+        function loadConnectedApps() {
+            const connected = JSON.parse(localStorage.getItem('bhuban_connected_apps') || '[]');
+            
+            connected.forEach(appId => {
+                const buttons = document.querySelectorAll(`[onclick*="${appId}"]`);
+                buttons.forEach(btn => {
+                    if (btn.classList.contains('connect-btn')) {
+                        btn.textContent = 'Connected';
+                        btn.classList.add('connected');
+                        btn.onclick = () => disconnectApp(appId);
+                    }
+                });
+            });
+        }
+
+        // Connect an app
+        function connectApp(appId) {
+            const connected = JSON.parse(localStorage.getItem('bhuban_connected_apps') || '[]');
+            
+            if (!connected.includes(appId)) {
+                connected.push(appId);
+                localStorage.setItem('bhuban_connected_apps', JSON.stringify(connected));
+                
+                // Update button
+                const btn = event.target;
+                btn.textContent = 'Connected';
+                btn.classList.add('connected');
+                btn.onclick = () => disconnectApp(appId);
+                
+                // Show success message
+                showNotification(`Successfully connected to ${getAppName(appId)}!`);
+            }
+        }
+
+        // Disconnect an app
+        function disconnectApp(appId) {
+            if (confirm(`Disconnect from ${getAppName(appId)}? This will revoke access to your Bhuban account.`)) {
+                let connected = JSON.parse(localStorage.getItem('bhuban_connected_apps') || '[]');
+                connected = connected.filter(id => id !=== appId);
+                localStorage.setItem('bhuban_connected_apps', JSON.stringify(connected));
+                
+                // Update button
+                const btn = event.target;
+                btn.textContent = 'Connect';
+                btn.classList.remove('connected');
+                btn.onclick = () => connectApp(appId);
+                
+                showNotification(`Disconnected from ${getAppName(appId)}`);
+            }
+        }
+
+        // Get app name
+        function getAppName(appId) {
+            const names = {
+                'activision': 'Activision ID',
+                'battlenet': 'Battle.net',
+                'ea': 'Electronic Arts',
+                'epic': 'Epic Games',
+                'steam': 'Steam',
+                'discord': 'Discord'
+            };
+            return names[appId] || appId;
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Show authorized sites
+        function showAuthorizedSites() {
+            alert('This would open your Google Account security settings to view all authorized apps and sites.');
+        }
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        window.addEventListener('load', loadConnectedApps);
+    </script>
+</body>
+</html>

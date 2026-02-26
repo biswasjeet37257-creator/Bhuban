@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="api-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .trending-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trending-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .filter-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .trending-container {
+            padding: 0 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .trending-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .trending-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #ff006e, #ffd60a);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 10px rgba(255, 0, 110, 0.4);
+        }
+
+        .trending-rank {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent-yellow);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .channel-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .trending-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .play-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .play-btn:hover {
+            background: #ff521a;
+        }
+
+        .like-btn {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .like-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .like-btn.liked {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .live-badge {
+            background: #ff0000;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .trending-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trending-controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Enhanced touch feedback */
+        .video-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .action-btn:focus,
+        .filter-btn:focus,
+        .refresh-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="trending-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">
+            <i data-lucide="flame"></i>
+            Trending
+        </div>
+        <div style="flex: 1;"></div>
+        <button class="refresh-btn" onclick="refreshTrending()">
+            <i data-lucide="refresh-ccw"></i> Refresh
+        </button>
+    </div>
+
+    <div class="trending-controls">
+        <button class="filter-btn active" onclick="filterTrending('now')">
+            <i data-lucide="zap"></i> Trending Now
+        </button>
+        <button class="filter-btn" onclick="filterTrending('music')">
+            <i data-lucide="music"></i> Music
+        </button>
+        <button class="filter-btn" onclick="filterTrending('gaming')">
+            <i data-lucide="gamepad"></i> Gaming
+        </button>
+        <button class="filter-btn" onclick="filterTrending('news')">
+            <i data-lucide="newspaper"></i> News
+        </button>
+        <button class="filter-btn" onclick="filterTrending('sports')">
+            <i data-lucide="football"></i> Sports
+        </button>
+    </div>
+
+    <div class="trending-container">
+        <div class="trending-grid" id="trending-container">
+            <!-- Trending videos will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // No fake trending data - only real trending videos from backend
+        let trendingData = [];
+        let currentCategory = 'all';
+
+        // Helper to bypass Google photo rate limits
+        function getSafePhotoUrl(url) {
+            if (!url || url === 'null' || url === 'undefined') return null;
+            if (url.includes('googleusercontent.com') || url.includes('lh3.google.com') || url.includes('focus-opensocial')) {
+                return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&default=letter&l=9&af`;
+            }
+            return url;
+        }
+
+        async function loadTrending() {
+            const container = document.getElementById('trending-container');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            try {
+                let url = '/videos?sort=views&limit=20';
+                if (currentCategory !=== 'all') {
+                    // Match backend categories: Entertainment, Education, Music, Tech, Gaming, Sports, News
+                    let cat = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+                    if (cat === 'Now') cat = 'all'; // 'Now' maps to 'all' for the backend
+                    if (cat !=== 'all') url += `&category=${cat}`;
+                }
+
+                const res = await api.request(url);
+                if (res.success) {
+                    trendingData = res.data;
+                    renderTrending();
+                } else {
+                    container.innerHTML = `<div class="empty-state"><h3>Error loading trending videos</h3><p>${res.message || 'An unknown error occurred.'}</p><button class="refresh-btn" onclick="loadTrending()"><i data-lucide="refresh-ccw"></i> Retry</button></div>`;
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Failed to load trending videos:', error);
+                container.innerHTML = '<div class="empty-state"><h3>Error loading trending videos</h3><p>Please check your connection and try again.</p><button class="refresh-btn" onclick="loadTrending()"><i data-lucide="refresh-ccw"></i> Retry</button></div>';
+                lucide.createIcons();
+            }
+        }
+
+        function renderTrending() {
+            const container = document.getElementById('trending-container');
+
+            if (trendingData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="trending-up"></i>
+                        <h3>No Trending Videos</h3>
+                        <p>Upload videos from Creator Studio to see trending content</p>
+                        <button class="refresh-btn" onclick="loadTrending()">
+                            <i data-lucide="refresh-ccw"></i> Refresh
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = trendingData.map((video, index) => {
+                const thumb = getSafePhotoUrl(video.thumbnailUrl || video.thumbnail);
+                const avatarUrl = getSafePhotoUrl(video.user?.avatar || video.user?.picture);
+                const initial = video.user?.name?.charAt(0) || video.channel?.charAt(0) || 'B';
+
+                return `
+                <div class="video-card" onclick="window.location.href='watch.html?v=${video._id}'" style="cursor:pointer;">
+                    <div class="video-thumbnail">
+                        <img src="${thumb}" 
+                             alt="${video.title}"
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';">
+                        <div class="video-duration">${video.duration || '0:00'}</div>
+                        <div class="trending-badge">
+                            <i data-lucide="flame" style="width: 14px; height: 14px;"></i>
+                            Trending
+                        </div>
+                        <div class="trending-rank">#${index + 1}</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-channel">
+                            <div class="channel-avatar" style="background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; overflow: hidden;">
+                                ${avatarUrl ?
+                        `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.style.display='none'; this.parentElement.textContent='${initial}';">` :
+                        initial}
+                            </div>
+                            ${video.user?.name || video.channel || 'Bhuban Creator'}
+                        </div>
+                        <div class="video-meta">
+                            <span>${formatCount(video.views || 0)} views</span>
+                            <span>${formatCount(video.likes || 0)} likes</span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="action-btn play-btn" onclick="event.stopPropagation(); window.location.href='watch.html?v=${video._id}'">
+                                <i data-lucide="play"></i> Play
+                            </button>
+                            <button class="action-btn ${video.isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike('${video._id}', this)">
+                                <i data-lucide="heart"></i> Like
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function formatCount(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function filterTrending(category) {
+            currentCategory = category;
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            const clickedBtn = Array.from(document.querySelectorAll('.filter-btn')).find(btn =>
+                btn.getAttribute('onclick').includes(`'${category}'`)
+            );
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            loadTrending();
+        }
+
+        async function toggleLike(videoId, button) {
+            if (!AuthService.isAuthenticated()) {
+                alert('Please log in to like videos');
+                return;
+            }
+
+            try {
+                const res = await api.likeVideo(videoId);
+                if (res.success) {
+                    button.classList.toggle('liked');
+                    // Update count in UI if needed
+                    loadTrending(); // Re-fetch to get latest counts
+                } else {
+                    alert(res.message || 'Failed to like/unlike video.');
+                }
+            } catch (e) {
+                console.error('Like failed:', e);
+                alert('An error occurred while liking/unliking the video.');
+            }
+        }
+
+        function refreshTrending() {
+            // Animation for refresh button
+            const refreshBtn = document.querySelector('.refresh-btn');
+            const refreshIcon = refreshBtn.querySelector('i');
+
+            refreshIcon.style.animation = 'spin 1s linear';
+
+            // Simulate loading
+            setTimeout(() => {
+                refreshIcon.style.animation = 'none';
+                loadTrending();
+            }, 1000);
+        }
+
+        // Add spin animation for refresh
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadTrending);
+    </script>
+</body>
+
+</html>
+```

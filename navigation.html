@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhuban Navigation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 700px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+        p {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+        .links {
+            display: grid;
+            gap: 16px;
+        }
+        .link {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .link:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .link i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        .status {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .logged-in {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .not-logged-in {
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 18px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Bhuban Platform</h1>
+        <p>Navigate to any app</p>
+        
+        <div class="status" id="status">
+            Checking login status...
+        </div>
+        
+        <div class="links">
+            <a href="index.html" class="link">
+                <i class="fas fa-home"></i>
+                Main App
+            </a>
+            
+            <a href="/Bhuban%20creator%20app/index.html" class="link">
+                <i class="fas fa-video"></i>
+                Creator Studio
+            </a>
+            
+            <a href="http://localhost:8080" class="link" target="_blank">
+                <i class="fas fa-chart-line"></i>
+                Developer Dashboard
+            </a>
+            
+            <a href="login.html" class="link" style="background: linear-gradient(135deg, #FF4500 0%, #ff6b35 100%);">
+                <i class="fas fa-sign-in-alt"></i>
+                Login / Register
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        const statusDiv = document.getElementById('status');
+        
+        if (token && user) {
+            const userData = JSON.parse(user);
+            statusDiv.innerHTML = `
+                <div class="logged-in">✓ Logged in as ${userData.name || 'User'}</div>
+                <div style="color: #6b7280; font-size: 14px; margin-top: 8px;">${userData.email || ''}</div>
+            `;
+        } else {
+            statusDiv.innerHTML = `
+                <div class="not-logged-in">✗ Not logged in</div>
+                <div style="color: #6b7280; font-size: 14px; margin-top: 8px;">Please login to access all features</div>
+            `;
+        }
+    </script>
+</body>
+</html>

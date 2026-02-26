@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Bhuban</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; margin-bottom: 30px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .success { background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .show { display: block; }
+        .link { text-align: center; margin-top: 20px; color: #666; }
+        .link a { color: #667eea; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Bhuban Login</h1>
+        
+        <div class="message error" id="error"></div>
+        <div class="message success" id="success"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" autocomplete="email" required value="test@bhuban.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" autocomplete="current-password" required value="test123">
+            </div>
+
+            <button type="submit" id="login-btn">Login</button>
+        </form>
+
+        <div class="link">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('login-form');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const loginBtn = document.getElementById('login-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+
+            try {
+// DEBUG: console.log('🔐 Attempting login...');
+                
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+// DEBUG: console.log('📦 Response:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                if (data.success && data.token) {
+                    // Store token with all possible keys for compatibility
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('accessToken', data.token);
+                    localStorage.setItem('bhuban_token', data.token);
+                    
+                    // Store user data
+                    const userData = data.user || data.data;
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('bhuban_user', JSON.stringify(userData));
+                    
+// DEBUG: console.log('✅ Login successful!');
+// DEBUG: console.log('👤 User:', userData);
+// DEBUG: console.log('🔑 Token stored');
+
+                    // Check for redirect parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectUrl = urlParams.get('redirect');
+                    
+// DEBUG: console.log('🔍 Redirect URL from params:', redirectUrl);
+                    
+                    successDiv.textContent = '✅ Login successful! Redirecting...';
+                    successDiv.classList.add('show');
+                    
+                    setTimeout(() => {
+                        if (redirectUrl) {
+                            const decodedUrl = decodeURIComponent(redirectUrl);
+// DEBUG: console.log('✅ Redirecting to:', decodedUrl);
+                            window.location.href = decodedUrl;
+                        } else {
+// DEBUG: console.log('⚠️ No redirect URL, going to index.html');
+                            window.location.href = 'index.html';
+                        }
+                    }, 1000);
+                } else {
+                    throw new Error('Invalid response from server');
+                }
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                errorDiv.textContent = '❌ ' + error.message;
+                errorDiv.classList.add('show');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // Check if already logged in
+        const token = localStorage.getItem('token') || localStorage.getItem('bhuban_token');
+        if (token && !window.location.search.includes('logout')) {
+// DEBUG: console.log('✅ Already logged in, checking token...');
+            fetch('http://localhost:5000/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+// DEBUG: console.log('✅ Valid session, redirecting...');
+                    window.location.href = 'index.html';
+                }
+            })
+// DEBUG: .catch(() => console.log('Token invalid, showing login'));
+        }
+    </script>
+</body>
+</html>

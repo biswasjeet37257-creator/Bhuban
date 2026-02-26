@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Video - Bhuban</title>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script>
+        // Check if user is logged in
+        if (!AuthService.requireAuth()) {
+            // requireAuth will redirect if not logged in
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1e1e1e;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF4500, #ff6b35);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .upload-card {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #FF4500, #ff6b35);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .upload-subtitle {
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+
+        .dropzone:hover,
+        .dropzone.dragover {
+            border-color: #FF4500;
+            background: rgba(255, 69, 0, 0.05);
+        }
+
+        .dropzone i {
+            font-size: 64px;
+            color: #FF4500;
+            margin-bottom: 16px;
+        }
+
+        .dropzone h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .dropzone p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 14px;
+            background: #252525;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #FF4500;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .selected-file {
+            display: none;
+            background: #252525;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+
+        .selected-file.active {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 69, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #FF4500;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .remove-file:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .progress-section {
+            display: none;
+            background: #252525;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .progress-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 69, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FF4500;
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .progress-status {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .progress-percent {
+            font-size: 24px;
+            font-weight: 800;
+            color: #FF4500;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FF4500, #ff6b35);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cancel {
+            background: #252525;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #2a2a2a;
+        }
+
+        .btn-publish {
+            background: linear-gradient(135deg, #FF4500, #ff6b35);
+            color: #fff;
+        }
+
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-publish:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-message i {
+            font-size: 48px;
+            color: #10b981;
+            margin-bottom: 12px;
+        }
+
+        .success-message h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #10b981;
+        }
+
+        .success-message p {
+            color: #94a3b8;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #FF4500, #ff6b35);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="logo">BHUBAN</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="upload-card">
+            <!-- User Info Display -->
+            <div id="userInfoBox" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; color: white; display: none;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+                    <div>
+                        <p style="margin: 0; font-weight: bold; font-size: 16px;" id="userName">Loading...</p>
+                        <p style="margin: 0; font-size: 12px; opacity: 0.9;" id="userEmail">Checking authentication...</p>
+                    </div>
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">✅ Videos will be uploaded to this account</p>
+            </div>
+            
+            <h1 class="upload-title">Upload Video</h1>
+            <p class="upload-subtitle">Share your content with the Bhuban community</p>
+
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <h3>Video Uploaded Successfully!</h3>
+                <p>Your video is now processing and will be available soon.</p>
+            </div>
+
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('videoFile').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Click to select video</h3>
+                <p>or drag and drop your video file here</p>
+                <p style="margin-top: 8px; font-size: 12px;">MP4, WebM, or AVI • Max 500MB</p>
+            </div>
+
+            <input type="file" id="videoFile" class="file-input" accept="video/*">
+
+            <div class="selected-file" id="selectedFile">
+                <div class="file-icon">
+                    <i class="fas fa-file-video"></i>
+                </div>
+                <div class="file-info">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+                <button class="remove-file" onclick="removeFile()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-header">
+                    <div class="progress-icon">
+                        <i class="fas fa-spinner fa-spin" id="progressIcon"></i>
+                    </div>
+                    <div class="progress-info">
+                        <div class="progress-status" id="progressStatus">Uploading...</div>
+                        <div class="progress-percent" id="progressPercent">0%</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+
+            <form id="uploadForm">
+                <!-- Shorts Toggle -->
+                <div class="form-group" style="background: rgba(255, 69, 0, 0.1); border: 1px solid rgba(255, 69, 0, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <label for="isShort" class="form-label" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-bolt" style="color: #FF4500;"></i>
+                                Upload as Short
+                            </label>
+                            <div style="font-size: 12px; color: #94a3b8;">
+                                Vertical videos (9:16), 1-180 seconds, optimized for mobile
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="isShort">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div id="shortsInfo" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 69, 0, 0.2); font-size: 13px; color: #94a3b8;">
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div><i class="fas fa-check" style="color: #10b981;"></i> Max 3 minutes</div>
+                            <div><i class="fas fa-check" style="color: #10b981;"></i> 9:16 or 1:1 ratio</div>
+                            <div><i class="fas fa-check" style="color: #10b981;"></i> Mobile-first</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoTitle" class="form-label">Title (required)</label>
+                    <input type="text" class="form-input" id="videoTitle" placeholder="Enter a catchy title"
+                        autocomplete="organization-title" maxlength="100" required>
+                    <div class="char-count" id="titleCount">0/100</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoDesc" class="form-label">Description</label>
+                    <textarea class="form-textarea" id="videoDesc" placeholder="Tell viewers about your video..."
+                        maxlength="500" autocomplete="off"></textarea>
+                    <div class="char-count" id="descCount">0/500</div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-cancel" onclick="window.location.href='index.html'">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-publish" id="publishBtn" disabled>
+                        <i class="fas fa-rocket"></i> Publish Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Fallback thumbnail (data URI - always works offline)
+        const FALLBACK_THUMBNAIL = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2220%22%3ENo Thumbnail%3C/text%3E%3C/svg%3E';
+
+        let selectedFile = null;
+
+        // File input change handler
+        document.getElementById('videoFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        // Drag and drop handlers
+        const dropzone = document.getElementById('dropzone');
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                handleFileSelect(file);
+            }
+        });
+
+        function handleFileSelect(file) {
+            // Check file size (500MB limit)
+            const MAX_SIZE = 500 * 1024 * 1024; // 500MB in bytes
+            if (file.size > MAX_SIZE) {
+                alert('File is too large. Maximum size is 500MB.');
+                document.getElementById('videoFile').value = ''; // Clear input
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show selected file
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('selectedFile').classList.add('active');
+            document.getElementById('dropzone').style.display = 'none';
+
+            // Auto-detect if video should be a Short based on aspect ratio
+            autoDetectShort(file);
+
+            // Enable publish button if title is filled
+            checkFormValidity();
+        }
+
+        // Auto-detect Shorts based on aspect ratio
+        function autoDetectShort(file) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            
+            video.onloadedmetadata = function() {
+                window.URL.revokeObjectURL(video.src);
+                
+                const width = video.videoWidth;
+                const height = video.videoHeight;
+                const duration = video.duration;
+                const aspectRatio = width / height;
+                
+                // YouTube Shorts logic: Mobile-sized video (height > width)
+                const isMobileSized = height > width;
+                
+                // Check if aspect ratio is 9:16 (vertical) or 1:1 (square)
+                const is9_16 = Math.abs(aspectRatio - (9/16)) < 0.1;
+                const is1_1 = Math.abs(aspectRatio - 1) < 0.1;
+                const isShortDuration = duration > 0 && duration <= 180;
+                
+                // A video is a Short if it's mobile-sized OR has Short aspect ratio
+                const isShort = (isMobileSized || is9_16 || is1_1) && isShortDuration;
+                
+                console.log('📹 Video Analysis:');
+                console.log(`   Resolution: ${width}x${height}`);
+                console.log(`   Aspect Ratio: ${aspectRatio.toFixed(2)}`);
+                console.log(`   Mobile-Sized: ${isMobileSized ? 'YES (height > width)' : 'NO'}`);
+                console.log(`   Duration: ${Math.round(duration)}s`);
+                console.log(`   Is Short: ${isShort ? 'YES ✅' : 'NO ❌'}`);
+                
+                // Auto-check Short checkbox if criteria met
+                if (isShort) {
+                    document.getElementById('isShort').checked = true;
+                    
+                    // Show notification
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #10b981, #059669);
+                        color: white;
+                        padding: 16px 24px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        z-index: 10000;
+                        animation: slideIn 0.3s ease;
+                    `;
+                    notification.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-bolt" style="font-size: 20px;"></i>
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">📱 Mobile Short Detected!</div>
+                                <div style="font-size: 13px; opacity: 0.9;">${width}x${height} • ${Math.round(duration)}s</div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.style.animation = 'slideOut 0.3s ease';
+                        setTimeout(() => notification.remove(), 300);
+                    }, 3000);
+                }
+            };
+            
+            video.src = URL.createObjectURL(file);
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('selectedFile').classList.remove('active');
+            document.getElementById('dropzone').style.display = 'block';
+            document.getElementById('videoFile').value = '';
+            checkFormValidity();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Character counters
+        document.getElementById('videoTitle').addEventListener('input', function () {
+            document.getElementById('titleCount').textContent = this.value.length + '/100';
+            checkFormValidity();
+        });
+
+        document.getElementById('videoDesc').addEventListener('input', function () {
+            document.getElementById('descCount').textContent = this.value.length + '/500';
+        });
+        
+        // Shorts toggle handler
+        document.getElementById('isShort').addEventListener('change', function() {
+            const shortsInfo = document.getElementById('shortsInfo');
+            shortsInfo.style.display = this.checked ? 'block' : 'none';
+            
+            if (this.checked) {
+                console.log('✅ Shorts mode enabled - Video will be validated for 1-180s duration and 9:16 or 1:1 aspect ratio');
+            }
+        });
+
+        function checkFormValidity() {
+            const title = document.getElementById('videoTitle').value.trim();
+            const publishBtn = document.getElementById('publishBtn');
+            publishBtn.disabled = !(selectedFile && title.length > 0);
+        }
+
+        // Load and display current user info
+        async function loadUserInfo() {
+            const token = typeof AuthService !== 'undefined' ? AuthService.getToken() : (localStorage.getItem('accessToken') || localStorage.getItem('token'));
+            
+            if (!token) {
+                // Not logged in - redirect to login
+                window.location.href = 'login-simple.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.data;
+                    
+                    // Display user info
+                    document.getElementById('userName').textContent = user.name;
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('userInfoBox').style.display = 'block';
+                    
+                    console.log('✅ Logged in as:', user.name, '(', user.email, ')');
+                    console.log('📹 Videos will be uploaded to user ID:', user._id);
+                } else {
+                    // Token invalid - redirect to login
+                    console.error('❌ Authentication failed');
+                    alert('Your session has expired. Please login again.');
+                    window.location.href = 'login-simple.html';
+                }
+            } catch (error) {
+                console.error('❌ Error loading user info:', error);
+                alert('Error checking authentication. Please login again.');
+                window.location.href = 'login-simple.html';
+            }
+        }
+
+        // Load user info on page load
+        window.addEventListener('load', loadUserInfo);
+
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!selectedFile) {
+                alert('Please select a video file');
+                return;
+            }
+
+            const title = document.getElementById('videoTitle').value.trim();
+            const description = document.getElementById('videoDesc').value.trim();
+            const isShort = document.getElementById('isShort').checked;
+
+            if (!title) {
+                alert('Please enter a title');
+                return;
+            }
+
+            // Validate Shorts requirements
+            if (isShort && selectedFile) {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                
+                video.onloadedmetadata = function() {
+                    window.URL.revokeObjectURL(video.src);
+                    const duration = video.duration;
+                    const aspectRatio = video.videoWidth / video.videoHeight;
+                    
+                    // Check duration (1-180 seconds)
+                    if (duration < 1 || duration > 180) {
+                        alert(`Shorts must be between 1 and 180 seconds. Your video is ${Math.round(duration)} seconds.`);
+                        document.getElementById('publishBtn').disabled = false;
+                        return;
+                    }
+                    
+                    // Check aspect ratio (9:16 or 1:1)
+                    const is9_16 = Math.abs(aspectRatio - (9/16)) < 0.1;
+                    const is1_1 = Math.abs(aspectRatio - 1) < 0.1;
+                    
+                    if (!is9_16 && !is1_1) {
+                        const confirm = window.confirm(
+                            `Shorts work best with 9:16 (vertical) or 1:1 (square) aspect ratio.\n` +
+                            `Your video is ${video.videoWidth}x${video.videoHeight}.\n\n` +
+                            `Continue anyway?`
+                        );
+                        if (!confirm) {
+                            document.getElementById('publishBtn').disabled = false;
+                            return;
+                        }
+                    }
+                    
+                    // Proceed with upload
+                    proceedWithUpload(title, description, isShort);
+                };
+                
+                video.src = URL.createObjectURL(selectedFile);
+                return; // Wait for validation
+            }
+            
+            // Regular video upload
+            proceedWithUpload(title, description, isShort);
+        });
+        
+        async function proceedWithUpload(title, description, isShort) {
+
+            // Get Auth Token natively from AuthService
+            const token = typeof AuthService !== 'undefined' ? AuthService.getToken() : (localStorage.getItem('accessToken') || localStorage.getItem('token'));
+            if (!token) {
+                alert('Please login to upload videos');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Show progress
+            document.getElementById('progressSection').classList.add('active');
+            document.getElementById('publishBtn').disabled = true;
+
+            const formData = new FormData();
+            formData.append('video', selectedFile);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('isShort', isShort);
+            
+            // Add video metadata for Shorts
+            if (isShort) {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = function() {
+                    const aspectRatio = video.videoWidth / video.videoHeight;
+                    const is9_16 = Math.abs(aspectRatio - (9/16)) < 0.1;
+                    formData.append('aspectRatio', is9_16 ? '9:16' : '1:1');
+                    formData.append('duration', Math.round(video.duration));
+                };
+                video.src = URL.createObjectURL(selectedFile);
+            }
+
+            try {
+                const xhr = new XMLHttpRequest();
+
+                // Progress tracking
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressPercent').textContent = percent + '%';
+                        document.getElementById('progressBar').style.width = percent + '%';
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        // Success
+                        document.getElementById('progressIcon').className = 'fas fa-check-circle';
+                        document.getElementById('progressStatus').textContent = 'Upload Complete!';
+                        document.getElementById('progressPercent').textContent = '100%';
+                        document.getElementById('progressBar').style.width = '100%';
+
+                        // Save to localStorage for profile page
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            const video = response.data || response;
+
+                            let uploads = JSON.parse(localStorage.getItem('bhuban_uploads') || '[]');
+                            uploads.unshift({
+                                id: video._id || video.id,
+                                title: video.title,
+                                thumbnail: video.thumbnail || video.thumbnailUrl || FALLBACK_THUMBNAIL,
+                                views: 0,
+                                likes: 0,
+                                createdAt: new Date().toISOString(),
+                                visibility: 'Public',
+                                quality: 'HD'
+                            });
+                            localStorage.setItem('bhuban_uploads', JSON.stringify(uploads));
+                            
+                            // CRITICAL: Clear video cache to force refresh
+                            localStorage.removeItem('bhuban_videos');
+                            console.log('✅ Cleared video cache - main app will fetch fresh data');
+                            
+                            // Trigger refresh event for main app
+                            localStorage.setItem('videoUploaded', Date.now().toString());
+                            console.log('✅ Triggered videoUploaded event');
+                            
+                            // Also dispatch custom event
+                            window.dispatchEvent(new CustomEvent('videoUploaded', {
+                                detail: { videoId: video._id || video.id }
+                            }));
+                        } catch (e) {
+                            console.error('Failed to save upload to local profile:', e);
+                        }
+
+                        // Show success message
+                        setTimeout(() => {
+                            document.getElementById('progressSection').classList.remove('active');
+                            document.getElementById('successMessage').classList.add('active');
+
+                            // Redirect after 3 seconds with upload flag
+                            setTimeout(() => {
+                                window.location.href = 'index.html?uploaded=true';
+                            }, 3000);
+                        }, 1000);
+                    } else {
+                        // Parse error response if possible
+                        let errorMsg = 'Upload failed';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.error || response.message) {
+                                errorMsg = response.error || response.message;
+                            }
+                        } catch (e) {
+                            // Ignore JSON parse error
+                        }
+
+                        console.error('Upload failed with status:', xhr.status);
+                        console.error('Response:', xhr.responseText);
+
+                        alert(errorMsg);
+                        document.getElementById('progressSection').classList.remove('active');
+                        document.getElementById('publishBtn').disabled = false;
+                        document.getElementById('progressStatus').textContent = 'Upload Failed';
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    console.error('Network error during upload');
+                    alert('Network error. Please check your connection and try again.');
+                    document.getElementById('progressSection').classList.remove('active');
+                    document.getElementById('publishBtn').disabled = false;
+                });
+
+                // Use correct API endpoint from config or relative path
+                const apiBase = typeof BhubanConfig !== 'undefined' && BhubanConfig.api ? BhubanConfig.api.baseUrl : 'http://localhost:5000';
+                xhr.open('POST', `${apiBase}/api/videos`);
+
+                // Add Authorization Header
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+                xhr.send(formData);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+                document.getElementById('progressSection').classList.remove('active');
+                document.getElementById('publishBtn').disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

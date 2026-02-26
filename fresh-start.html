@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading Bhuban...</title>
+    <script>
+        // Clear all cache and reload
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Force reload to index with no cache
+        setTimeout(() => {
+            window.location.href = 'index.html?' + Date.now();
+        }, 100);
+    </script>
+</head>
+<body>
+    <h1>Clearing cache and reloading...</h1>
+</body>
+</html>

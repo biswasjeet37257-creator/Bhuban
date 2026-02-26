@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlists | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .playlists-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .playlist-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        .create-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .filter-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .playlists-container {
+            padding: 0 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .playlist-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .playlist-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .playlist-thumbnail {
+            position: relative;
+            height: 150px;
+            background: linear-gradient(45deg, #ff6b35, #ff006e);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 2px;
+            padding: 2px;
+        }
+
+        .thumbnail-item {
+            background: #333;
+            overflow: hidden;
+        }
+
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .playlist-info {
+            padding: 15px;
+        }
+
+        .playlist-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .playlist-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .playlist-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 15px;
+            min-height: 36px;
+        }
+
+        .playlist-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .play-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .play-btn:hover {
+            background: #ff521a;
+        }
+
+        .more-btn {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .more-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .browse-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .browse-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) {
+            .playlist-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .playlist-controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Enhanced touch feedback */
+        .playlist-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .action-btn:focus,
+        .create-btn:focus,
+        .filter-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="playlists-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">Playlists</div>
+        <div style="flex: 1;"></div>
+        <i data-lucide="search" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="playlist-controls">
+        <button class="create-btn" onclick="openCreateModal()">
+            <i data-lucide="plus"></i> Create Playlist
+        </button>
+        <button class="filter-btn active" onclick="filterPlaylists('all')">All</button>
+        <button class="filter-btn" onclick="filterPlaylists('public')">Public</button>
+        <button class="filter-btn" onclick="filterPlaylists('private')">Private</button>
+    </div>
+
+    <div class="playlists-container">
+        <div class="playlist-grid" id="playlists-container">
+            <!-- Playlists will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Create Playlist Modal -->
+    <div class="modal" id="create-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create New Playlist</div>
+                <button class="close-btn" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <form id="create-playlist-form">
+                <div class="form-group">
+                    <label for="playlist-title" class="form-label">Title</label>
+                    <input type="text" class="form-input" id="playlist-title" autocomplete="off" required
+                        placeholder="Enter playlist title">
+                </div>
+                <div class="form-group">
+                    <label for="playlist-description" class="form-label">Description</label>
+                    <textarea class="form-textarea" id="playlist-description"
+                        placeholder="Describe your playlist"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="playlist-privacy" class="form-label">Privacy</label>
+                    <select class="form-input" id="playlist-privacy">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                        <option value="unlisted">Unlisted</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Create Playlist</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sample data - in real app this would come from API
+        let playlistsData = [
+            {
+                id: 1,
+                title: "Tech Reviews 2024",
+                description: "Latest tech reviews and unboxings",
+                videoCount: 24,
+                privacy: "public",
+                createdAt: "2024-01-15",
+                thumbnails: [
+                    "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=200",
+                    "https://images.unsplash.com/photo-1478416432160-dc816ca2911a?w=200",
+                    "https://images.unsplash.com/photo-1517336712461-48116f39846b?w=200",
+                    "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=200"
+                ]
+            },
+            {
+                id: 2,
+                title: "Coding Tutorials",
+                description: "Programming tutorials and coding tips",
+                videoCount: 18,
+                privacy: "public",
+                createdAt: "2024-01-10",
+                thumbnails: [
+                    "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=200",
+                    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=200",
+                    "https://images.unsplash.com/photo-1517336712461-48116f39846b?w=200",
+                    "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=200"
+                ]
+            },
+            {
+                id: 3,
+                title: "Gaming Highlights",
+                description: "Best gaming moments and gameplay",
+                videoCount: 32,
+                privacy: "private",
+                createdAt: "2024-01-05",
+                thumbnails: [
+                    "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=200",
+                    "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=200",
+                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+                ]
+            }
+        ];
+
+        function renderPlaylists() {
+            const container = document.getElementById('playlists-container');
+
+            if (playlistsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="list"></i>
+                        <h3>No Playlists Yet</h3>
+                        <p>Create your first playlist to organize your favorite videos</p>
+                        <button class="browse-btn" onclick="openCreateModal()">
+                            Create Playlist
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = playlistsData.map(playlist => `
+                <div class="playlist-card" onclick="viewPlaylist(${playlist.id})">
+                    <div class="playlist-thumbnail">
+                        ${playlist.thumbnails.map((thumb, index) => `
+                            <div class="thumbnail-item">
+                                <img src="${thumb}" alt="Thumbnail ${index + 1}">
+                            </div>
+                        `).join('')}
+                        <div class="video-count">${playlist.videoCount} videos</div>
+                    </div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">${playlist.title}</div>
+                        <div class="playlist-meta">
+                            ${playlist.privacy === 'private' ? 'Private' : 'Public'} • Created ${playlist.createdAt}
+                        </div>
+                        <div class="playlist-description">${playlist.description}</div>
+                        <div class="playlist-actions">
+                            <button class="action-btn play-btn" onclick="event.stopPropagation(); playPlaylist(${playlist.id})">
+                                <i data-lucide="play"></i> Play
+                            </button>
+                            <button class="action-btn more-btn" onclick="event.stopPropagation(); showPlaylistOptions(${playlist.id})">
+                                <i data-lucide="more-horizontal"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function openCreateModal() {
+            document.getElementById('create-modal').style.display = 'flex';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('create-modal').style.display = 'none';
+            document.getElementById('create-playlist-form').reset();
+        }
+
+        function viewPlaylist(playlistId) {
+            // In a real app, this would navigate to the playlist view page
+            const playlist = playlistsData.find(p => p.id === playlistId);
+            if (playlist) {
+                alert(`Viewing playlist: ${playlist.title}\n${playlist.videoCount} videos`);
+            }
+        }
+
+        function playPlaylist(playlistId) {
+            const playlist = playlistsData.find(p => p.id === playlistId);
+            if (playlist) {
+                // Show playlist player overlay
+                showPlaylistPlayer(playlist);
+            }
+        }
+
+        function showPlaylistPlayer(playlist) {
+            const playerOverlay = document.createElement('div');
+            playerOverlay.className = 'video-player-overlay';
+            playerOverlay.innerHTML = `
+                <div class="player-content">
+                    <div style="padding: 20px;">
+                        <h2 style="color: white; margin-bottom: 10px;">${playlist.title}</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">${playlist.videoCount} videos • ${playlist.privacy}</p>
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                ${playlist.thumbnails.slice(0, 4).map((thumb, idx) => `
+                                    <img src="${thumb}" alt="Thumbnail \${idx+1}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 6px;">
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <button class="action-btn play-btn" onclick="alert('Playing playlist: \${playlist.title}')">
+                                <i data-lucide="play"></i> Play All
+                            </button>
+                            <button class="action-btn" onclick="alert('Shuffle playlist: \${playlist.title}')">
+                                <i data-lucide="shuffle"></i> Shuffle
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn" onclick="alert('Add to queue: \${playlist.title}')">
+                                <i data-lucide="list-plus"></i> Queue
+                            </button>
+                            <button class="action-btn play-btn" onclick="this.parentElement.parentElement.parentElement.remove(); lucide.createIcons();">
+                                <i data-lucide="x"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(playerOverlay);
+            lucide.createIcons();
+        }
+
+        function showPlaylistOptions(playlistId) {
+            const playlist = playlistsData.find(p => p.id === playlistId);
+            if (playlist) {
+                const options = [
+                    'View playlist',
+                    'Play all',
+                    'Add to queue',
+                    'Share',
+                    'Delete'
+                ];
+
+                const choice = prompt(`Playlist: ${playlist.title}\n\nOptions:\n${options.map((opt, i) => `${i + 1}. ${opt}`).join('\n')}\n\nEnter option number:`);
+
+                switch (choice) {
+                    case '1':
+                        viewPlaylist(playlistId);
+                        break;
+                    case '2':
+                        playPlaylist(playlistId);
+                        break;
+                    case '5':
+                        if (confirm(`Delete playlist "${playlist.title}"?`)) {
+                            const index = playlistsData.findIndex(p => p.id === playlistId);
+                            if (index > -1) {
+                                playlistsData.splice(index, 1);
+                                renderPlaylists();
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+        function filterPlaylists(filter) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // In a real implementation, this would filter the playlists
+            // For now, we'll just re-render all data
+            renderPlaylists();
+        }
+
+        // Form submission
+        document.getElementById('create-playlist-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const title = document.getElementById('playlist-title').value;
+            const description = document.getElementById('playlist-description').value;
+            const privacy = document.getElementById('playlist-privacy').value;
+
+            const newPlaylist = {
+                id: Date.now(),
+                title: title,
+                description: description,
+                videoCount: 0,
+                privacy: privacy,
+                createdAt: new Date().toISOString().split('T')[0],
+                thumbnails: [
+                    'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=200',
+                    'https://images.unsplash.com/photo-1517336712461-48116f39846b?w=200',
+                    'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=200',
+                    'https://images.unsplash.com/photo-1478416432160-dc816ca2911a?w=200'
+                ]
+            };
+
+            playlistsData.push(newPlaylist);
+            renderPlaylists();
+            closeCreateModal();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('create-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeCreateModal();
+            }
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlaylists();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>

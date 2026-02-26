@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - Bhuban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .help-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .help-card {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .help-card:hover {
+            background: #2a2a2a;
+            transform: translateY(-5px);
+        }
+
+        .help-card i {
+            font-size: 40px;
+            color: #ff4500;
+            margin-bottom: 15px;
+        }
+
+        .help-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .help-card p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .faq-section {
+            margin: 40px 0;
+        }
+
+        .faq-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .faq-item {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .faq-answer {
+            margin-top: 15px;
+            color: #aaa;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .back-link {
+            color: #ff4500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="header">
+            <h1>Help Center</h1>
+            <p>Find answers and get support</p>
+        </div>
+
+        <div class="search-box">
+            <label for="helpSearch"
+                style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Search
+                help articles</label>
+            <input type="text" id="helpSearch" name="helpSearch" placeholder="Search for help..." autocomplete="off">
+            <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+
+        <div class="help-categories">
+            <div class="help-card">
+                <i class="fas fa-play-circle"></i>
+                <h3>Watching Videos</h3>
+                <p>Learn how to watch and interact with videos</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-upload"></i>
+                <h3>Uploading Content</h3>
+                <p>Guide to uploading and managing your videos</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-user-circle"></i>
+                <h3>Account Settings</h3>
+                <p>Manage your account and preferences</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Privacy & Safety</h3>
+                <p>Learn about privacy and security features</p>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I upload a video?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Click the upload button in the header, select your video file, add a title and description, then
+                    click "Upload Video". Your video will be processed and published to your channel.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I change my profile picture?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Go to your profile settings by clicking your avatar, then select "Profile Settings". Click on your
+                    current profile picture to upload a new one.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I delete a video?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Go to Creator Studio, click on "Content", find the video you want to delete, click the three dots
+                    menu, and select "Delete". Confirm the deletion.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I subscribe to a channel?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Visit any channel page or watch a video, then click the "Subscribe" button below the video or on the
+                    channel page. You'll receive notifications about new uploads.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I enable dark mode?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Go to Settings, find the "Appearance" section, and select "Dark" from the theme dropdown. Your
+                    preference will be saved automatically.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFAQ(this)">
+                <div class="faq-question">
+                    <span>How do I report inappropriate content?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Click the three dots menu on any video, select "Report", choose the reason for reporting, and
+                    submit. Our team will review the content.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            element.classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

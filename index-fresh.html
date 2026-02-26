@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <h1>Clearing cache and redirecting...</h1>
+    <script>
+        // Clear all cache
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Redirect with cache-busting
+        setTimeout(() => {
+            window.location.href = 'index.html?nocache=' + Date.now();
+        }, 1000);
+    </script>
+</body>
+</html>

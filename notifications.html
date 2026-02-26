@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .header {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header i {
+            cursor: pointer;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab:not(.active):hover {
+            background: #2a2a3e;
+        }
+
+        .notif-list {
+            padding: 10px;
+        }
+
+        .notif-item {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .notif-item:hover {
+            background: #2a2a3e;
+            transform: translateY(-2px);
+        }
+
+        .notif-item.unread {
+            background: #2a2a3e;
+            border-left: 3px solid var(--accent);
+        }
+
+        .notif-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notif-icon.like {
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--accent);
+        }
+
+        .notif-icon.comment {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .notif-icon.subscribe {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+        }
+
+        .notif-icon.upload {
+            background: rgba(255, 214, 10, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .notif-content {
+            flex: 1;
+        }
+
+        .notif-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+
+        .notif-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .unread-badge {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            right: 15px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .mark-read-btn {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-weight: 700;
+            cursor: pointer;
+            margin: 10px 20px;
+        }
+
+        /* Enhanced touch feedback */
+        .notif-item:active {
+            transform: scale(0.98);
+        }
+
+        /* Improved accessibility */
+        .tab:focus,
+        .notif-item:focus,
+        .mark-read-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Improved modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div style="flex: 1;">
+            <div class="page-title">
+                <i data-lucide="bell"></i>
+                Notifications
+            </div>
+            <p style="font-size:13px; color:var(--text-secondary);" id="unread-count">0 unread</p>
+        </div>
+        <i data-lucide="check-check" onclick="markAllRead()" style="cursor:pointer;"
+            title="Mark all as read"></i>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="filterNotifs('all')">All</div>
+        <div class="tab" onclick="filterNotifs('likes')">Likes</div>
+        <div class="tab" onclick="filterNotifs('comments')">Comments</div>
+        <div class="tab" onclick="filterNotifs('subscribers')">Subscribers</div>
+        <div class="tab" onclick="filterNotifs('uploads')">Uploads</div>
+    </div>
+
+    <div class="notif-list" id="notif-list"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // Generate sample notifications
+        const notifications = [
+            { id: 1, type: 'like', text: '<strong>TechMaster</strong> liked your video "Apple Vision Pro: The Tech Future"', time: '2 hours ago', unread: true },
+            { id: 2, type: 'comment', text: '<strong>Sarah Chen</strong> commented: "Amazing quality! What camera did you use?"', time: '3 hours ago', unread: true },
+            { id: 3, type: 'subscribe', text: '<strong>Gaming World</strong> subscribed to your channel', time: '5 hours ago', unread: true },
+            { id: 4, type: 'like', text: '<strong>MKBHD</strong> and <strong>15 others</strong> liked your video', time: '6 hours ago', unread: false },
+            { id: 5, type: 'comment', text: '<strong>Alex Rivera</strong> replied to your comment', time: '8 hours ago', unread: false },
+            { id: 6, type: 'upload', text: '<strong>Bhuban Labs</strong> uploaded a new video', time: '1 day ago', unread: false },
+            { id: 7, type: 'like', text: '<strong>NatureFocus</strong> liked your comment', time: '1 day ago', unread: false },
+            { id: 8, type: 'subscribe', text: 'You reached <strong>1,000 subscribers!</strong> 🎉', time: '2 days ago', unread: false },
+            { id: 9, type: 'comment', text: '<strong>Code Master</strong> mentioned you in a comment', time: '2 days ago', unread: false },
+            { id: 10, type: 'upload', text: '<strong>SHREE AI</strong> uploaded "Advanced AI Systems 2026"', time: '3 days ago', unread: false }
+        ];
+
+        // Save to localStorage
+        if (!localStorage.getItem('bhuban_notifications')) {
+            localStorage.setItem('bhuban_notifications', JSON.stringify(notifications));
+        }
+
+        let currentFilter = 'all';
+
+        function renderNotifications() {
+            const notifs = JSON.parse(localStorage.getItem('bhuban_notifications') || '[]');
+            const filtered = currentFilter === 'all'
+                ? notifs
+                : notifs.filter(n => {
+                    if (currentFilter === 'likes') return n.type === 'like';
+                    if (currentFilter === 'comments') return n.type === 'comment';
+                    if (currentFilter === 'subscribers') return n.type === 'subscribe';
+                    if (currentFilter === 'uploads') return n.type === 'upload';
+                    return true;
+                });
+
+            const unreadCount = notifs.filter(n => n.unread).length;
+            document.getElementById('unread-count').innerText = `${unreadCount} unread`;
+
+            const list = document.getElementById('notif-list');
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="bell-off" style="width:60px; height:60px; margin-bottom:15px;"></i>
+                        <h3>No notifications</h3>
+                        <p style="margin-top:10px;">You're all caught up!</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            list.innerHTML = filtered.map(n => `
+                <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="markRead(${n.id})">
+                    <div class="notif-icon ${n.type}">
+                        <i data-lucide="${getIcon(n.type)}" style="width:20px; height:20px;"></i>
+                    </div>
+                    <div class="notif-content">
+                        <div class="notif-text">${n.text}</div>
+                        <div class="notif-time">${n.time}</div>
+                    </div>
+                    ${n.unread ? '<div class="unread-badge"></div>' : ''}
+                    <div class="video-actions" style="margin-left: auto;">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareNotification(${n.id})" title="Share notification">
+                            <i data-lucide="share"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'like': 'thumbs-up',
+                'comment': 'message-circle',
+                'subscribe': 'user-plus',
+                'upload': 'video'
+            };
+            return icons[type] || 'bell';
+        }
+
+        function filterNotifs(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.tab').classList.add('active');
+            renderNotifications();
+        }
+
+        function markRead(id) {
+            const notifs = JSON.parse(localStorage.getItem('bhuban_notifications') || '[]');
+            const notif = notifs.find(n => n.id === id);
+            if (notif) {
+                notif.unread = false;
+                localStorage.setItem('bhuban_notifications', JSON.stringify(notifs));
+                renderNotifications();
+            }
+        }
+
+        function markAllRead() {
+            const notifs = JSON.parse(localStorage.getItem('bhuban_notifications') || '[]');
+            notifs.forEach(n => n.unread = false);
+            localStorage.setItem('bhuban_notifications', JSON.stringify(notifs));
+            renderNotifications();
+        }
+
+        function shareNotification(notificationId) {
+            const notifs = JSON.parse(localStorage.getItem('bhuban_notifications') || '[]');
+            const notification = notifs.find(n => n.id === notificationId);
+            if (notification) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Bhuban Notification',
+                        text: `Notification: ${notification.text}`,
+                        url: window.location.href
+// DEBUG: }).catch(err => console.log('Error sharing:', err));
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(`Notification: ${notification.text}`);
+                    alert('Notification shared to clipboard!');
+                }
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNotifications();
+        });
+    </script>
+</body>
+
+</html>

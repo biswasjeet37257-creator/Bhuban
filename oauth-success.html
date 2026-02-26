@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Successful | Bhuban</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #000, #1a1a1a);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 59, 48, 0.2);
+            border-top-color: #ff3b30;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Login Successful!</h1>
+        <p>Redirecting you to Bhuban...</p>
+        <div class="loader"></div>
+    </div>
+
+    <script src="/shared/unified-auth-system.js"></script>
+    <script>
+        // Get token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (token) {
+// DEBUG: console.log('✅ Token received from Google OAuth');
+            
+            // Fetch user data from backend
+            fetch('http://localhost:5000/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.success && response.data) {
+                    const userData = response.data;
+// DEBUG: console.log('✅ User data from backend:', userData);
+                    
+                    // Save using UnifiedAuth keys directly
+                    localStorage.setItem('bhuban_token', token);
+                    localStorage.setItem('bhuban_user', JSON.stringify({
+                        id: userData._id || userData.id,
+                        name: userData.name,
+                        email: userData.email,
+                        picture: userData.avatar, // Google photo is in 'avatar' field
+                        role: userData.role || 'user'
+                    }));
+                    localStorage.setItem('bhuban_session_expiry', (Date.now() + 86400000).toString());
+                    localStorage.setItem('bhuban_last_sync', Date.now().toString());
+                    
+                    // Also save to old keys for compatibility
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('accessToken', token);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    if (userData.name) {
+                        localStorage.setItem('displayName', userData.name);
+                    }
+                    if (userData.email) {
+                        localStorage.setItem('email', userData.email);
+                    }
+                    if (userData.avatar) {
+                        localStorage.setItem('profilePhoto', userData.avatar);
+                        localStorage.setItem('bhuban_user_photo', userData.avatar);
+// DEBUG: console.log('✅ Profile photo saved:', userData.avatar);
+                    }
+                    if (userData.googleId) {
+                        localStorage.setItem('googleId', userData.googleId);
+                    }
+                    
+// DEBUG: console.log('✅ All data saved to localStorage');
+// DEBUG: console.log('📦 Saved data:', {
+                        token: token.substring(0, 20) + '...',
+                        name: userData.name,
+                        email: userData.email,
+                        hasPhoto: !!userData.avatar
+                    });
+                    
+                    // Trigger sync event for other tabs
+                    localStorage.setItem('bhuban_sync_trigger', Date.now().toString());
+                    localStorage.setItem('bhuban_login_trigger', Date.now().toString());
+                    
+// DEBUG: console.log('✅ Redirecting to index.html...');
+                    
+                    // Redirect to home page
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to fetch user data');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error fetching user data:', error);
+                alert('Error processing login data');
+                window.location.href = 'login.html';
+            });
+        } else {
+            console.error('❌ No token received');
+            alert('No token received');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

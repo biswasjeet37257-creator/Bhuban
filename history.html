@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History | Bhuban</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/shared/config.js"></script>
+    <script src="/shared/auth-service.js"></script>
+    <script src="auth-check.js"></script>
+
+    <!-- Socket.io for real-time notifications -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="api-service.js"></script>
+
+    <!-- New component styles -->
+    <link rel="stylesheet" href="components.css">
+
+    <style>
+        :root {
+            --accent: #ff6b35;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffd60a;
+            --accent-gradient: linear-gradient(135deg, #ff6b35 0%, #ff006e 50%, #ffd60a 100%);
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #fff8f0;
+            --text-secondary: #d4a574;
+            --border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .history-header {
+            padding: 15px 20px;
+            background: #0a0a0e;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        .clear-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #ff521a;
+            transform: scale(1.05);
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent);
+        }
+
+        .filter-btn:hover {
+            background: #2a2a3e;
+        }
+
+        .history-container {
+            padding: 0 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .history-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .history-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .history-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            width: 65%;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .watch-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .history-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .history-item:hover .history-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .watch-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .watch-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .history-controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Video player overlay */
+        .video-player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-content {
+            width: 90%;
+            max-width: 800px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="history-header">
+        <i data-lucide="arrow-left" onclick="window.history.back()" style="cursor: pointer;"></i>
+        <div class="page-title">History</div>
+        <div style="flex: 1;"></div>
+        <i data-lucide="search" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="history-controls">
+        <button class="clear-btn" onclick="clearHistory()">
+            <i data-lucide="trash-2"></i> Clear All History
+        </button>
+        <button class="filter-btn active" onclick="filterHistory('all')">All</button>
+        <button class="filter-btn" onclick="filterHistory('today')">Today</button>
+        <button class="filter-btn" onclick="filterHistory('week')">This Week</button>
+        <button class="filter-btn" onclick="filterHistory('month')">This Month</button>
+    </div>
+
+    <div class="history-container">
+        <div class="history-section" id="history-container">
+            <!-- History items will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample data - in real app this would come from localStorage or API
+        let historyData = []; // No fake data - will load from localStorage/backend
+
+        function groupHistoryByDate() {
+            const grouped = {};
+
+            historyData.forEach(item => {
+                const date = new Date(item.watchedAt);
+                const today = new Date();
+                const diffTime = Math.abs(today - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let group;
+                if (diffDays === 0) {
+                    group = 'Today';
+                } else if (diffDays === 1) {
+                    group = 'Yesterday';
+                } else if (diffDays <= 7) {
+                    group = 'This Week';
+                } else if (diffDays <= 30) {
+                    group = 'This Month';
+                } else {
+                    group = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                }
+
+                if (!grouped[group]) {
+                    grouped[group] = [];
+                }
+                grouped[group].push(item);
+            });
+
+            return grouped;
+        }
+
+        // Helper to bypass Google photo rate limits
+        function getSafePhotoUrl(url) {
+            if (!url || url === 'null' || url === 'undefined') return null;
+            if (url.includes('googleusercontent.com') || url.includes('lh3.google.com') || url.includes('focus-opensocial')) {
+                return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&default=letter&l=9&af`;
+            }
+            return url;
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            const groupedHistory = groupHistoryByDate();
+
+            if (historyData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="clock"></i>
+                        <h3>No Watch History</h3>
+                        <p>Watch videos to see them appear here</p>
+                        <button class="watch-btn" onclick="window.location.href='index.html'">
+                            Start Watching
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = Object.keys(groupedHistory).map(group => `
+                <div class="history-section">
+                    <div class="section-header">
+                        <div class="section-title">${group}</div>
+                        <div class="section-date">${groupedHistory[group].length} videos</div>
+                    </div>
+                    <div class="history-grid">
+                        ${groupedHistory[group].map(video => {
+                const thumb = getSafePhotoUrl(video.thumbnailUrl || video.thumbnail);
+                return `
+                            <div class="history-item">
+                                <div class="video-thumbnail" onclick="window.location.href='watch.html?v=${video._id}'">
+                                    <img src="${thumb}" 
+                                         alt="${video.title}"
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22%3E%3Crect fill=%22%23222%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E';">
+                                    <div class="video-duration">${video.duration || '0:00'}</div>
+                                    ${video.progress < 100 ? `<div class="progress-bar" style="width: ${video.progress}%"></div>` : ''}
+                                </div>
+                                <div class="history-actions">
+                                    <button class="action-btn" onclick="removeFromHistory('${video._id}')" title="Remove from history">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="shareVideo('${video._id}')" title="Share video">
+                                        <i data-lucide="share"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="window.location.href='watch.html?v=${video._id}'" title="Watch again">
+                                        <i data-lucide="play"></i>
+                                    </button>
+                                </div>
+                                <div class="video-info">
+                                    <div class="video-title" onclick="window.location.href='watch.html?v=${video._id}'" style="cursor:pointer;">${video.title}</div>
+                                    <div class="video-channel">${video.user ? video.user.name : 'Unknown Channel'}</div>
+                                    <div class="video-meta">
+                                        <span>${formatCount(video.views || 0)} views</span>
+                                        <div class="watch-time">
+                                            <i data-lucide="clock"></i>
+                                            <span>${video.watchedAt ? formatTimeAgo(new Date(video.watchedAt)) : 'Recently'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+            }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all watch history?')) {
+                historyData = [];
+                renderHistory();
+                localStorage.removeItem('bhuban_history');
+            }
+        }
+
+        function filterHistory(filter) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter history data
+            const now = new Date();
+            let filteredData = historyData;
+
+            if (filter === 'today') {
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                filteredData = historyData.filter(item => {
+                    const itemDate = new Date(item.watchedAt);
+                    return itemDate >= today;
+                });
+            } else if (filter === 'week') {
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                filteredData = historyData.filter(item => {
+                    const itemDate = new Date(item.watchedAt);
+                    return itemDate >= weekAgo;
+                });
+            } else if (filter === 'month') {
+                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                filteredData = historyData.filter(item => {
+                    const itemDate = new Date(item.watchedAt);
+                    return itemDate >= monthAgo;
+                });
+            }
+
+            // Render filtered history
+            renderFilteredHistory(filteredData);
+        }
+
+        function renderFilteredHistory(data) {
+            const container = document.getElementById('history-container');
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #64748b;">
+                        <i data-lucide="clock" style="width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3;"></i>
+                        <h3 style="font-size: 20px; margin-bottom: 8px;">No history found</h3>
+                        <p style="font-size: 14px;">Try a different filter</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // Group by date
+            const grouped = {};
+            data.forEach(item => {
+                const date = new Date(item.watchedAt);
+                const dateKey = date.toDateString();
+                if (!grouped[dateKey]) {
+                    grouped[dateKey] = [];
+                }
+                grouped[dateKey].push(item);
+            });
+
+            // Render grouped history
+            container.innerHTML = Object.entries(grouped).map(([date, videos]) => `
+                <div class="date-group">
+                    <div class="date-header">${formatDateHeader(new Date(date))}</div>
+                    <div class="history-grid">
+                        ${videos.map(video => `
+                            <div class="history-card">
+                                <div class="history-thumbnail">
+                                    <img src="${video.thumbnail}" alt="${video.title}">
+                                    <div class="history-duration">${video.duration}</div>
+                                    ${video.progress ? `
+                                        <div class="history-progress">
+                                            <div class="history-progress-bar" style="width: ${video.progress}%"></div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="history-info">
+                                    <h3 class="history-title">${video.title}</h3>
+                                    <div class="history-meta">
+                                        <span>${video.channel}</span>
+                                        <span>${video.views} views</span>
+                                        <span>${formatTimeAgo(video.watchedAt)}</span>
+                                    </div>
+                                </div>
+                                <div class="history-actions">
+                                    <button onclick="watchAgain('${video.id}')" title="Watch again">
+                                        <i data-lucide="play"></i>
+                                    </button>
+                                    <button onclick="shareVideo('${video.id}')" title="Share">
+                                        <i data-lucide="share-2"></i>
+                                    </button>
+                                    <button onclick="removeFromHistory('${video.id}')" title="Remove">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function removeFromHistory(videoId) {
+            const index = historyData.findIndex(v => v.id === videoId);
+            if (index > -1) {
+                historyData.splice(index, 1);
+                renderHistory();
+                // Save to localStorage
+                localStorage.setItem('bhuban_history', JSON.stringify(historyData));
+            }
+        }
+
+        function watchAgain(videoId) {
+            const video = historyData.find(v => v.id === videoId);
+            if (video) {
+                // Show video player overlay
+                showVideoPlayer(video);
+            }
+        }
+
+        function shareVideo(videoId) {
+            const video = historyData.find(v => v.id === videoId);
+            if (video) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: video.title,
+                        text: `Check out this video: ${video.title} by ${video.channel}`,
+                        url: window.location.href
+// DEBUG: }).catch(err => console.log('Error sharing:', err));
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(window.location.href + '?video=' + videoId);
+                    alert('Link copied to clipboard!');
+                }
+            }
+        }
+
+        function showVideoPlayer(video) {
+            const playerOverlay = document.createElement('div');
+            playerOverlay.className = 'video-player-overlay';
+            playerOverlay.innerHTML = `
+                <div class="player-content">
+                    <div style="position: relative; padding-top: 56.25%;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center;">
+                                <i data-lucide="play" style="width: 60px; height: 60px; color: #ff6b35;"></i>
+                                <p style="color: white; margin-top: 10px;">Playing: ${video.title}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: white; margin-bottom: 10px;">${video.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">${video.channel} • ${video.views} views</p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn play-btn" onclick="this.parentElement.parentElement.parentElement.remove(); lucide.createIcons();">
+                                <i data-lucide="check"></i> OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(playerOverlay);
+            lucide.createIcons();
+        }
+
+        async function loadHistory() {
+            // Check if AuthService is loaded
+            if (typeof AuthService !=== 'undefined' && AuthService.isAuthenticated()) {
+// DEBUG: console.log('📡 Fetching history from API...');
+                try {
+                    const res = await api.getWatchHistory();
+                    if (res.success) {
+                        historyData = res.data;
+                    }
+                } catch (error) {
+                    console.error('Failed to load history from API:', error);
+                    const savedHistory = localStorage.getItem('bhuban_history');
+                    if (savedHistory) historyData = JSON.parse(savedHistory);
+                }
+            } else {
+                const savedHistory = localStorage.getItem('bhuban_history');
+                if (savedHistory) historyData = JSON.parse(savedHistory);
+            }
+
+            renderHistory();
+        }
+
+        function formatCount(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        async function removeFromHistory(videoId) {
+            // In a real app, this would call DELETE /api/videos/history/:id
+            const index = historyData.findIndex(v => v._id === videoId || v.id === videoId);
+            if (index > -1) {
+                historyData.splice(index, 1);
+                renderHistory();
+                localStorage.setItem('bhuban_history', JSON.stringify(historyData));
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadHistory);
+    </script>
+</body>
+
+</html>

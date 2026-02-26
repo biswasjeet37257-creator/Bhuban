@@ -1,0 +1,11 @@
+{
+  "name": "bhuban-video-stream",
+  "version": "1.0.0",
+  "description": "Bhuban Video Streaming Platform",
+  "scripts": {
+    "build": "echo 'No build needed - static HTML'"
+  },
+  "keywords": ["video", "streaming", "youtube"],
+  "author": "Bhuban",
+  "license": "MIT"
+}

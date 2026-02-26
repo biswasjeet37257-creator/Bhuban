@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Creator Studio...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader {
+            text-align: center;
+            color: white;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <h2>Redirecting to Creator Studio...</h2>
+        <p>Loading your dashboard</p>
+    </div>
+    <script>
+        // Redirect to Creator Studio - resolve path properly for file:// protocol
+        (function() {
+            try {
+                // Get the current file's directory
+                const currentUrl = window.location.href;
+                const currentDir = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                
+                // Build target URL: go up one level, then into Bhuban creator app
+                // Handle both file:// and http:// protocols
+                const targetUrl = currentDir + '/../Bhuban%20creator%20app/index.html';
+                
+                // Use location.replace to avoid adding to history
+                window.location.replace(targetUrl);
+            } catch (e) {
+                // Fallback: show manual link if redirect fails
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;">' +
+                    '<h2>Redirect Failed</h2>' +
+                    '<p>Please click below to open Creator Studio:</p>' +
+                    '<a href="/Bhuban%20creator%20app/index.html" style="display:inline-block;padding:15px 30px;background:#667eea;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">Open Creator Studio</a>' +
+                    '</div>';
+            }
+        })();
+    </script>
+</body>
+</html>

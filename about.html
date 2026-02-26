@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Bhuban | Premium Video Sharing Platform</title>
+    <link rel="icon" type="image/png" href="this-is-a-video-sharing-app-like-a-youtube-and-the-1770747539971.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 80px 20px 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 30px;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 59, 48, 0.5);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mission {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .mission h2 {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #ff3b30;
+        }
+
+        .mission p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .cta {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.1), rgba(255, 107, 48, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .cta h2 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff3b30, #ff6b30);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 59, 48, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">
+            <i data-lucide="arrow-left"></i>
+            Back to Home
+        </a>
+
+        <div class="hero">
+            <h1>About Bhuban</h1>
+            <p>A premium video-sharing platform designed for creators and viewers who demand the best experience.</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">4K</div>
+                <div class="stat-label">Video Quality</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Upload Limit</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Streaming</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">AI</div>
+                <div class="stat-label">Powered</div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="video" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>Premium Video Quality</h3>
+                <p>Upload and stream videos in stunning 4K, 2K, HD, and SD quality. Automatic optimization ensures the best viewing experience.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="zap" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>TikTok-Style Shorts</h3>
+                <p>Vertical video format with swipe navigation, perfect for mobile viewing. Engage with likes, comments, and shares.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="mic" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>Voice AI Assistant</h3>
+                <p>Meet Shree, your voice-activated AI companion. Get weather updates, recommendations, and conversational intelligence.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="search" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>Advanced Search</h3>
+                <p>Find exactly what you're looking for with powerful filters for quality, content type, and sorting options.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="users" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>Social Features</h3>
+                <p>Subscribe to channels, comment on videos, like content, and build your community of followers.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="bar-chart" style="width: 32px; height: 32px; color: #fff;"></i>
+                </div>
+                <h3>Creator Analytics</h3>
+                <p>Track views, watch time, engagement, and revenue. Understand your audience with detailed insights.</p>
+            </div>
+        </div>
+
+        <div class="mission">
+            <h2>Our Mission</h2>
+            <p>Bhuban was created to empower creators and delight viewers with a premium video-sharing experience. We believe in:</p>
+            <ul style="margin-left: 20px; margin-top: 20px;">
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Quality First:</strong> Every video deserves to be seen in the best possible quality.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Creator Freedom:</strong> Your content, your rules. We support creators with tools and analytics.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Innovation:</strong> From AI assistants to shorts, we're always pushing boundaries.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Community:</strong> Building connections between creators and viewers worldwide.</li>
+            </ul>
+        </div>
+
+        <div class="mission">
+            <h2>Technology Stack</h2>
+            <p>Bhuban is built with cutting-edge technology:</p>
+            <ul style="margin-left: 20px; margin-top: 20px;">
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Frontend:</strong> Pure HTML5, CSS3, JavaScript with glassmorphism design</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Backend:</strong> Node.js, Express.js, MongoDB</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>AI:</strong> Google Generative AI for intelligent features</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Authentication:</strong> JWT + Google OAuth 2.0</li>
+                <li style="margin-bottom: 12px; line-height: 1.8; color: #ccc;"><strong>Streaming:</strong> Optimized video delivery with range requests</li>
+            </ul>
+        </div>
+
+        <div class="cta">
+            <h2>Join the Bhuban Community</h2>
+            <p style="color: #888; margin-bottom: 20px;">Start creating, watching, and connecting today.</p>
+            <div class="cta-buttons">
+                <a href="signup.html" class="btn btn-primary">
+                    <i data-lucide="user-plus"></i>
+                    Create Account
+                </a>
+                <a href="/Bhuban%20creator%20app/index.html" class="btn btn-secondary">
+                    <i data-lucide="upload"></i>
+                    Upload Video
+                </a>
+                <a href="/Bhuban%20developer%20app/index.html" target="_blank" class="btn btn-secondary" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(139, 92, 246, 0.2)); border-color: #00d4ff;">
+                    <i data-lucide="code"></i>
+                    Developer Dashboard
+                </a>
+                <a href="contact.html" class="btn btn-secondary">
+                    <i data-lucide="mail"></i>
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
